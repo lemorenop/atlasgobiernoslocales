@@ -31,8 +31,8 @@ jobs:
         run: |
           mkdir deploy
           cp -r .next/standalone/* deploy/
-          cp -r .next/static deploy/.next/static
-          cp -r public deploy/public || true
+          if [ -d ".next/static" ]; then cp -r .next/static deploy/.next/static; fi
+          if [ -d "public" ]; then cp -r public deploy/public; fi
           cp package.json deploy/
 
       - name: Deploy a Azure Web App
