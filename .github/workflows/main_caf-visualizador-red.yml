@@ -1,12 +1,9 @@
-# Docs for the Azure Web Apps Deploy action: https://github.com/Azure/webapps-deploy
-# More GitHub Actions for Azure: https://github.com/Azure/actions
-
 name: Deploy Next.js SSR App to Azure Web App
 
 on:
   push:
     branches:
-      - main  # o la rama que uses para producción
+      - main  # Cambiá si tu rama principal tiene otro nombre
 
 jobs:
   build-and-deploy:
@@ -35,10 +32,14 @@ jobs:
           if [ -d "public" ]; then cp -r public deploy/public; fi
           cp package.json deploy/
 
+      - name: Login en Azure
+        uses: azure/login@v1
+        with:
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
+
       - name: Deploy a Azure Web App
         uses: azure/webapps-deploy@v3
         with:
-          app-name: 'caf-visualizador-red'  # reemplazar con tu App Service name exacto
+          app-name: 'caf-visualizador-red'  # Cambiá por el nombre real de tu app en Azure
           slot-name: 'production'
-          publish-profile: ${{ secrets.AZUREAPPSERVICE_PUBLISHPROFILE }}
           package: ./deploy
