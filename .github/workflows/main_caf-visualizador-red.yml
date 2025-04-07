@@ -32,10 +32,12 @@ jobs:
           if [ -d "public" ]; then cp -r public deploy/public; fi
           cp package.json deploy/
 
-      - name: Login en Azure
-        uses: azure/login@v1
+     - name: Login to Azure
+        uses: azure/login@v2
         with:
-          creds: ${{ secrets.AZURE_CREDENTIALS }}
+          client-id: ${{ secrets.AZUREAPPSERVICE_CLIENTID_A38FF4243DC34BE3A29D771FD1677DE6 }}
+          tenant-id: ${{ secrets.AZUREAPPSERVICE_TENANTID_E9615BCF6FAF4C24B44265A73E19883C }}
+          subscription-id: ${{ secrets.AZUREAPPSERVICE_SUBSCRIPTIONID_8D10CCDA0CF24103AF216F00635ECE00 }}
 
       - name: Deploy a Azure Web App
         uses: azure/webapps-deploy@v3
