@@ -29,9 +29,9 @@ jobs:
 
       - name: Preparar contenido standalone para despliegue
         run: |
-          mkdir deploy
+          mkdir -p deploy/.next/static
           cp -r .next/standalone/* deploy/
-          if [ -d ".next/static" ]; then cp -r .next/static deploy/.next/static; fi
+          if [ -d ".next/static" ]; then cp -r .next/static/* deploy/.next/static/; fi
           if [ -d "public" ]; then cp -r public deploy/public; fi
           cp package.json deploy/
 
