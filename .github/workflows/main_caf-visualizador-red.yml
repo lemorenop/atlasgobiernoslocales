@@ -32,7 +32,7 @@ jobs:
           if [ -d "public" ]; then cp -r public deploy/public; fi
           cp package.json deploy/
 
-     - name: Login to Azure
+      - name: Login to Azure
         uses: azure/login@v2
         with:
           client-id: ${{ secrets.AZUREAPPSERVICE_CLIENTID_A38FF4243DC34BE3A29D771FD1677DE6 }}
