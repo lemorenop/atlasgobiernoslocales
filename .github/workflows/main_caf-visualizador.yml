@@ -1,7 +1,7 @@
 # Docs for the Azure Web Apps Deploy action: https://github.com/Azure/webapps-deploy
 # More GitHub Actions for Azure: https://github.com/Azure/actions
 
-name: Build and deploy Node.js app to Azure Web App - caf-visualizador-red
+name: Build and deploy Node.js app to Azure Web App - caf-visualizador
 
 on:
   push:
@@ -30,7 +30,7 @@ jobs:
           npm run test --if-present
 
       - name: Zip artifact for deployment
-        run: zip -r release.zip .next static package.json posts
+        run: zip release.zip ./* -r
 
       - name: Upload artifact for deployment job
         uses: actions/upload-artifact@v4
@@ -60,15 +60,15 @@ jobs:
       - name: Login to Azure
         uses: azure/login@v2
         with:
-          client-id: ${{ secrets.AZUREAPPSERVICE_CLIENTID_A0782C8CDFAE41EBB4F98AAB3D13D827 }}
-          tenant-id: ${{ secrets.AZUREAPPSERVICE_TENANTID_6FA20AAF9B574F6387DE6A663ACBF7D6 }}
-          subscription-id: ${{ secrets.AZUREAPPSERVICE_SUBSCRIPTIONID_F8EA2E6E1B254667B8CFE0B553418403 }}
+          client-id: ${{ secrets.AZUREAPPSERVICE_CLIENTID_E97C32E7AC1644E6AD861567254DD9C5 }}
+          tenant-id: ${{ secrets.AZUREAPPSERVICE_TENANTID_18396E3D053F4C05BA565B5D6AE489C0 }}
+          subscription-id: ${{ secrets.AZUREAPPSERVICE_SUBSCRIPTIONID_0A3C88F16D9746638554182448221D6C }}
 
       - name: 'Deploy to Azure Web App'
         id: deploy-to-webapp
         uses: azure/webapps-deploy@v3
         with:
-          app-name: 'caf-visualizador-red'
+          app-name: 'caf-visualizador'
           slot-name: 'Production'
           package: .
           
