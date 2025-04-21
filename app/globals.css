@@ -1,16 +1,152 @@
+/* @tailwind utilities; */
 @import "tailwindcss";
+@theme {
+  --spacing-xxs: var(--spacing-xxs);
+  --spacing-xs: var(--spacing-xs);
+  --spacing-s: var(--spacing-s);
+  --spacing-m: var(--spacing-m);
+  --spacing-l: var(--spacing-l);
+  --spacing-xl: var(--spacing-xl);
+  --spacing-2xl: var(--spacing-2xl);
+  --spacing-3xl: var(--spacing-3xl);
+  --space-4xl: var(--space-4xl);
+  --color-blue-CAF: var(--color-blue-CAF);
+  --color-black: var(--color-black);
+  --color-background: var(--color-background);
+  --color-cyan: var(--color-cyan);
+  --color-blue: var(--color-blue);
+  --color-navy: var(--color-navy);
+  --color-placeholder: var(--color-placeholder);
+}
+@layer base {
+  .text-black{
+    color: var(--color-black);
+  }
+  .text-h1 {
+    font-size: var(--h1-size);
+    line-height: var(--h1-line-height);
+  }
+
+  .text-h2 {
+    font-size: var(--h2-size);
+    line-height: var(--h2-line-height);
+  }
+
+  .text-h3 {
+    font-size: var(--h3-size);
+    line-height: var(--h3-line-height);
+  }
+
+  .text-h4 {
+    font-size: var(--h4-size);
+    line-height: var(--h4-line-height);
+  }
+
+  .text-p {
+    font-size: var(--paragraph-size);
+    line-height: var(--paragraph-line-height);
+  }
+
+  .paragraph-small {
+    font-size: var(--paragraph-small-size);
+    line-height: var(--paragraph-small-line-height);
+  }
+
+  .description {
+    font-size: var(--description-size);
+    line-height: var(--description-line-height);
+  }
+
+  .label {
+    font-size: var(--label-size);
+    line-height: var(--label-line-height);
+  }
+
+  .tooltip {
+    font-size: var(--tooltip-size);
+    line-height: var(--tooltip-line-height);
+  }
+
+  .caption {
+    font-size: var(--caption-size);
+    line-height: var(--caption-line-height);
+  }
+}
 
 :root {
+  --color-black: #212529;
+  --color-background: #f2f2f2;
+  --color-cyan: #13bdce;
+  --color-blue: #1774ad;
+  --color-navy: #004a80;
+  --color-placeholder: #929292;
+  --color-blue-CAF: #025387;
   --background: #ffffff;
   --foreground: #171717;
+  --spacing-xxs: 0.25rem; /*4px*/
+  --spacing-xs: 0.5rem; /*8px*/  
+  --spacing-s: 8px; /* Valor por defecto (mobile) */
+  --spacing-m: 1rem; /*16px*/
+  --spacing-l: 1.5rem; /*24px*/
+  --spacing-xl: 2rem; /*32px*/
+  --spacing-2xl: 3rem; /*48px*/
+  --spacing-3xl: 4rem; /*64px*/
+  --space-4xl: 6rem; /*96px*/
+  --h1-size: 40px;
+  --h1-line-height: 46px;
+  --h2-size: 28px;
+  --h2-line-height: 40px;
+  --h3-size: 22px;
+  --h3-line-height: 32px;
+  --h4-size: 20px;
+  --h4-line-height: 26px;
+  --paragraph-size: 18px;
+  --paragraph-line-height: 25px;
+  --paragraph-small-size: 16px;
+  --paragraph-small-line-height: 22px;
+  --description-size: 14px;
+  --description-line-height: 22px;
+  --label-size: 12px;
+  --label-line-height: 100%;
+  --tooltip-size: 14px;
+  --tooltip-line-height: 20px;
+  --caption-size: 12px;
+  --caption-line-height: 18px;
+  --button-size: 14px;
+  --button-line-height: 18px;
+  --link-size: 16px;
+  --link-line-height: 24px;
+}
+.franjas-diagonales {
+  width: 100%; /* ajusta según tu necesidad */
+  height: 100%;
+  background-image: repeating-linear-gradient(
+    45deg,
+    var(--color-navy), /* color de la franja */
+    var(--color-navy) 82px,
+    transparent 82px,
+    transparent 164px
+  );
 }
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
+.loader {
+  width: 48px;
+  height: 48px;
+  border: 5px solid #004A80;
+  border-bottom-color: transparent;
+  border-radius: 50%;
+  display: inline-block;
+  box-sizing: border-box;
+  animation: rotation 1s linear infinite;
+  }
+  @keyframes rotation {
+    0% {
+        transform: rotate(0deg);
+    }
+    100% {
+        transform: rotate(360deg);
+    }
+    } 
 
 @media (prefers-color-scheme: dark) {
   :root {
@@ -23,4 +159,22 @@ body {
   background: var(--background);
   color: var(--foreground);
   font-family: Arial, Helvetica, sans-serif;
+}
+
+@media (min-width: 768px) {
+  :root {
+    --spacing-xxs: 0.25rem; /*4px*/
+    --spacing-xs: 0.5rem; /*8px*/
+    --spacing-s: 1rem; /*16px*/
+    --spacing-m: 1.5rem; /*24px*/
+    --spacing-l: 2rem; /*32px*/
+    --spacing-xl: 3rem; /*48px*/
+    --spacing-2xl: 4rem; /*64px*/
+    --spacing-3xl: 6rem; /*96px*/
+    --space-4xl: 7rem; /*112px*/
+    --h2-size: 32px;
+    --h2-line-height: 45px;
+    --h3-size: 24px;
+    --h3-line-height: 34px;
+  }
 }

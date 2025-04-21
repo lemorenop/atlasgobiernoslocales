@@ -1,0 +1,30 @@
+{
+  "navbar": {
+    "home": "Home",
+    "about": "About",
+    "contact": "Contact",
+    "share": "Share",
+    "linkCopied": "Link copied to clipboard!",
+    "copyError": "Failed to copy link"
+  },
+  "home": {
+    "title": "Welcome to our site",
+    "description": "This is a multilingual website"
+  },
+  "about": {
+    "title": "About Us",
+    "description": "We are a company dedicated to providing multilingual solutions for websites."
+  }, 
+  "footer": {
+    "rights": "All rights reserved"
+  },
+  "navigation": {
+    "home": "Home",
+    "about": "About",
+    "contact": "Contact"
+  },
+  "common": {
+    "language": "Language",
+    "selectLanguage": "Select language"
+  }
+} 

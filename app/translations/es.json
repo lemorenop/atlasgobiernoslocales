@@ -1,0 +1,43 @@
+{
+  "navbar": {
+    "home": "Inicio",
+    "about": "Acerca de",
+    "contact": "Contacto",
+    "share": "Compartir",
+    "linkCopied": "¡Enlace copiado al portapapeles!",
+    "copyError": "Error al copiar el enlace"
+  },
+  "home": {
+    "title": "Bienvenido a nuestro sitio",
+    "description": "Este es un sitio web multilingüe"
+  },
+  "about": {
+    "title": "Acerca de nosotros",
+    "description": "Somos una empresa dedicada a proporcionar soluciones multilingües para sitios web."
+  },
+  "contact": {
+    "title": "Contáctanos",
+    "description": "Estamos aquí para ayudarte. Envíanos un mensaje y te responderemos lo antes posible.",
+    "form": {
+      "name": "Nombre",
+      "namePlaceholder": "Tu nombre",
+      "email": "Correo electrónico",
+      "emailPlaceholder": "tu@email.com",
+      "message": "Mensaje",
+      "messagePlaceholder": "Escribe tu mensaje aquí...",
+      "submit": "Enviar mensaje"
+    }
+  },
+  "footer": {
+    "rights": "Todos los derechos reservados"
+  },
+  "navigation": {
+    "home": "Inicio",
+    "about": "Acerca de",
+    "contact": "Contacto"
+  },
+  "common": {
+    "language": "Idioma",
+    "selectLanguage": "Seleccionar idioma"
+  }
+} 

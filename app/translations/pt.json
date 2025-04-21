@@ -1,0 +1,43 @@
+{
+  "navbar": {
+    "home": "Início",
+    "about": "Sobre",
+    "contact": "Contato",
+    "share": "Compartilhar",
+    "linkCopied": "Link copiado para a área de transferência!",
+    "copyError": "Falha ao copiar o link"
+  },
+  "home": {
+    "title": "Bem-vindo ao nosso site",
+    "description": "Este é um site multilíngue"
+  },
+  "about": {
+    "title": "Sobre Nós",
+    "description": "Somos uma empresa dedicada a fornecer soluções multilíngues para sites."
+  },
+  "contact": {
+    "title": "Entre em Contato",
+    "description": "Estamos aqui para ajudar. Envie-nos uma mensagem e responderemos o mais breve possível.",
+    "form": {
+      "name": "Nome",
+      "namePlaceholder": "Seu nome",
+      "email": "E-mail",
+      "emailPlaceholder": "seu@email.com",
+      "message": "Mensagem",
+      "messagePlaceholder": "Escreva sua mensagem aqui...",
+      "submit": "Enviar mensagem"
+    }
+  },
+  "footer": {
+    "rights": "Todos os direitos reservados"
+  },
+  "navigation": {
+    "home": "Início",
+    "about": "Sobre",
+    "contact": "Contato"
+  },
+  "common": {
+    "language": "Idioma",
+    "selectLanguage": "Selecionar idioma"
+  }
+} 

@@ -1,3 +1,40 @@
+# CAF Visualizador Red
+
+## Generación de archivos de datos
+
+Este proyecto incluye un script para generar archivos JSON con datos de gobiernos a partir de hojas de cálculo de Google.
+
+### Requisitos previos
+
+1. Node.js instalado
+2. Dependencias instaladas (`npm install`)
+
+### Scripts disponibles
+
+Para generar el archivo JSON en español:
+
+```bash
+npm run build:es
+```
+
+Para generar los archivos JSON en español, inglés y portugués:
+
+```bash
+npm run build:data
+```
+
+### Estructura de los datos generados
+
+El script genera un archivo JSON con un array de objetos que contienen:
+
+- id: Identificador único del gobierno
+- name: Nombre del gobierno
+- parentName: Nombre del gobierno padre (si existe)
+- countryName: Nombre del país
+- completeName: Descripción completa en el idioma correspondiente
+
+Los archivos se guardan en la carpeta `public/data/`.
+
 This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
 
 ## Getting Started
