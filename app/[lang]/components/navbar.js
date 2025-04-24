@@ -1,49 +1,37 @@
-// "use client";
-
-import { getDictionary } from "@/app/i18n.config";
 import LanguageSwitcher from "./language-switcher";
 import { getTextById } from "@/app/utils/textUtils";
-// import { useEffect, useState } from "react";
-import { fetchNavbarCopy } from "@/app/utils/apiClient";
-import LocalizedLink from "./LocalizedLink";
+import { fetchApi } from "@/app/utils/apiClient";
 import Image from "next/image";
+import Link from "next/link";
+import NavbarDialogs from "./navbarDialogs";
+import SearchBox from "./searchBox";
+import { getHomeCopy } from "@/app/utils/dataFetchers";
 export default async function Navbar({ lang }) {
-  const navbarCopy = await fetchNavbarCopy();
-  // const [navbarCopy, setNavbarCopy] = useState([]);
-  // const [loading, setLoading] = useState(true);
-
-  // useEffect(() => {
-  //   const fetchData = async () => {
-  //     try {
-  //       const data = await fetchNavbarCopy();
-  //       setNavbarCopy(data);
-  //     } catch (error) {
-  //       console.error("Error fetching navbar copy:", error);
-  //     } finally {
-  //       setLoading(false);
-  //     }
-  //   };
-
-  //   fetchData();
-  // }, []);
-
+  const navbarCopy = await fetchApi("navbar-copy");
+  const homeCopyData = await getHomeCopy();
+  const defaulIndicator =
+    lang === "es" ? "poblacion" : lang === "en" ? "population" : "populacao";
   return (
     navbarCopy && (
       <nav className="bg-white text-black py-s px-4 sm:px-6 lg:px-8 w-full">
         <div className="flex items-center justify-between w-full">
-          <LocalizedLink href="/" className="">
+          <Link href={`/${lang}`} className="">
             <Image
-              src="/logo.png"
+              src={`/logo_${lang}.png`}
               alt="CAF Network Visualizer"
               width={240}
               height={40}
               className="object-contain"
             />
-          </LocalizedLink>
+          </Link>
           <div className="hidden md:block">
             <div className=" flex items-center gap-m">
-              <LocalizedLink
-                href="/indicators"
+              {/* <Link
+                href={`/${lang}/${getTextById(
+                  navbarCopy,
+                  "indicators_slug",
+                  lang
+                )}/${defaulIndicator}`}
                 className="flex items center gap-xs  description"
               >
                 <Image
@@ -54,27 +42,70 @@ export default async function Navbar({ lang }) {
                   className="object-contain"
                 />
                 {getTextById(navbarCopy, "indicators", lang)}
-              </LocalizedLink>
-              <LocalizedLink
-                href="/jurisdictions"
-                className={`flex items center gap-xs  description before:content-['${getTextById(
-                  navbarCopy,
-                  "jurisdictions",
-                  lang
-                )}']`}
+              </Link> */}
+              <NavbarDialogs
+                lang={lang}
+                button={
+                  <div
+                    className={`flex items center gap-xs  description cursor-pointer`}
+                  >
+                    {" "}
+                    <Image
+                      src="/jur.png"
+                      alt="about"
+                      width={24}
+                      height={24}
+                      className="object-contain "
+                    />
+                    {getTextById(navbarCopy, "jurisdictions", lang)}
+                  </div>
+                }
               >
-                {" "}
-                <Image
-                  src="/jur.png"
-                  alt="about"
-                  width={24}
-                  height={24}
-                  className="object-contain "
+                {/* <div className="bg-background p-xl flex flex-col gap-[24px] justify-between"> */}
+                {/* <div className="flex flex-col gap-[24px]">
+                    <h2 className="text-h3 font-bold text-navy">
+                      {getTextById(
+                        homeCopyData,
+                        "explore_jurisdiction_title",
+                        lang
+                      )}
+                    </h2>
+                    <p className="text-description text-black">
+                      {getTextById(
+                        homeCopyData,
+                        "explore_jurisdiction_subtitle",
+                        lang
+                      )}
+                    </p>
+                  </div> */}
+                <SearchBox
+                  title={getTextById(
+                    homeCopyData,
+                    "explore_jurisdiction_title",
+                    lang
+                  )}
+                  subtitle={getTextById(
+                    homeCopyData,
+                    "explore_jurisdiction_subtitle",
+                    lang
+                  )}
+                  path={lang === "es" ? "/jurisdicciones" : "jurisdicoes"}
+                  label={getTextById(
+                    homeCopyData,
+                    "explore_jurisdiction_button",
+                    lang
+                  )}
+                  lang={lang}
+                  intro={getTextById(
+                    homeCopyData,
+                    "explore_jurisdiction_input",
+                    lang
+                  )}
                 />
-                {getTextById(navbarCopy, "jurisdictions", lang)}
-              </LocalizedLink>
-              <LocalizedLink
-                href="/about"
+                {/* </div> */}
+              </NavbarDialogs>
+              <Link
+                href={`/${lang}/${getTextById(navbarCopy, "about_slug", lang)}`}
                 className="flex items center gap-xs  description"
               >
                 <Image
@@ -85,8 +116,8 @@ export default async function Navbar({ lang }) {
                   className="object-contain"
                 />
                 {getTextById(navbarCopy, "about", lang)}
-              </LocalizedLink>
-              <LanguageSwitcher lang={lang} />{" "}
+              </Link>
+              <LanguageSwitcher lang={lang} slugs={navbarCopy} />{" "}
             </div>
           </div>{" "}
         </div>

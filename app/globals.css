@@ -70,6 +70,7 @@
   .caption {
     font-size: var(--caption-size);
     line-height: var(--caption-line-height);
+    letter-spacing: 0.96px
   }
 }
 
@@ -126,6 +127,17 @@
     var(--color-navy) 82px,
     transparent 82px,
     transparent 164px
+  );
+}
+.franjas-diagonales-small {
+  width: 100%; /* ajusta según tu necesidad */
+  height: 100%;
+  background-image: repeating-linear-gradient(
+    -45deg,
+    #428DBA, /* color de la franja */
+    #428DBA 53px,
+    transparent 53px,
+    transparent 106px
   );
 }
 

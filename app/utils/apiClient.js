@@ -103,7 +103,14 @@ export async function fetchHomeCopy() {
  * @returns {Promise<Array>} - Array de objetos de la barra de navegación
  */
 export async function fetchNavbarCopy() {
-  const response = await fetch('/api/navbar-copy');
+  const response = await fetch('http://localhost:3000/api/navbar-copy');
+  if (!response.ok) {
+    throw new Error('Error al obtener los datos de la barra de navegación');
+  }
+  return response.json();
+}
+export async function fetchApi(url) {
+  const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/${url}`);
   if (!response.ok) {
     throw new Error('Error al obtener los datos de la barra de navegación');
   }
@@ -166,7 +173,6 @@ export async function fetchPageError() {
  */
 export async function fetchJurisdictionData(slug) {
   const response = await fetch(`/api/jurisdiction/${slug}`);
-  console.log("**",response)
   if (!response.ok) {
     if (response.status === 404) {
       throw new Error('Gobierno no encontrado');

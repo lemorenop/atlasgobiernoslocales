@@ -1,6 +1,6 @@
 "use client"; // si usás App Router
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { Map, Source, Layer, NavigationControl, Popup } from "react-map-gl/mapbox";
 import "mapbox-gl/dist/mapbox-gl.css";
 import * as topojson from "topojson-client";
@@ -12,6 +12,7 @@ import { fetchHomeMapTooltip } from "@/app/utils/apiClient";
 import nivel1Data from "../../../public/maps/nivel_1.json";
 import nivel2Data from "../../../public/maps/nivel_2.json";
 import nivel3Data from "../../../public/maps/nivel_3.json";
+import Loader from "./loader";
 
 export default function MapView({ lang = 'es' }) {
   const [loading, setLoading] = useState(false);
@@ -71,14 +72,22 @@ export default function MapView({ lang = 'es' }) {
     }
   }, []);
 
-
-
-  const [initialViewState, setInitialViewState] = useState({
+  // Store the view state for Latin America
+  const latinAmericaViewState = {
     longitude: -58.3816,
     latitude: -34.6037,
-    zoom: 1,  bounds: [[-116, 31], [-31, -57]], // Adjusted to fit Latin America
+    zoom: 1,
+    bounds: [[-116, 31], [-31, -57]], // Adjusted to fit Latin America
     fitBoundsOptions: { padding: 20 }
-    
+  };
+
+  // Update the initial view state to focus on Brazil
+  const [initialViewState, setInitialViewState] = useState({
+    longitude: -51.9253,
+    latitude: -14.2350,
+    zoom: 4, // Adjusted zoom level for Brazil
+    bounds: [[-74, 5], [-34, -34]], // Adjusted to fit Brazil
+    fitBoundsOptions: { padding: 20 }
   });
 
   // Get tooltip text based on country ISO3 and active language
@@ -101,17 +110,12 @@ export default function MapView({ lang = 'es' }) {
 
   // Handle click events for tooltips
   const onClick = (event) => {
-    const feature = event.features[0];
+    const feature = event.features && event.features[0];
+    console.log( event.features)
     if (feature && feature.properties && feature.properties.GID_0) {
-      // If clicking on the same country, close the tooltip
-      if (selectedCountry === feature.properties.GID_0) {
-        setSelectedCountry(null);
-        setSelectedCoordinates(null);
-      } else {
-        // Otherwise, show the tooltip for the new country
-        setSelectedCountry(feature.properties.GID_0);
-        setSelectedCoordinates([event.lngLat.lng, event.lngLat.lat]);
-      }
+      // Show the tooltip for the new country
+      setSelectedCountry(feature.properties.GID_0);
+      setSelectedCoordinates([event.lngLat.lng, event.lngLat.lat]);
     } else {
       // If clicking on empty space, close the tooltip
       setSelectedCountry(null);
@@ -122,46 +126,89 @@ export default function MapView({ lang = 'es' }) {
   // Layer styles for each level
   const nivel1Layer = {
     id: "nivel1-layer",
-    type: "fill",
+    type: "line",
     paint: {
-      "fill-color": "#627BC1",
-      "fill-opacity": 0.5,
-      "fill-outline-color": "#627BC1",
+      "line-color": "#55C7D5",
+      "line-width": 0.5,
     },
     minzoom: 0,
     maxzoom: 3,
+    interactive: true,
   };
 
   const nivel2Layer = {
     id: "nivel2-layer",
-    type: "fill",
+    type: "line",
     paint: {
-      "fill-color": "#4CAF50",
-      "fill-opacity": 0.5,
-      "fill-outline-color": "#4CAF50",
+      "line-color": "#55C7D5",
+      "line-width": 0.5,
     },
     minzoom: 3,
     maxzoom: 5,
+    interactive: true,
   };
 
   const nivel3Layer = {
     id: "nivel3-layer",
-    type: "fill",
+    type: "line",
     paint: {
-      "fill-color": "#FF9800",
-      "fill-opacity": 0.5,
-      "fill-outline-color": "#FF9800",
+      "line-color": "#55C7D5",
+      "line-width": 0.5,
     },
     minzoom: 5,
     maxzoom: 22,
+    interactive: true,
   };
+  const nivel1LayerTooltip = {
+    id: "nivel1LayerTooltip",
+    type: "fill", // Cambiado de "line" a "fill"
+    paint: {
+      "fill-color": "transparent",
+      "fill-opacity": 0, // Puedes ajustar la opacidad según tus necesidades
+    },
+ 
+    interactive: true,
+  };
+  const mapRef = useRef();
+
+  const handleMapLoad = () => {
+    const map = mapRef.current.getMap();
+  
+    // Muestra el nombre según el idioma activo del sitio (lang = 'es', 'en', 'fr', etc.)
+    const field = `name_${lang}`;
+    const fallbackField = 'name'; // Por si el idioma no está en la capa
+  
+    // Expresión que sobrescribe el nombre solo para las Islas Malvinas
+    const customLabelExpression = [
+      'case',
+      // Comparar contra diferentes idiomas
+      ['==', ['get', 'name'], 'Falkland Islands (Islas Malvinas)'], 'Islas Malvinas',
+      ['==', ['get', 'name_en'], 'Falkland Islands (Islas Malvinas)'], 'Islas Malvinas',
+      ['==', ['get', 'name_es'], 'Falkland Islands (Islas Malvinas)'], 'Islas Malvinas',
+      ['==', ['get', 'name_pt'], 'Falkland Islands (Islas Malvinas)'], 'Islas Malvinas',
+      // Si no coincide, usa el idioma activo si existe, si no el default
+      ['has', field], ['get', field],
+      ['get', fallbackField]
+    ];
+  
+    map.getStyle().layers.forEach((layer) => {
+      if (layer.type === 'symbol' && layer.layout?.['text-field']) {
+        map.setLayoutProperty(layer.id, 'text-field', customLabelExpression);
+      }
+    });
+  };
+  const onZoom = () => {
+    setSelectedCountry(null);
+    setSelectedCoordinates(null);
+  };
+  // Ensure map is loaded and selectedCoordinates is available
+  const map = mapRef.current && mapRef.current.getMap();
+  const pixelCoordinates = map && selectedCoordinates ? map.project(selectedCoordinates) : { x: 0, y: 0 };
 
   return (
     <div className="w-full h-full relative">
       {loading ? (
-        <div className="absolute inset-0 flex items-center justify-center bg-gray-100">
-          <p>Cargando mapas...</p>
-        </div>
+       <Loader/>
       ) : error ? (
         <div className="absolute inset-0 flex items-center justify-center bg-gray-100">
           <p className="text-red-500">Error: {error}</p>
@@ -169,17 +216,34 @@ export default function MapView({ lang = 'es' }) {
       ) : (
       // <></>
         <Map
+          ref={mapRef}
+          onLoad={handleMapLoad}
           mapboxAccessToken={process.env.NEXT_PUBLIC_MAPBOX_TOKEN}
           initialViewState={initialViewState}
           mapStyle="mapbox://styles/mapbox/light-v11"
           projection="mercator"
+          onZoom={onZoom}
           minZoom={1}
           maxZoom={22}
-          interactiveLayerIds={['nivel1-layer', 'nivel2-layer', 'nivel3-layer']}
+          interactiveLayerIds={['nivel1LayerTooltip']}
           onClick={onClick}
+          dragRotate={false}
+          touchRotate={false}
+          pitchEnabled={false}
+          attributionControl={false}
         >
           <NavigationControl position="top-right" />
-
+          {geoJsonData.nivel1 &&
+            geoJsonData.nivel1.map((feature, index) => (
+              <Source
+                key={`nivel1-${index}`}
+                id={`nivel1-source-${index}`}
+                type="geojson"
+                data={feature}
+              >
+                <Layer {...nivel1LayerTooltip} />
+              </Source>
+            ))}
           {/* Nivel 1 - Visible at low zoom levels */}
           {geoJsonData.nivel1 &&
             geoJsonData.nivel1.map((feature, index) => (
@@ -221,21 +285,21 @@ export default function MapView({ lang = 'es' }) {
 
           {/* Tooltip popup */}
           {selectedCountry && selectedCoordinates && (
-            <Popup
-              longitude={selectedCoordinates[0]}
-              latitude={selectedCoordinates[1]}
-              closeButton={true}
-              closeOnClick={false}
-              anchor="bottom"
-              onClose={() => {
-                setSelectedCountry(null);
-                setSelectedCoordinates(null);
-              }}
-            >
-              <div className="p-2 max-w-xs">
-                <p className="text-sm">{getTooltipText(selectedCountry)}</p>
-              </div>
-            </Popup>
+            <div className="tooltip flex flex-col gap-xs"
+              style={{
+                top: pixelCoordinates.y,
+                left: pixelCoordinates.x,
+                position: "absolute",
+                background: "#fff",
+                border: "1px solid #212529",
+                padding: "16px",
+                maxWidth: "300px",
+                boxShadow: "0 2px 4px rgba(0, 0, 0, 0.1)",
+                pointerEvents: "none",
+                opacity: 1,
+              }}>
+              <p className="description text-black font-normal font-[Raleway]">{getTooltipText(selectedCountry)}</p>
+            </div>
           )}
         </Map>
       )}

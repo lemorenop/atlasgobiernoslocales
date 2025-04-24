@@ -1,27 +1,24 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { useParams } from 'next/navigation';
-import { fetchGovernments } from '@/app/utils/apiClient';
-import LocalizedLink from '../components/LocalizedLink';
+import { fetchGovernments, fetchNavbarCopy } from '@/app/utils/apiClient';
 import { getDictionary } from '@/app/i18n.config';
-import { getJurisdictionUrl } from '@/app/utils/navigation';
-
-export default function Jurisdictions() {
-  const params = useParams();
-  const { lang } = params;
+import Link from 'next/link';
+import { getTextById } from '@/app/utils/textUtils';  
+export default function Jurisdictions({lang}) {
   const [governments, setGovernments] = useState([]);
   const [dictionary, setDictionary] = useState({});
   const [loading, setLoading] = useState(true);
-
+  const [jurisdictionSlug, setJurisdictionSlug] = useState('');
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const [govData, dict] = await Promise.all([
+        const [govData, dict, navbarCopy] = await Promise.all([
           fetchGovernments(),
-          getDictionary(lang)
+          getDictionary(lang),
+          fetchNavbarCopy()
         ]);
-        
+        setJurisdictionSlug(getTextById(navbarCopy, "jurisdictions_slug", lang))
         setGovernments(govData);
         setDictionary(dict);
       } catch (error) {
@@ -51,13 +48,10 @@ export default function Jurisdictions() {
       <p className="text-lg mb-8">{jurisdictionSubtitle}</p>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {governments.map((government) => {
-          // Generar una URL localizada para esta jurisdicción
-          const jurisdictionUrl = getJurisdictionUrl(government.id, lang);
-          
+        {governments.map((government) => {          
           return (
-            <LocalizedLink 
-              href={`/jurisdictions/${government.id}`}
+            <Link 
+              href={`/${lang}/${jurisdictionSlug}/${government.id}`}
               key={government.id}
               className="border border-gray-200 rounded-lg p-6 hover:bg-gray-50 transition-colors"
             >
@@ -67,7 +61,7 @@ export default function Jurisdictions() {
                 <span className="text-sm text-gray-500">{government.level_per_country_name}</span>
                 <span className="text-blue-600">Ver detalles →</span>
               </div>
-            </LocalizedLink>
+            </Link>
           );
         })}
       </div>

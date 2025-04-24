@@ -1,16 +1,16 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { Map, Source, Layer, NavigationControl } from "react-map-gl/mapbox";
 import "mapbox-gl/dist/mapbox-gl.css";
 import * as topojson from "topojson-client";
 
 // Import the JSON files directly
-import nivel1Data from "../../../../public/maps/nivel_1.json";
-import nivel2Data from "../../../../public/maps/nivel_2.json";
-import nivel3Data from "../../../../public/maps/nivel_3.json";
+import nivel1Data from "../../../public/maps/nivel_1.json";
+import nivel2Data from "../../../public/maps/nivel_2.json";
+import nivel3Data from "../../../public/maps/nivel_3.json";
 
-export default function MapGoverment({ nivel, governmentID }) {
+export default function MapGoverment({ nivel, governmentID, lang }) {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [geoJsonData, setGeoJsonData] = useState(null);
@@ -116,6 +116,18 @@ export default function MapGoverment({ nivel, governmentID }) {
       "fill-outline-color": "#627BC1",
     },
   };
+  const mapRef = useRef();
+
+  const handleMapLoad = () => {
+    const map = mapRef.current.getMap();
+    const textField = ['get', `name_${lang}`]; // por ej. 'name_es'
+
+    map.getStyle().layers.forEach((layer) => {
+      if (layer.type === 'symbol' && layer.layout?.['text-field']) {
+        map.setLayoutProperty(layer.id, 'text-field', textField);
+      }
+    });
+  };
 
   return (
     <div className="w-full h-full relative">        
@@ -130,12 +142,18 @@ export default function MapGoverment({ nivel, governmentID }) {
         </div>
       ) : (
         <Map
+        ref={mapRef}
+        onLoad={handleMapLoad}
           mapboxAccessToken={process.env.NEXT_PUBLIC_MAPBOX_TOKEN}
           initialViewState={viewState}
           mapStyle="mapbox://styles/mapbox/light-v11"
           projection="mercator"
           minZoom={1}
           maxZoom={22}
+          dragRotate={false}
+          touchRotate={false}
+          pitchEnabled={false}
+          attributionControl={false}
         >
           <NavigationControl position="top-right" />
 

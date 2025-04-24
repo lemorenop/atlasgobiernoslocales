@@ -2,7 +2,6 @@
 "use client";
 import {
   Combobox,
-  ComboboxButton,
   ComboboxInput,
   ComboboxOption,
   ComboboxOptions,
@@ -10,9 +9,20 @@ import {
 import { useEffect, useState, useRef } from "react";
 import { search } from "@/app/utils/search";
 import Link from "next/link";
-export default function SearchBox({ lang, label = "",title='',path }) {
+import { useIndexesLoaded } from "./governmentDataProvider";
+
+export default function SearchBox({
+  lang,
+  label = "",
+  title = "",
+  subtitle = "",
+  intro = "",
+  path,
+}) {
   const [query, setQuery] = useState("");
   const [results, setResults] = useState([]);
+
+  const isLoaded = useIndexesLoaded();
 
   // Open dropdown when query changes
   useEffect(() => {
@@ -25,27 +35,29 @@ export default function SearchBox({ lang, label = "",title='',path }) {
   }, [query]);
 
   return (
-    <>
-      <p className="paragraph-small">
-      {title}
-      </p>
-      <Combobox value={""}>
+    <div className="bg-background p-xl flex flex-col gap-[24px] justify-between">
+      <div className="flex flex-col gap-[24px]">
+        <h2 className="text-h3 font-bold text-navy">{title}</h2>
+        <p className="text-description text-black">{subtitle}</p>
+      </div>
+      <p className="paragraph-small text-black">{intro}</p>
+      <Combobox value={""} disabled={!isLoaded}>
         <div className="relative">
           <ComboboxInput
-            className="border border1 py-1.5 px-3 w-full focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all bg-white description"
+            className="border border1 py-1.5 px-3 w-full focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all bg-white description text-black"
             label={label}
             placeholder={label}
             displayValue={query}
             onChange={(e) => setQuery(e.target.value)}
+            disabled={!isLoaded}
           />
-         
         </div>
 
         <ComboboxOptions
           anchor="bottom"
           transition
           className={
-            "bg-white border [--anchor-gap:var(--spacing-1)] empty:invisible transition duration-100 ease-in data-[leave]:data-[closed]:opacity-0  cursor-pointer p-m"
+            "z-20 bg-white border [--anchor-gap:var(--spacing-1)] empty:invisible transition duration-100 ease-in data-[leave]:data-[closed]:opacity-0  cursor-pointer p-m h-[300px] overflow-y-auto w-[300px]"
           }
         >
           {results.map((item) => (
@@ -54,16 +66,16 @@ export default function SearchBox({ lang, label = "",title='',path }) {
               value={item}
               className="group flex cursor-default items-center gap-2 py-1.5 px-3 select-none hover:bg-blue-CAF hover:text-white transition-colors text-black"
             >
-              <Link className="flex flex-col w-full" href={`${lang}/${path}/${item.id}`}>
-                <strong className="">{item.name}</strong>
-
-                <span className=" ">{item.countryName}</span>
-                {item.completeName && <p className="">{item.completeName}</p>}
+              <Link
+                className="flex flex-col w-full uppercase"
+                href={`${lang}/${path}/${item.id}`}
+              >
+                {item.name}, {item.completeName}
               </Link>
             </ComboboxOption>
           ))}
         </ComboboxOptions>
       </Combobox>
-    </>
+    </div>
   );
 }

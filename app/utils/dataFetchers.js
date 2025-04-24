@@ -32,8 +32,12 @@ const csv = {
     "https://docs.google.com/spreadsheets/d/e/2PACX-1vTshMm_LWq6GwRRjSxuq1DyflJGr8eC-d0cO0zIBFc6sDJZ_TiDZu-JhLrxusIaAw/pub?gid=129529016&single=true&output=csv",
   indicatorsCopy:
     "https://docs.google.com/spreadsheets/d/e/2PACX-1vR88Y20j7R16cecEBrgZw4jK3Vg5kI0DoPMfIGzxgu6IxvBHCynnYarfS-5eKFgyg/pub?gid=815048896&single=true&output=csv",
-  jurisdictionsCopy:"https://docs.google.com/spreadsheets/d/e/2PACX-1vR88Y20j7R16cecEBrgZw4jK3Vg5kI0DoPMfIGzxgu6IxvBHCynnYarfS-5eKFgyg/pub?gid=1649672062&single=true&output=csv",
-  pageError:"https://docs.google.com/spreadsheets/d/e/2PACX-1vR88Y20j7R16cecEBrgZw4jK3Vg5kI0DoPMfIGzxgu6IxvBHCynnYarfS-5eKFgyg/pub?gid=757641088&single=true&output=csv"
+  jurisdictionsCopy:
+    "https://docs.google.com/spreadsheets/d/e/2PACX-1vR88Y20j7R16cecEBrgZw4jK3Vg5kI0DoPMfIGzxgu6IxvBHCynnYarfS-5eKFgyg/pub?gid=1649672062&single=true&output=csv",
+  pageError:
+    "https://docs.google.com/spreadsheets/d/e/2PACX-1vR88Y20j7R16cecEBrgZw4jK3Vg5kI0DoPMfIGzxgu6IxvBHCynnYarfS-5eKFgyg/pub?gid=757641088&single=true&output=csv",
+  unitMeasures:
+    "https://docs.google.com/spreadsheets/d/e/2PACX-1vTshMm_LWq6GwRRjSxuq1DyflJGr8eC-d0cO0zIBFc6sDJZ_TiDZu-JhLrxusIaAw/pub?gid=328536948&single=true&output=csv",
 };
 
 /**
@@ -131,7 +135,19 @@ async function fetchWithCache(key, fetchFn) {
  */
 export async function getIndicators() {
   const csvUrl = csv.indicators;
-  return fetchWithCache("indicators", () => fetchAndParseCSV(csvUrl));
+
+  return fetchWithCache("indicators", async () => {
+    const unitMeasures = await fetchAndParseCSV(csv.unitMeasures);
+    const indicators = await fetchAndParseCSV(csvUrl).then((res) =>
+      res.map((elm) => {
+        elm.unit_measure_id = unitMeasures.find(
+          (unit) => unit.id === elm.unit_measure_id
+        );
+        return elm;
+      })
+    );
+    return indicators;
+  });
 }
 
 /**
@@ -224,14 +240,14 @@ export async function getJurisdictionsCopy() {
   return fetchWithCache("jurisdictionsCopy", () => fetchAndParseCSV(csvUrl));
 }
 
-export async function getGovernmentsData(lang = 'es') {
-  const validLangs = ['es', 'en', 'pt'];
-  const language = validLangs.includes(lang) ? lang : 'es';
-  
+export async function getGovernmentsData(lang = "es") {
+  const validLangs = ["es", "en", "pt"];
+  const language = validLangs.includes(lang) ? lang : "es";
+
   try {
     // En el cliente, necesitamos reconstruir la URL base sin incluir el segmento de idioma
     let url;
-    if (typeof window !== 'undefined') {
+    if (typeof window !== "undefined") {
       // Estamos en el navegador
       const { protocol, host } = window.location;
       url = `${protocol}//${host}/data/governments_${language}.json`;
@@ -241,24 +257,30 @@ export async function getGovernmentsData(lang = 'es') {
       url = `/data/governments_${language}.json`;
       console.log(`Server-side fetching from: ${url}`);
     }
-    
-    const response = await fetch(url, { 
-      cache: 'no-store',
+
+    const response = await fetch(url, {
+      cache: "no-store",
       headers: {
-        'Content-Type': 'application/json'
-      }
+        "Content-Type": "application/json",
+      },
     });
-    
+
     if (!response.ok) {
-      console.error(`HTTP error ${response.status}: Could not load governments_${language}.json`);
-      throw new Error(`Failed to load governments data for language ${language}`);
+      console.error(
+        `HTTP error ${response.status}: Could not load governments_${language}.json`
+      );
+      throw new Error(
+        `Failed to load governments data for language ${language}`
+      );
     }
-    
+
     const data = await response.json();
-    console.log(`Successfully loaded ${data.length} government entries for ${language}`);
+    console.log(
+      `Successfully loaded ${data.length} government entries for ${language}`
+    );
     return data;
   } catch (error) {
-    console.error('Error loading governments data:', error);
+    console.error("Error loading governments data:", error);
     return [];
   }
 }

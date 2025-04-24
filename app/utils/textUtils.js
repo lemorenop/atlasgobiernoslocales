@@ -11,7 +11,7 @@ import parse from "html-react-parser";
  * @param {string} lang - The language code (es, en, pt)
  * @returns {string} - The text in the specified language or empty string if not found
  */
-export function getTextById(data, id, lang) {
+export function getTextById(data, id, lang,replacements) {
   const item = data.find((item) => item.id === id);
   if (!item) return "";
 
@@ -21,5 +21,11 @@ export function getTextById(data, id, lang) {
     en: "text_en",
     pt: "text_pt",
   };
-  return item[langMap[lang]] ? parse(item[langMap[lang]]) : "";
+  let text = item[langMap[lang]] ?(item[langMap[lang]]) : "";
+  if (replacements) {
+    replacements.forEach((replacement) => {
+      text = text.replace(`[${replacement.id}]`, replacement.replace);
+    });
+  }
+  return  parse(text);
 }

@@ -22,10 +22,10 @@ export default function Hero({
   const url = typeof window !== "undefined" ? window.location.href : null;
 const shareText=`${government.name} - ${government[`description_${lang}`]}`
   return (
-    <div className="grid grid-cols-12 bg-blue-CAF">
+    <div className="grid grid-cols-12 bg-navy">
       <div className="col-span-4 pl-[80px] text-white flex flex-col justify-between pt-xl  pb-m pr-xl gap-xl">
         <div className="flex flex-col gap-m ">
-          <h1 className="text-h1 font-bold">{government.name}
+          <h1 className="text-h1 font-bold uppercase">{government.name}
             <br/>
             <span className="paragraph-small font-medium">
             {government[`description_${lang}`]}</span>
@@ -33,7 +33,12 @@ const shareText=`${government.name} - ${government[`description_${lang}`]}`
           </h1>
          
         </div>
-        <div className="grid grid-cols-2 gap-m">
+        <div
+        style={{
+          borderColor: "rgba(255, 255, 255, 0.40)",
+          
+        }}
+        className="grid grid-cols-2 gap-m py-m border-y-1">
           {indicators
             .filter((ind) => indicatorsHero.includes(ind.code))
             .map((ind) => (
@@ -50,62 +55,62 @@ const shareText=`${government.name} - ${government[`description_${lang}`]}`
                   <br />
                   <span className="font-bold description">
                     {
-                      data.find((item) => item.indicator_code === ind.code)
-                        ?.value
+                      Math.round(data.find((item) => item.indicator_code === ind.code)
+                        ?.value)
                     }
                   </span>
                 </p>
               </div>
-            ))}
-        </div>
-        <p className="text-right caption uppercase">
+            ))} <p className="text-right caption uppercase col-span-2">
           {getTextById(jurisdictionsCopy, "year_data", lang)}{" "}
           {government.yearData?.year_population}
         </p>
+        </div>
+       
         {url && (
-          <div className="flex justify-between gap-s uppercase  items-center flex-wrap">
+          <div className="flex justify-between gap-s uppercase  items-center flex-wrap ">
             <p className="caption">
               {getTextById(jurisdictionsCopy, "share", lang)}
             </p>
-            <div className="flex gap-s">
-              <FacebookShareButton
-                url={url}
-                quote={shareText
-                }
-              >
-                <FacebookIcon
-                  size={32}
-                  round
-                  bgStyle={{ fill: "transparent" }}
-                />
-              </FacebookShareButton>
-              <TwitterShareButton
+            <div className="flex gap-xs items-center">
+            <TwitterShareButton
                 url={url}
                 title={shareText
                 }
               >
                 <TwitterIcon
-                  size={32}
+                  size={36}
                   round
                   bgStyle={{ fill: "transparent" }}
                 />
-              </TwitterShareButton>
+              </TwitterShareButton>  <FacebookShareButton
+                url={url}
+                quote={shareText
+                }
+              >
+                <FacebookIcon
+                  size={36}
+                  round
+                  bgStyle={{ fill: "transparent" }}
+                />
+              </FacebookShareButton>
+              
               <LinkedinShareButton url={url}>
                 <LinkedinIcon
-                  size={32}
+                  size={36}
                   round
                   bgStyle={{ fill: "transparent" }}
                 />
               </LinkedinShareButton>
               <EmailShareButton url={url} subject={shareText} body="body">
-                <EmailIcon size={32} round bgStyle={{ fill: "transparent" }} />
+                <EmailIcon size={36} round bgStyle={{ fill: "#004A80" }} />
               </EmailShareButton>
             </div>
           </div>
         )}
        
       </div> <div className="col-span-8 bg-background">
-          <MapGoverment  governmentID={government.id} nivel={government.level_per_country_id.split("_")[0]} />
+          <MapGoverment  governmentID={government.id} nivel={government.level_per_country_id.split("_")[0]} lang={lang} />
         </div>
     </div>
   );

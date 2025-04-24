@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { getGovernments, getAllData, getIndicators, getYearData } from '@/app/utils/dataFetchers';
+import { getGovernments, getAllData, getIndicators, getYearData, getCountries } from '@/app/utils/dataFetchers';
 import { getFromCache, setInCache } from '@/app/utils/cache';
 
 export async function GET(request, { params }) {
@@ -17,6 +17,8 @@ export async function GET(request, { params }) {
     // Obtener el gobierno específico
     const governments = await getGovernments();
     const foundGovernment = governments.find(gov => gov.id === slug);
+    const countries = await getCountries();
+    const foundCountry = countries.find(country => country.iso3 === foundGovernment.country_iso3);
     if (!foundGovernment) {
       return NextResponse.json({ error: 'Gobierno no encontrado' }, { status: 404 });
     }
@@ -39,7 +41,7 @@ export async function GET(request, { params }) {
     
     // Preparar la respuesta
     const responseData = {
-      government: foundGovernment,
+      government: {...foundGovernment, country: foundCountry},
       governmentData: filteredData,
       indicators: indicatorsData
     };

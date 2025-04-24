@@ -9,20 +9,21 @@ import Hero from "./hero";
 import SelectLink from "./components/selectLink";
 
 export default async function Home({ params }) {
-  const lang = await params?.lang || i18n.defaultLocale;
-    const homeCopyData = await getHomeCopy();
+  const { lang } = await params;
+  const homeCopyData = await getHomeCopy();
   const indicators = await getIndicators();
 
   return (
-    homeCopyData && (
-      <GovernmentDataProvider lang={lang}>
-        <main className="flex flex-col justify-start text-black bg-white">
-          <Hero
-            hero_title={getTextById(homeCopyData, "hero_title", lang)}
-            hero_subtitle={getTextById(homeCopyData, "hero_subtitle", lang)}
-            hero_explore={getTextById(homeCopyData, "hero_explore", lang)}
-            lang={lang}
-          />
+    homeCopyData &&
+    indicators && (
+      <main className="flex flex-col justify-start text-black bg-white">
+        <Hero
+          hero_title={getTextById(homeCopyData, "hero_title", lang)}
+          hero_subtitle={getTextById(homeCopyData, "hero_subtitle", lang)}
+          hero_explore={getTextById(homeCopyData, "hero_explore", lang)}
+          lang={lang}
+        />{" "}
+        {/* <GovernmentDataProvider lang={lang}> */}
           <div className="px-[80px] grid grid-cols-2 gap-[64px] py-[112px] bg-white">
             <div className="bg-background p-xl flex flex-col gap-[24px] justify-between">
               <div className="flex flex-col gap-[24px]">
@@ -45,8 +46,8 @@ export default async function Home({ params }) {
                 )}
                 path={
                   lang === "es"
-                    ? "/indicadores"
-                    : lang === "/en"
+                    ? "indicadores"
+                    : lang === "en"
                     ? "indicators"
                     : "indicadores"
                 }
@@ -55,47 +56,40 @@ export default async function Home({ params }) {
                 label={getTextById(homeCopyData, "select", lang)}
               />
             </div>
-            <div className="bg-background p-xl flex flex-col gap-[24px] justify-between">
-              <div className="flex flex-col gap-[24px]">
-                <h2 className="text-h3 font-bold text-navy">
-                  {getTextById(
-                    homeCopyData,
-                    "explore_jurisdiction_title",
-                    lang
-                  )}
-                </h2>
-                <p className="text-description ">
-                  {getTextById(
-                    homeCopyData,
-                    "explore_jurisdiction_subtitle",
-                    lang
-                  )}
-                </p>
-              </div>
-              <SearchBox
-                path={
-                  lang === "es"
-                    ? "/jurisdicciones"
-                    : lang === "/en"
-                    ? "jurisdictions"
-                    : "jurisdicoes"
-                }
-                title={getTextById(
-                  homeCopyData,
-                  "explore_jurisdiction_title",
-                  lang
-                )}
-                lang={lang}
-                label={getTextById(
-                  homeCopyData,
-                  "explore_jurisdiction_input",
-                  lang
-                )}
-              />
-            </div>
-          </div>
-        </main>{" "}
-      </GovernmentDataProvider>
+
+            <SearchBox
+              path={
+                lang === "es"
+                  ? "jurisdicciones"
+                  : lang === "en"
+                  ? "jurisdictions"
+                  : "jurisdicoes"
+              }
+              title={getTextById(
+                homeCopyData,
+                "explore_jurisdiction_title",
+                lang
+              )}
+              subtitle={getTextById(
+                homeCopyData,
+                "explore_jurisdiction_subtitle",
+                lang
+              )}
+              lang={lang}
+              intro={getTextById(
+                homeCopyData,
+                "explore_jurisdiction_input",
+                lang
+              )}
+              label={getTextById(
+                homeCopyData,
+                "explore_jurisdiction_button",
+                lang
+              )}
+            />
+          </div>{" "}
+        {/* </GovernmentDataProvider> */}
+      </main>
     )
   );
 }

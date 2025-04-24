@@ -1,10 +1,18 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, createContext, useContext } from "react";
 import { addDocuments } from "@/app/utils/search";
 import "@/app/globals.css";
 import { getTextById } from "@/app/utils/textUtils";
 import { fetchPageError } from "@/app/utils/apiClient";
+
+// Create a context for the loading state
+const IndexesLoadedContext = createContext(false);
+
+export function useIndexesLoaded() {
+  return useContext(IndexesLoadedContext);
+}
+
 export default function GovernmentDataProvider({ lang, children }) {
   const [isLoaded, setIsLoaded] = useState(false);
   const [error, setError] = useState(null);
@@ -13,7 +21,7 @@ export default function GovernmentDataProvider({ lang, children }) {
     async function loadData() {
       try {
         // Usar la API route en lugar de acceder directamente al archivo
-        const url = `/api/governments?lang=${"fr"}`;
+        const url = `/api/governments?lang=${lang}`;
         const pageError = await fetchPageError().then(res=>getTextById(res,"title_no_data",lang));
         console.log(pageError);
         const response = await fetch(url, {
@@ -48,14 +56,8 @@ export default function GovernmentDataProvider({ lang, children }) {
   }
 
   return (
-    <>
-      {!isLoaded && (
-        <div className="flex flex-col justify-center items-center text-black bg-white min-h-screen">
-          <span className="loader" />
-        </div>
-      )}
-
-      {isLoaded && children}
-    </>
+    <IndexesLoadedContext.Provider value={isLoaded}>
+     {children}
+    </IndexesLoadedContext.Provider>
   );
 }
