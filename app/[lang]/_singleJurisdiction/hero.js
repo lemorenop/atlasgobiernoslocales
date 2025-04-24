@@ -35,13 +35,15 @@ const shareText=`${government.name} - ${government[`description_${lang}`]}`
         </div>
         <div
         style={{
-          borderColor: "rgba(255, 255, 255, 0.40)",
-          
+          borderColor: "rgba(255, 255, 255, 0.40)",          
         }}
         className="grid grid-cols-2 gap-m py-m border-y-1">
           {indicators
             .filter((ind) => indicatorsHero.includes(ind.code))
-            .map((ind) => (
+            .map((ind) =>{
+              const value=data.find((item) => item.indicator_code === ind.code)?.value
+              
+              return (value && value!=='') && (
               <div className="flex flex-col gap-s uppercase" key={ind.code}>
                 <Image
                 className="object-contain"
@@ -55,13 +57,12 @@ const shareText=`${government.name} - ${government[`description_${lang}`]}`
                   <br />
                   <span className="font-bold description">
                     {
-                      Math.round(data.find((item) => item.indicator_code === ind.code)
-                        ?.value)
+                      Math.round(value)
                     }
                   </span>
                 </p>
               </div>
-            ))} <p className="text-right caption uppercase col-span-2">
+            )})} <p className="text-right caption uppercase col-span-2">
           {getTextById(jurisdictionsCopy, "year_data", lang)}{" "}
           {government.yearData?.year_population}
         </p>

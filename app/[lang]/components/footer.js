@@ -162,13 +162,13 @@ style={{
                   {/* <a href={`/${lang}/${findNavbarLink("indicators")}`} className="text-paragraph-small" target="_blank">
                   {getTextById(navbarCopy, "indicators", lang)}
                 </a> */}
-                  <a
+                  {/* <a
                     href={`/${lang}/${findNavbarLink("about")}`}
                     className="text-paragraph-small underline"
                     target="_blank"
                   >
                     {getTextById(navbarCopy, "about", lang)}
-                  </a>
+                  </a> */}
                 </div>
               </div>
               

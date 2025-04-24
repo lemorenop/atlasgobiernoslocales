@@ -52,7 +52,7 @@ export default async function Navbar({ lang }) {
                     {" "}
                     <Image
                       src="/jur.png"
-                      alt="about"
+                      alt=""
                       width={24}
                       height={24}
                       className="object-contain "
@@ -104,7 +104,7 @@ export default async function Navbar({ lang }) {
                 />
                 {/* </div> */}
               </NavbarDialogs>
-              <Link
+              {/* <Link
                 href={`/${lang}/${getTextById(navbarCopy, "about_slug", lang)}`}
                 className="flex items center gap-xs  description"
               >
@@ -116,7 +116,7 @@ export default async function Navbar({ lang }) {
                   className="object-contain"
                 />
                 {getTextById(navbarCopy, "about", lang)}
-              </Link>
+              </Link> */}
               <LanguageSwitcher lang={lang} slugs={navbarCopy} />{" "}
             </div>
           </div>{" "}
