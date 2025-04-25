@@ -144,7 +144,7 @@ export default function MapView({ lang = 'es' }) {
       "line-width": 0.5,
     },
     minzoom: 3,
-    maxzoom: 5,
+    maxzoom: 22,
     interactive: true,
   };
 

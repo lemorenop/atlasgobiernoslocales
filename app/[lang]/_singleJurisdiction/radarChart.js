@@ -2,11 +2,11 @@ import { useEffect, useRef, useState } from "react";
 import * as d3 from "d3";
 import { useParams } from "next/navigation";
 import { getTextById } from "@/app/utils/textUtils";
-
+import Info from "../components/icons/info";
 const govColor = "#1774AD";
 const countryColor = "#55C7D5";
 
-export default function RadarChart({ data, indicators, government,copy }) {
+export default function RadarChart({ data, indicators, government, copy }) {
   console.log(government);
   const [tooltip, setTootip] = useState();
   const params = useParams();
@@ -26,6 +26,7 @@ export default function RadarChart({ data, indicators, government,copy }) {
     "20",
   ];
   const [nationalData, setNationalData] = useState(null);
+  const [infoTooltip, setInfoTooltip] = useState(false);
 
   // Textos traducidos para la leyenda
   const legendTexts = {
@@ -144,11 +145,11 @@ export default function RadarChart({ data, indicators, government,copy }) {
       const governmentData = indicatorsID.map((id) => {
         const dataPoint = data.find((d) => d.indicator_code === id);
         // Los valores del gobierno también están entre 0 y 1, multiplicamos por 100
-        const value = dataPoint ? parseFloat(dataPoint.value) * 100 : 0;
+        const value = dataPoint ? parseFloat(dataPoint.value) * 100 : null;
 
         return {
           indicator_code: id,
-          value: isNaN(value) ? 0 : value, // Asegurarse de que sea un número válido
+          value: isNaN(value) ? null : value, // Asegurarse de que sea un número válido
         };
       });
 
@@ -157,11 +158,11 @@ export default function RadarChart({ data, indicators, government,copy }) {
         // Buscar usando el campo correcto del CSV (indicador_code)
         const natPoint = nationalData.find((d) => d.indicador_code === id);
         // Los valores están entre 0 y 1, multiplicamos por 100 para la escala del gráfico
-        const value = natPoint ? parseFloat(natPoint.value) * 100 : 0;
+        const value = natPoint ? parseFloat(natPoint.value) * 100 : null;
 
         return {
           indicator_code: id,
-          value: isNaN(value) ? 0 : value, // Asegurarse de que sea un número válido, usar 0 como fallback
+          value: isNaN(value) ? null : value, // Asegurarse de que sea un número válido, usar 0 como fallback
         };
       });
 
@@ -209,8 +210,16 @@ export default function RadarChart({ data, indicators, government,copy }) {
             indDescription = indicatorInfo.description;
           }
         }
-        const displayGovValue = `${parseFloat(govData.value).toFixed(0)} ${indicatorInfo.unit_measure_id.unit}`;
-        const displayNatValue = `${parseFloat(natData.value).toFixed(0)} ${indicatorInfo.unit_measure_id.unit}`;
+        const displayGovValue = govData.value
+          ? `${parseFloat(govData.value).toFixed(0)} ${
+              indicatorInfo.unit_measure_id.unit
+            }`
+          : getTextById(copy, "no_data", lang);
+        const displayNatValue = natData.value
+          ? `${parseFloat(natData.value).toFixed(0)} ${
+              indicatorInfo.unit_measure_id.unit
+            }`
+          : getTextById(copy, "no_data", lang);
         // Draw the segment background
         const arc = d3
           .arc()
@@ -241,7 +250,6 @@ export default function RadarChart({ data, indicators, government,copy }) {
         //   .attr("y2", startY)
         //   .attr("stroke", "#55C7D54D")
         //   .attr("stroke-width", 2)
-          
 
         // End angle ray
         const endX = rayLength * Math.cos(endAngle - Math.PI / 2);
@@ -266,9 +274,11 @@ export default function RadarChart({ data, indicators, government,copy }) {
           radiusScale(govData.value) * Math.cos(govAngle - Math.PI / 2);
         const govY =
           radiusScale(govData.value) * Math.sin(govAngle - Math.PI / 2);
-        const valuesTooltip= {title: indicatorName,
-        valueNat: displayNatValue,
-        valueGov: displayGovValue,}
+        const valuesTooltip = {
+          title: indicatorName,
+          valueNat: displayNatValue,
+          valueGov: displayGovValue,
+        };
         svg
           .append("line")
           .attr("x1", 0)
@@ -277,11 +287,10 @@ export default function RadarChart({ data, indicators, government,copy }) {
           .attr("y2", govY)
           .attr("stroke", govColor)
           .attr("stroke-width", 2)
-          .attr("cursor", "pointer")
-          .attr("tabindex", 0)
+          .attr("cursor", "pointer")         
           .on("mouseover", function (event) {
             setTootip({
-             ...valuesTooltip,
+              ...valuesTooltip,
               x: event.pageX,
               y: event.pageY,
             });
@@ -289,24 +298,18 @@ export default function RadarChart({ data, indicators, government,copy }) {
           .on("mouseout", function () {
             setTootip(null);
           })
-          .on("focus", function (event) {
-            setTootip({
-              ...valuesTooltip,
-              x: event.pageX,
-              y: event.pageY,
-            });
-          })
-          .on("blur", function () {
-            // Hide tooltip on blur
-            setTootip(null);
-          });
+         
+          
 
         // Ángulo para el promedio nacional (3/4 del segmento)
+
         const natAngle = startAngle + natAngleOffset;
         const natX =
-          radiusScale(natData.value) * Math.cos(natAngle - Math.PI / 2);
+          radiusScale(natData.value ? natData.value : 0) *
+          Math.cos(natAngle - Math.PI / 2);
         const natY =
-          radiusScale(natData.value) * Math.sin(natAngle - Math.PI / 2);
+          radiusScale(natData.value ? natData.value : 0) *
+          Math.sin(natAngle - Math.PI / 2);
 
         svg
           .append("line")
@@ -316,6 +319,25 @@ export default function RadarChart({ data, indicators, government,copy }) {
           .attr("y2", natY)
           .attr("stroke", countryColor)
           .attr("stroke-width", 2)
+          .attr("cursor", "pointer")
+         
+          .on("mouseover", function (event) {
+            setTootip({
+              ...valuesTooltip,
+              x: event.pageX,
+              y: event.pageY,
+            });
+          })
+          .on("mouseout", function () {
+            setTootip(null);
+          })
+         
+        svg
+          .append("circle")
+          .attr("cx", natX)
+          .attr("cy", natY)
+          .attr("r", 6)
+          .attr("fill", countryColor)
           .attr("cursor", "pointer")
           .attr("tabindex", 0)
           .on("mouseover", function (event) {
@@ -371,36 +393,6 @@ export default function RadarChart({ data, indicators, government,copy }) {
             setTootip(null);
           });
 
-        svg
-          .append("circle")
-          .attr("cx", natX)
-          .attr("cy", natY)
-          .attr("r", 6)
-          .attr("fill", countryColor)
-          .attr("cursor", "pointer")
-          .attr("tabindex", 0)
-          .on("mouseover", function (event) {
-            setTootip({ 
-              ...valuesTooltip,
-              x: event.pageX,
-              y: event.pageY,
-            });
-          })
-          .on("mouseout", function () {
-            setTootip(null);
-          })
-          .on("focus", function (event) {
-            setTootip({
-              ...valuesTooltip,
-              x: event.pageX,
-              y: event.pageY,
-            });
-          })
-          .on("blur", function () {
-            // Hide tooltip on blur
-            setTootip(null);
-          });
-
         // Split the indicator name into two lines
         const words = indicatorName.split(" ");
         const midPoint = Math.ceil(words.length / 2);
@@ -416,7 +408,9 @@ export default function RadarChart({ data, indicators, government,copy }) {
         const labelY =
           (midAngle > Math.PI / 2 && midAngle < (3 * Math.PI) / 2
             ? labelDistance - 35
-            : labelDistance) * Math.sin(midAngle - Math.PI / 2)-2;
+            : labelDistance) *
+            Math.sin(midAngle - Math.PI / 2) -
+          2;
         // Create a group for the text
         const textGroup = svg
           .append("g")
@@ -438,8 +432,8 @@ export default function RadarChart({ data, indicators, government,copy }) {
           .attr("text-anchor", "middle")
           .attr("dominant-baseline", "middle")
           .attr("font-size", "8px")
-          .style("color","#212529")
-          .style("text-transform", "uppercase") 
+          .style("color", "#212529")
+          .style("text-transform", "uppercase")
           .style("letter-spacing", "0.96px")
           .text(firstLine);
 
@@ -448,7 +442,7 @@ export default function RadarChart({ data, indicators, government,copy }) {
           .append("text")
           .attr("x", 0)
           .attr("y", 40) // Reverted to original y position
-          .style("color","#212529")
+          .style("color", "#212529")
           .attr("text-anchor", "middle")
           .attr("dominant-baseline", "middle")
           .attr("font-size", "8px")
@@ -492,6 +486,21 @@ export default function RadarChart({ data, indicators, government,copy }) {
       window.removeEventListener("resize", updateChartDimensions);
     };
   }, [data, indicators, lang, nationalData]);
+
+  // // Function to toggle tooltip visibility
+  // const toggleInfoTooltip = (event) => {
+  //   setInfoTooltip((prev) => !prev);
+  //   if (!infoTooltip) {
+  //     setTootip({
+  //       title: getTextById(copy, "tooltip_info", lang),
+  //       x: event.clientX + window.scrollX, // Adjust for scrolling
+  //       y: event.clientY + window.scrollY, // Adjust for scrolling
+  //     });
+  //   } else {
+  //     setTootip(null);
+  //   }
+  // };
+  console.log(tooltip);
   return (
     <>
       <div className="radar-chart-container h-full">
@@ -499,7 +508,7 @@ export default function RadarChart({ data, indicators, government,copy }) {
       </div>
       {tooltip && (
         <div
-          className="tooltip w-fit inline-block"
+          className="tooltip w-fit inline-block z-20"
           style={{
             top: tooltip.y,
             left: tooltip.x,
@@ -507,15 +516,17 @@ export default function RadarChart({ data, indicators, government,copy }) {
             background: "#fff",
             border: "1px solid #212529",
             padding: "16px",
-            maxWidth: "300px",            
+            maxWidth: "300px",
             boxShadow: "0 2px 4px rgba(0, 0, 0, 0.1)",
             pointerEvents: "none",
             opacity: 1,
-            whiteSpace: "pre-wrap",          // clave
-            wordBreak: "break-word",         // clave para palabras largas
+            whiteSpace: "pre-wrap", // clave
+            wordBreak: "break-word", // clave para palabras largas
           }}
         >
-          <p className={`${tooltip.subtitle && "font-bold"}  `}>{tooltip.title}</p>
+          <p className={`${tooltip.subtitle && "font-bold"}  `}>
+            {tooltip.title}
+          </p>
           {tooltip.subtitle && <p className="">{tooltip.subtitle}</p>}
           {(tooltip.valueGov || tooltip.valueNat) && (
             <>
@@ -541,6 +552,45 @@ export default function RadarChart({ data, indicators, government,copy }) {
           )}
         </div>
       )}
+      <div className="flex justify-end gap-s pt-m">
+        <button
+          style={{ marginRight: "25%" }}
+          onClick={(event) => {
+            setTootip({
+              title: getTextById(copy, "tooltip_info", lang),
+              x: event.pageX, // Adjust for scrolling
+              y: event.pageY, // Adjust for scrolling
+            });
+            // }
+          }}
+          onMouseOver={(event) => {
+            setTootip({
+              title: getTextById(copy, "tooltip_info", lang),
+              x: event.pageX, // Adjust for scrolling
+              y: event.pageY, // Adjust for scrolling
+            });
+            // }
+          }}
+          onMouseOut={() => {
+            setTootip(null);
+          }}
+          onBlur={() => {
+            setTootip(null);
+          }}
+          onFocus={(event) => {
+            setTootip({
+              title: getTextById(copy, "tooltip_info", lang),
+              x: event.pageX, // Adjust for scrolling
+              y: event.pageY, // Adjust for scrolling
+            });
+            // }
+          }}
+        >
+          <Info
+            className={"w-4 h-4 fill-black hover:fill-blue-CAF cursor-pointer"}
+          />
+        </button>
+      </div>
       <div className="flex justify-center gap-s pt-m">
         <div className="flex gap-xs items-center">
           <div
@@ -551,7 +601,10 @@ export default function RadarChart({ data, indicators, government,copy }) {
         </div>
         <div className="flex gap-xs items-center">
           <div className="w-4 h-1 " style={{ backgroundColor: govColor }} />
-          <p>{getTextById(copy,"average",lang)} {government.country[`name_${lang}`]}</p>
+          <p>
+            {getTextById(copy, "average", lang)}{" "}
+            {government.country[`name_${lang}`]}
+          </p>
         </div>
       </div>
     </>

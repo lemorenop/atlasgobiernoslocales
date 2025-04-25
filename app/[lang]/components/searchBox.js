@@ -68,7 +68,7 @@ export default function SearchBox({
             >
               <Link
                 className="flex flex-col w-full uppercase"
-                href={`${lang}/${path}/${item.id}`}
+                href={`/${lang}/${path}/${item.id}`}
               >
                 {item.name}, {item.completeName}
               </Link>

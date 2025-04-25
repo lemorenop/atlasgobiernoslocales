@@ -71,8 +71,8 @@ export default function Jurisdiction({lang,slug}) {
       />
 
       {/* Mostrar los datos filtrados del gobierno */}
-      <div className="p-[80px] grid grid-cols-12 gap-xl">
-        <div className="col-span-4 flex flex-col gap-[24px] justify-center">
+      <div className="p-[80px] grid lg:grid-cols-12 gap-xl">
+        <div className="lg:col-span-4 flex flex-col gap-[24px] justify-center">
           <h2 className="text-h1 font-bold mb-4 text-navy">
             {getTextById(jurisdictionsCopy, "indicators_title", lang)}
           </h2>
@@ -88,7 +88,7 @@ export default function Jurisdiction({lang,slug}) {
         </div>
 
         {governmentData.length > 0 ? (
-          <div className="flex flex-col col-span-8 min-h-[600px]">
+          <div className="flex flex-col lg:col-span-8 min-h-[600px]">
             <RadarChart
             copy={jurisdictionsCopy}
               government={government}

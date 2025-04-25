@@ -22,7 +22,7 @@ export default async function Footer({ lang }) {
   const navbarCopy = await fetchApi("navbar-copy");
   const homeCopyData = await getHomeCopy();
   function findLink(id,lang) {
-    return footerCopy.find((elm) => elm.id === id)?.[`link_${lang}`];
+    return footerCopy.find((elm) => elm.id === id)?.[lang?`link_${lang}`:`link`];
   }
   function findNavbarLink(id) {
     return navbarCopy.find((elm) => elm.id === `${id}_slug`)?.[`text_${lang}`];
@@ -116,7 +116,7 @@ style={{
                     {getTextById(footerCopy, "caf_button", lang)}
                   </a>
                   <a
-                    href={findLink("red_button")}
+                    href={findLink("red_button",lang)}
                     className="text-paragraph-small underline"
                     target="_blank"
                   >
