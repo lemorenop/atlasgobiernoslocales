@@ -130,10 +130,10 @@ style={{
                     <SearchBox
                       path={
                         lang === "es"
-                          ? "/jurisdicciones"
-                          : lang === "/en"
-                          ? "jurisdictions"
-                          : "jurisdicoes"
+                        ? "jurisdicciones"
+                        : lang === "en"
+                        ? "jurisdictions"
+                        : "jurisdicoes"
                       }
                       intro={getTextById(
                         homeCopyData,

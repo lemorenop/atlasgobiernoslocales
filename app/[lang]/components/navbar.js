@@ -89,7 +89,11 @@ export default async function Navbar({ lang }) {
                     "explore_jurisdiction_subtitle",
                     lang
                   )}
-                  path={lang === "es" ? "/jurisdicciones" : "jurisdicoes"}
+                  path={ lang === "es"
+                    ? "jurisdicciones"
+                    : lang === "en"
+                    ? "jurisdictions"
+                    : "jurisdicoes"}
                   label={getTextById(
                     homeCopyData,
                     "explore_jurisdiction_button",
