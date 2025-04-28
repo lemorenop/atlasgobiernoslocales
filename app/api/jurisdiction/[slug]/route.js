@@ -22,6 +22,8 @@ export async function GET(request, { params }) {
     console.log(`Tiempo getGovernments: ${Date.now() - governmentsStartTime}ms`);
     
     const foundGovernment = governments.find(gov => gov.id === slug);
+
+    console.log(foundGovernment)
     const countriesStartTime = Date.now();
     const countries = await getCountries();
     console.log(`Tiempo getCountries: ${Date.now() - countriesStartTime}ms`);
@@ -30,6 +32,8 @@ export async function GET(request, { params }) {
     if (!foundGovernment) {
       return NextResponse.json({ error: 'Gobierno no encontrado' }, { status: 404 });
     }
+
+    const parentGovernment = governments.find(gov => gov.id === foundGovernment.parent_government_id);
     
     // Obtener todos los datos y filtrar por el ID del gobierno
     const parallelStartTime = Date.now();
@@ -51,7 +55,7 @@ export async function GET(request, { params }) {
     
     // Preparar la respuesta
     const responseData = {
-      government: {...foundGovernment, country: foundCountry},
+      government: {...foundGovernment, country: foundCountry, parentGovernment: parentGovernment},
       governmentData: filteredData,
       indicators: indicatorsData
     };

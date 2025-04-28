@@ -57,17 +57,17 @@ export default function SearchBox({
           anchor="bottom"
           transition
           className={
-            "z-20 bg-white border [--anchor-gap:var(--spacing-1)] empty:invisible transition duration-100 ease-in data-[leave]:data-[closed]:opacity-0  cursor-pointer p-m h-[300px] overflow-y-auto w-[300px]"
+            "z-20 bg-white border [--anchor-gap:var(--spacing-1)] empty:invisible transition duration-100 ease-in data-[leave]:data-[closed]:opacity-0  cursor-pointer p-s h-[300px] overflow-y-auto w-[400px]"
           }
         >
           {results.map((item) => (
             <ComboboxOption
               key={item.id}
               value={item}
-              className="group flex cursor-default items-center gap-2 py-1.5 px-3 select-none hover:bg-blue-CAF hover:text-white transition-colors text-black"
+              className="group flex cursor-default items-center gap-2 p-1 select-none hover:bg-blue-CAF hover:text-white transition-colors text-black"
             >
               <Link
-                className="flex flex-col w-full uppercase"
+                className="flex flex-col w-full uppercase text-[14px] tracking-wide"
                 href={`/${lang}/${path}/${item.id}`}
               >
                 {item.name}, {item.completeName}

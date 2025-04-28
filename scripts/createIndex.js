@@ -93,7 +93,8 @@ async function createIndexFiles() {
           nivel:gov.level_per_country_id.split('_')[0],
           parentName: parentGov ? parentGov.name : '',
           countryName: country ? country[config.countryNameField] : '',
-          completeName: gov[config.completeNameField] || ''
+          completeName: gov[config.completeNameField] || '',
+          fullName: gov.name + ', ' + gov[config.completeNameField]
         };
       });
       

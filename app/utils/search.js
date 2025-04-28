@@ -7,7 +7,7 @@ let index = new FlexSearch.Document({
   cache: 100,
   document: {
     id: "id",
-    index: ["name", "parentName", "countryName", "completeName"],
+    index: ["name", "parentName", "countryName", "completeName", "fullName"],
     store: true
   }
 });
@@ -19,7 +19,7 @@ export function addDocuments(docs) {
     cache: 100,
     document: {
       id: "id",
-      index: ["name", "parentName", "countryName", "completeName"],
+      index: ["name", "parentName", "countryName", "completeName", "fullName"],
       store: true
     }
   });
@@ -36,17 +36,25 @@ export function search(query) {
   if (!query || query.length < 2) return [];
   
   // Search in all indexed fields
-  const nameResults = index.search(query, { index: "name", limit: 20, enrich: true });
+  const nameResults = index.search(query, { index: "name", limit: 30, enrich: true });
   const parentResults = index.search(query, { index: "parentName", limit: 10, enrich: true });
   const countryResults = index.search(query, { index: "countryName", limit: 10, enrich: true });
   const completeNameResults = index.search(query, { index: "completeName", limit: 10, enrich: true });
-  
+  const fullNameResults = index.search(query, { index: "fullName", limit: 10, enrich: true });
+
+  // console.log(nameResults)
+  // console.log(parentResults)
+  // console.log(countryResults) 
+  // console.log(completeNameResults)
+  // console.log(fullNameResults)
+
   // Combine all results and remove duplicates based on id
   const allResults = [
     ...nameResults,
     ...parentResults, 
     ...countryResults,
-    ...completeNameResults
+    ...completeNameResults,
+    ...fullNameResults
   ];
   
   // Extract documents from results

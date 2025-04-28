@@ -21,6 +21,9 @@ export default function Hero({
   const indicatorsHero = [1, 26, 2, 3];
   const url = typeof window !== "undefined" ? window.location.href : null;
   const shareText = `${government.name} - ${government[`description_${lang}`]}`;
+
+  // console.log(government)
+
   return (
     <div className="grid md:grid-cols-12 bg-navy">
       <div className="col-span-4 pl-[80px] text-white flex flex-col justify-between pt-xl  pb-m pr-xl gap-xl">
@@ -47,9 +50,6 @@ export default function Hero({
               const value = data.find(
                 (item) => item.indicator_code === ind.code
               )?.value;
-
-              console.log(ind)
-              console.log(ind.unit_measure_id)
 
               return (
                 value &&
