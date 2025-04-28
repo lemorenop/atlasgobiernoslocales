@@ -39,11 +39,7 @@ export default async function Home({ params }) {
                 </p>
               </div>
             { indicators &&   <SelectLink
-                title={getTextById(
-                  homeCopyData,
-                  "explore_indicator_title",
-                  lang
-                )}
+                title={""}
                 path={
                   lang === "es"
                     ? "indicadores"
