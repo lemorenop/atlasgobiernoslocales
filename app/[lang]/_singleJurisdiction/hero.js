@@ -48,6 +48,9 @@ export default function Hero({
                 (item) => item.indicator_code === ind.code
               )?.value;
 
+              console.log(ind)
+              console.log(ind.unit_measure_id)
+
               return (
                 value &&
                 value !== "" && (
@@ -63,7 +66,8 @@ export default function Hero({
                       {ind[`name_${lang}`]}
                       <br />
                       <span className="font-bold description">
-                        {Math.round(value)}
+                        {Math.round(value)?.toLocaleString()}
+                        <sup className="text-[10px]">{ind.unit_measure_id?.unit}</sup>
                       </span>
                     </p>
                   </div>

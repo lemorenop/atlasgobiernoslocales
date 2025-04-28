@@ -221,6 +221,16 @@ export default function RadarChart({ data, indicators, government, copy }) {
           .attr("d", arc)
           .attr("fill", "rgba(231, 246, 248, 0.50)")
           .attr("stroke", "rgba(85, 199, 213, 0.15)")
+          .on("mouseover", function (event) {
+            setTootip({
+              ...valuesTooltip,
+              x: event.pageX,
+              y: event.pageY,
+            });
+          })
+          .on("mouseout", function () {
+            setTootip(null);
+          })
           .attr("stroke-width", 1);
 
         // Draw dividing lines (rayos de sol)
@@ -273,19 +283,19 @@ export default function RadarChart({ data, indicators, government, copy }) {
           .attr("y1", 0)
           .attr("x2", govX)
           .attr("y2", govY)
-          .attr("stroke", govColor)
+          .attr("stroke", countryColor)
           .attr("stroke-width", 2)
           .attr("cursor", "pointer")         
-          .on("mouseover", function (event) {
-            setTootip({
-              ...valuesTooltip,
-              x: event.pageX,
-              y: event.pageY,
-            });
-          })
-          .on("mouseout", function () {
-            setTootip(null);
-          })
+          // .on("mouseover", function (event) {
+          //   setTootip({
+          //     ...valuesTooltip,
+          //     x: event.pageX,
+          //     y: event.pageY,
+          //   });
+          // })
+          // .on("mouseout", function () {
+          //   setTootip(null);
+          // })
          
           
 
@@ -305,39 +315,39 @@ export default function RadarChart({ data, indicators, government, copy }) {
           .attr("y1", 0)
           .attr("x2", natX)
           .attr("y2", natY)
-          .attr("stroke", countryColor)
+          .attr("stroke", govColor)
           .attr("stroke-width", 2)
           .attr("cursor", "pointer")
          
-          .on("mouseover", function (event) {
-            setTootip({
-              ...valuesTooltip,
-              x: event.pageX,
-              y: event.pageY,
-            });
-          })
-          .on("mouseout", function () {
-            setTootip(null);
-          })
+          // .on("mouseover", function (event) {
+          //   setTootip({
+          //     ...valuesTooltip,
+          //     x: event.pageX,
+          //     y: event.pageY,
+          //   });
+          // })
+          // .on("mouseout", function () {
+          //   setTootip(null);
+          // })
          
         svg
           .append("circle")
           .attr("cx", natX)
           .attr("cy", natY)
           .attr("r", 6)
-          .attr("fill", countryColor)
+          .attr("fill", govColor)
           .attr("cursor", "pointer")
           .attr("tabindex", 0)
-          .on("mouseover", function (event) {
-            setTootip({
-              ...valuesTooltip,
-              x: event.pageX,
-              y: event.pageY,
-            });
-          })
-          .on("mouseout", function () {
-            setTootip(null);
-          })
+          // .on("mouseover", function (event) {
+          //   setTootip({
+          //     ...valuesTooltip,
+          //     x: event.pageX,
+          //     y: event.pageY,
+          //   });
+          // })
+          // .on("mouseout", function () {
+          //   setTootip(null);
+          // })
           .on("focus", function (event) {
             setTootip({
               ...valuesTooltip,
@@ -356,19 +366,19 @@ export default function RadarChart({ data, indicators, government, copy }) {
           .attr("cx", govX)
           .attr("cy", govY)
           .attr("r", 6)
-          .attr("fill", govColor)
+          .attr("fill", countryColor)
           .attr("tabindex", 0)
           .attr("cursor", "pointer")
-          .on("mouseover", function (event) {
-            setTootip({
-              ...valuesTooltip,
-              x: event.pageX,
-              y: event.pageY,
-            });
-          })
-          .on("mouseout", function () {
-            setTootip(null);
-          })
+          // .on("mouseover", function (event) {
+          //   setTootip({
+          //     ...valuesTooltip,
+          //     x: event.pageX,
+          //     y: event.pageY,
+          //   });
+          // })
+          // .on("mouseout", function () {
+          //   setTootip(null);
+          // })
           .on("focus", function (event) {
             setTootip({
               ...valuesTooltip,

@@ -14,7 +14,7 @@ export default function LanguageSwitcher({ lang, slugs }) {
     const firstSlug = currentSlugArray[1];
     secondSlug = currentSlugArray[2];
 
-    const slugID = slugs.find((elm) => elm[`text_${lang}`] === firstSlug).id;
+    const slugID = slugs.find((elm) => elm[`text_${lang}`] === firstSlug)?.id;
     slug = slugs.find((elm) => elm.id === slugID);
   }
   return (
