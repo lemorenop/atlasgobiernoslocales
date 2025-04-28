@@ -209,12 +209,17 @@ console.log(url)
             indDescription = indicatorInfo.description;
           }
         }
-        const displayGovValue = govData.value
+
+        // console.log(govData.value)
+
+        const displayGovValue = govData.value != null
           ? `${parseFloat(govData.value).toFixed(0)} ${
               indicatorInfo.unit_measure_id.unit
             }`
           : getTextById(copy, "no_data", lang);
-        const displayNatValue = natData.value
+
+
+        const displayNatValue = natData.value != null
           ? `${parseFloat(natData.value).toFixed(0)} ${
               indicatorInfo.unit_measure_id.unit
             }`
@@ -499,6 +504,7 @@ console.log(url)
   //     setTootip(null);
   //   }
   // };
+  // console.log(tooltip);
   return (
     <>
       <div className="radar-chart-container h-full">
