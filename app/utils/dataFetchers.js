@@ -135,8 +135,9 @@ async function fetchWithCache(key, fetchFn) {
  */
 export async function getIndicators() {
   const csvUrl = csv.indicators;
+  const startTime = performance.now();
 
-  return fetchWithCache("indicators", async () => {
+  const result = await fetchWithCache("indicators", async () => {
     const unitMeasures = await fetchAndParseCSV(csv.unitMeasures);
     const indicators = await fetchAndParseCSV(csvUrl).then((res) =>
       res.map((elm) => {
@@ -148,6 +149,11 @@ export async function getIndicators() {
     );
     return indicators;
   });
+
+  const endTime = performance.now();
+  console.log(`getIndicators execution time: ${endTime - startTime}ms`);
+  
+  return result;
 }
 
 /**
@@ -193,7 +199,14 @@ export async function getGovernments() {
 
 export async function getHomeCopy() {
   const csvUrl = csv.homeCopy;
-  return fetchWithCache("homeCopy", () => fetchAndParseCSV(csvUrl));
+  const startTime = performance.now();
+  
+  const result = await fetchWithCache("homeCopy", () => fetchAndParseCSV(csvUrl));
+  
+  const endTime = performance.now();
+  console.log(`getHomeCopy execution time: ${endTime - startTime}ms`);
+  
+  return result;
 }
 export async function getNavbarCopy() {
   const csvUrl = csv.navbarCopy;

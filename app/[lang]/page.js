@@ -15,7 +15,7 @@ export default async function Home({ params }) {
 
   return (
     homeCopyData &&
-    indicators && (
+    (
       <main className="flex flex-col justify-start text-black bg-white">
         <Hero
           hero_title={getTextById(homeCopyData, "hero_title", lang)}
@@ -38,7 +38,7 @@ export default async function Home({ params }) {
                   )}
                 </p>
               </div>
-              <SelectLink
+            { indicators &&   <SelectLink
                 title={getTextById(
                   homeCopyData,
                   "explore_indicator_title",
@@ -54,7 +54,7 @@ export default async function Home({ params }) {
                 lang={lang}
                 options={indicators}
                 label={getTextById(homeCopyData, "select", lang)}
-              />
+              />}
             </div>
 
             <SearchBox
