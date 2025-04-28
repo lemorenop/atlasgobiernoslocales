@@ -238,6 +238,16 @@ export default function RadarChart({ data, indicators, government, copy }) {
           .attr("d", arc)
           .attr("fill", "rgba(231, 246, 248, 0.50)")
           .attr("stroke", "rgba(85, 199, 213, 0.15)")
+          .on("mouseover", function (event) {
+            setTootip({
+              ...valuesTooltip,
+              x: event.pageX,
+              y: event.pageY,
+            });
+          })
+          .on("mouseout", function () {
+            setTootip(null);
+          })
           .attr("stroke-width", 1);
 
         // Draw dividing lines (rayos de sol)
@@ -293,16 +303,16 @@ export default function RadarChart({ data, indicators, government, copy }) {
           .attr("stroke", govColor)
           .attr("stroke-width", 2)
           .attr("cursor", "pointer")         
-          .on("mouseover", function (event) {
-            setTootip({
-              ...valuesTooltip,
-              x: event.pageX,
-              y: event.pageY,
-            });
-          })
-          .on("mouseout", function () {
-            setTootip(null);
-          })
+          // .on("mouseover", function (event) {
+          //   setTootip({
+          //     ...valuesTooltip,
+          //     x: event.pageX,
+          //     y: event.pageY,
+          //   });
+          // })
+          // .on("mouseout", function () {
+          //   setTootip(null);
+          // })
          
           
 
@@ -326,16 +336,16 @@ export default function RadarChart({ data, indicators, government, copy }) {
           .attr("stroke-width", 2)
           .attr("cursor", "pointer")
          
-          .on("mouseover", function (event) {
-            setTootip({
-              ...valuesTooltip,
-              x: event.pageX,
-              y: event.pageY,
-            });
-          })
-          .on("mouseout", function () {
-            setTootip(null);
-          })
+          // .on("mouseover", function (event) {
+          //   setTootip({
+          //     ...valuesTooltip,
+          //     x: event.pageX,
+          //     y: event.pageY,
+          //   });
+          // })
+          // .on("mouseout", function () {
+          //   setTootip(null);
+          // })
          
         svg
           .append("circle")
@@ -345,16 +355,16 @@ export default function RadarChart({ data, indicators, government, copy }) {
           .attr("fill", countryColor)
           .attr("cursor", "pointer")
           .attr("tabindex", 0)
-          .on("mouseover", function (event) {
-            setTootip({
-              ...valuesTooltip,
-              x: event.pageX,
-              y: event.pageY,
-            });
-          })
-          .on("mouseout", function () {
-            setTootip(null);
-          })
+          // .on("mouseover", function (event) {
+          //   setTootip({
+          //     ...valuesTooltip,
+          //     x: event.pageX,
+          //     y: event.pageY,
+          //   });
+          // })
+          // .on("mouseout", function () {
+          //   setTootip(null);
+          // })
           .on("focus", function (event) {
             setTootip({
               ...valuesTooltip,
@@ -376,16 +386,16 @@ export default function RadarChart({ data, indicators, government, copy }) {
           .attr("fill", govColor)
           .attr("tabindex", 0)
           .attr("cursor", "pointer")
-          .on("mouseover", function (event) {
-            setTootip({
-              ...valuesTooltip,
-              x: event.pageX,
-              y: event.pageY,
-            });
-          })
-          .on("mouseout", function () {
-            setTootip(null);
-          })
+          // .on("mouseover", function (event) {
+          //   setTootip({
+          //     ...valuesTooltip,
+          //     x: event.pageX,
+          //     y: event.pageY,
+          //   });
+          // })
+          // .on("mouseout", function () {
+          //   setTootip(null);
+          // })
           .on("focus", function (event) {
             setTootip({
               ...valuesTooltip,
