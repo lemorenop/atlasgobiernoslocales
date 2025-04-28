@@ -25,22 +25,7 @@ export default function RadarChart({ data, indicators, government, copy }) {
     20,
   ];
   const [nationalData, setNationalData] = useState(null);
-  const [infoTooltip, setInfoTooltip] = useState(false);
 
-  // Textos traducidos para la leyenda
-  const legendTexts = {
-    government: {
-      es: "Gobierno",
-      en: "Government",
-      pt: "Governo",
-    },
-    nationalAverage: {
-      es: "Promedio",
-      en: "Average",
-      pt: "Nacional",
-    },
-  };
-console.log("national",nationalData)
   // Fetch national averages
   useEffect(() => {
     if (!government || !government.country_iso3) return;
@@ -61,7 +46,6 @@ console.log("national",nationalData)
         if (nivel) {
           url += `&nivel=${nivel}`;
         }
-console.log(url)
         const response = await fetch(url);
         if (!response.ok) {
           throw new Error("Failed to fetch national averages");
@@ -491,20 +475,6 @@ console.log(url)
     };
   }, [data, indicators, lang, nationalData]);
 
-  // // Function to toggle tooltip visibility
-  // const toggleInfoTooltip = (event) => {
-  //   setInfoTooltip((prev) => !prev);
-  //   if (!infoTooltip) {
-  //     setTootip({
-  //       title: getTextById(copy, "tooltip_info", lang),
-  //       x: event.clientX + window.scrollX, // Adjust for scrolling
-  //       y: event.clientY + window.scrollY, // Adjust for scrolling
-  //     });
-  //   } else {
-  //     setTootip(null);
-  //   }
-  // };
-  // console.log(tooltip);
   return (
     <>
       <div className="radar-chart-container h-full">
