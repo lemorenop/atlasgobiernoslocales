@@ -63,7 +63,7 @@ export default function Hero({
                       {ind[`name_${lang}`]}
                       <br />
                       <span className="font-bold description">
-                        {Math.round(value)}
+                        {Math.round(value)?.toLocaleString()}
                       </span>
                     </p>
                   </div>

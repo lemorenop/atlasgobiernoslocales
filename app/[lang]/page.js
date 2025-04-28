@@ -76,11 +76,7 @@ export default async function Home({ params }) {
                 lang
               )}
               lang={lang}
-              intro={getTextById(
-                homeCopyData,
-                "explore_jurisdiction_input",
-                lang
-              )}
+              intro={""}
               label={getTextById(
                 homeCopyData,
                 "explore_jurisdiction_button",

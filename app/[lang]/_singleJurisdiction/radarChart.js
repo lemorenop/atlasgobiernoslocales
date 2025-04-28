@@ -283,7 +283,7 @@ export default function RadarChart({ data, indicators, government, copy }) {
           .attr("y1", 0)
           .attr("x2", govX)
           .attr("y2", govY)
-          .attr("stroke", govColor)
+          .attr("stroke", countryColor)
           .attr("stroke-width", 2)
           .attr("cursor", "pointer")         
           // .on("mouseover", function (event) {
@@ -315,7 +315,7 @@ export default function RadarChart({ data, indicators, government, copy }) {
           .attr("y1", 0)
           .attr("x2", natX)
           .attr("y2", natY)
-          .attr("stroke", countryColor)
+          .attr("stroke", govColor)
           .attr("stroke-width", 2)
           .attr("cursor", "pointer")
          
@@ -335,7 +335,7 @@ export default function RadarChart({ data, indicators, government, copy }) {
           .attr("cx", natX)
           .attr("cy", natY)
           .attr("r", 6)
-          .attr("fill", countryColor)
+          .attr("fill", govColor)
           .attr("cursor", "pointer")
           .attr("tabindex", 0)
           // .on("mouseover", function (event) {
@@ -366,7 +366,7 @@ export default function RadarChart({ data, indicators, government, copy }) {
           .attr("cx", govX)
           .attr("cy", govY)
           .attr("r", 6)
-          .attr("fill", govColor)
+          .attr("fill", countryColor)
           .attr("tabindex", 0)
           .attr("cursor", "pointer")
           // .on("mouseover", function (event) {
