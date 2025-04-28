@@ -7,7 +7,7 @@ const govColor = "#1774AD";
 const countryColor = "#55C7D5";
 
 export default function RadarChart({ data, indicators, government, copy }) {
-  console.log(government);
+  // console.log(government);
   const [tooltip, setTootip] = useState();
   const params = useParams();
   const lang = params.lang; // Obtenemos el idioma directamente de los parámetros de la URL
@@ -210,12 +210,17 @@ export default function RadarChart({ data, indicators, government, copy }) {
             indDescription = indicatorInfo.description;
           }
         }
-        const displayGovValue = govData.value
+
+        // console.log(govData.value)
+
+        const displayGovValue = govData.value != null
           ? `${parseFloat(govData.value).toFixed(0)} ${
               indicatorInfo.unit_measure_id.unit
             }`
           : getTextById(copy, "no_data", lang);
-        const displayNatValue = natData.value
+
+
+        const displayNatValue = natData.value != null
           ? `${parseFloat(natData.value).toFixed(0)} ${
               indicatorInfo.unit_measure_id.unit
             }`
@@ -500,7 +505,7 @@ export default function RadarChart({ data, indicators, government, copy }) {
   //     setTootip(null);
   //   }
   // };
-  console.log(tooltip);
+  // console.log(tooltip);
   return (
     <>
       <div className="radar-chart-container h-full">
