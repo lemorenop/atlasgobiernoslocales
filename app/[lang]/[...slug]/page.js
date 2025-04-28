@@ -1,6 +1,6 @@
 import { notFound } from "next/navigation";
 import Jurisdiction from "../_singleJurisdiction/page";
-import Indicator from "../_indicators/[slug]/page";
+import Indicator from "../_singleIndicator/page";
 import Home from "../page";
 const { default: About } = require("../_about/page");
 function getKeyFromSlug(map, slug, lang) {

@@ -7,9 +7,9 @@
  * @returns {Promise<Array>} - Array de objetos de gobierno
  */
 export async function fetchGovernments() {
-  const response = await fetch('/api/governments');
+  const response = await fetch("/api/governments");
   if (!response.ok) {
-    throw new Error('Error al obtener los datos de gobiernos');
+    throw new Error("Error al obtener los datos de gobiernos");
   }
   return response.json();
 }
@@ -19,9 +19,9 @@ export async function fetchGovernments() {
  * @returns {Promise<Array>} - Array de objetos de indicadores
  */
 export async function fetchIndicators() {
-  const response = await fetch('/api/indicators');
+  const response = await fetch("/api/indicators");
   if (!response.ok) {
-    throw new Error('Error al obtener los datos de indicadores');
+    throw new Error("Error al obtener los datos de indicadores");
   }
   return response.json();
 }
@@ -31,9 +31,9 @@ export async function fetchIndicators() {
  * @returns {Promise<Array>} - Array de objetos de datos
  */
 export async function fetchAllData() {
-  const response = await fetch('/api/all-data');
+  const response = await fetch("/api/all-data");
   if (!response.ok) {
-    throw new Error('Error al obtener todos los datos');
+    throw new Error("Error al obtener todos los datos");
   }
   return response.json();
 }
@@ -43,9 +43,9 @@ export async function fetchAllData() {
  * @returns {Promise<Array>} - Array de objetos de datos de años
  */
 export async function fetchYearData() {
-  const response = await fetch('/api/year-data');
+  const response = await fetch("/api/year-data");
   if (!response.ok) {
-    throw new Error('Error al obtener los datos de años');
+    throw new Error("Error al obtener los datos de años");
   }
   return response.json();
 }
@@ -55,9 +55,9 @@ export async function fetchYearData() {
  * @returns {Promise<Array>} - Array de objetos de países
  */
 export async function fetchCountries() {
-  const response = await fetch('/api/countries');
+  const response = await fetch("/api/countries");
   if (!response.ok) {
-    throw new Error('Error al obtener los datos de países');
+    throw new Error("Error al obtener los datos de países");
   }
   return response.json();
 }
@@ -67,9 +67,9 @@ export async function fetchCountries() {
  * @returns {Promise<Array>} - Array de objetos de regiones
  */
 export async function fetchRegions() {
-  const response = await fetch('/api/regions');
+  const response = await fetch("/api/regions");
   if (!response.ok) {
-    throw new Error('Error al obtener los datos de regiones');
+    throw new Error("Error al obtener los datos de regiones");
   }
   return response.json();
 }
@@ -79,9 +79,9 @@ export async function fetchRegions() {
  * @returns {Promise<Array>} - Array de objetos de nivel por país
  */
 export async function fetchLevelPerCountry() {
-  const response = await fetch('/api/level-per-country');
+  const response = await fetch("/api/level-per-country");
   if (!response.ok) {
-    throw new Error('Error al obtener los datos de nivel por país');
+    throw new Error("Error al obtener los datos de nivel por país");
   }
   return response.json();
 }
@@ -91,9 +91,11 @@ export async function fetchLevelPerCountry() {
  * @returns {Promise<Array>} - Array de objetos de contenido de la página de inicio
  */
 export async function fetchHomeCopy() {
-  const response = await fetch('/api/home-copy');
+  const response = await fetch("/api/home-copy");
   if (!response.ok) {
-    throw new Error('Error al obtener los datos de contenido de la página de inicio');
+    throw new Error(
+      "Error al obtener los datos de contenido de la página de inicio"
+    );
   }
   return response.json();
 }
@@ -103,16 +105,16 @@ export async function fetchHomeCopy() {
  * @returns {Promise<Array>} - Array de objetos de la barra de navegación
  */
 export async function fetchNavbarCopy() {
-  const response = await fetch('http://localhost:3000/api/navbar-copy');
+  const response = await fetch("http://localhost:3000/api/navbar-copy");
   if (!response.ok) {
-    throw new Error('Error al obtener los datos de la barra de navegación');
+    throw new Error("Error al obtener los datos de la barra de navegación");
   }
   return response.json();
 }
 export async function fetchApi(url) {
   const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/${url}`);
   if (!response.ok) {
-    throw new Error('Error al obtener los datos de la barra de navegación');
+    throw new Error("Error al obtener los datos de la barra de navegación");
   }
   return response.json();
 }
@@ -122,9 +124,9 @@ export async function fetchApi(url) {
  * @returns {Promise<Array>} - Array de objetos del pie de página
  */
 export async function fetchFooterCopy() {
-  const response = await fetch('/api/footer-copy');
+  const response = await fetch("/api/footer-copy");
   if (!response.ok) {
-    throw new Error('Error al obtener los datos del pie de página');
+    throw new Error("Error al obtener los datos del pie de página");
   }
   return response.json();
 }
@@ -134,7 +136,7 @@ export async function fetchFooterCopy() {
  * @returns {Promise<Array>} - Array de objetos de la página "Acerca de"
  */
 export async function fetchAboutCopy() {
-  const response = await fetch('/api/about-copy');
+  const response = await fetch("/api/about-copy");
   if (!response.ok) {
     throw new Error('Error al obtener los datos de la página "Acerca de"');
   }
@@ -146,9 +148,11 @@ export async function fetchAboutCopy() {
  * @returns {Promise<Array>} - Array de objetos de tooltip del mapa de la página de inicio
  */
 export async function fetchHomeMapTooltip() {
-  const response = await fetch('/api/home-map-tooltip');
+  const response = await fetch("/api/home-map-tooltip");
   if (!response.ok) {
-    throw new Error('Error al obtener los datos de tooltip del mapa de la página de inicio');
+    throw new Error(
+      "Error al obtener los datos de tooltip del mapa de la página de inicio"
+    );
   }
   return response.json();
 }
@@ -158,13 +162,12 @@ export async function fetchHomeMapTooltip() {
  * @returns {Promise<Array>} - Array de objetos de error de la página
  */
 export async function fetchPageError() {
-  const response = await fetch('/api/page-error');  
+  const response = await fetch("/api/page-error");
   if (!response.ok) {
-    throw new Error('Error al obtener los datos de error de la página');
+    throw new Error("Error al obtener los datos de error de la página");
   }
   return response.json();
 }
-
 
 /**
  * Obtiene los datos filtrados de una jurisdicción específica
@@ -177,9 +180,20 @@ export async function fetchJurisdictionData(slug) {
 
   if (!response.ok) {
     if (response.status === 404) {
-      throw new Error('Gobierno no encontrado');
+      throw new Error("Gobierno no encontrado");
     }
-    throw new Error('Error al obtener los datos de la jurisdicción');
+    throw new Error("Error al obtener los datos de la jurisdicción");
   }
   return response.json();
-} 
+}
+
+export async function fetchIndicatorData(slug) {
+  const response = await fetch(`/api/indicators/${slug}`);
+  if (!response.ok) {
+    if (response.status === 404) {
+      throw new Error("Indicador no encontrado");
+    }
+    throw new Error("Error al obtener los datos del indicador");
+  }
+  return response.json();
+}
