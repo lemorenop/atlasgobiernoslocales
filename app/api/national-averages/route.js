@@ -19,7 +19,7 @@ export async function GET(request) {
     }
     
     if (nivel) {
-      filteredData = filteredData.filter(item => item.nivel === nivel);
+      filteredData = filteredData.filter(item => item.nivel == nivel);
     }
     
     return NextResponse.json(filteredData);

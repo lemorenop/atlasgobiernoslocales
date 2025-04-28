@@ -173,6 +173,8 @@ export async function fetchPageError() {
  */
 export async function fetchJurisdictionData(slug) {
   const response = await fetch(`/api/jurisdiction/${slug}`);
+  const startTime = performance.now();
+
   if (!response.ok) {
     if (response.status === 404) {
       throw new Error('Gobierno no encontrado');

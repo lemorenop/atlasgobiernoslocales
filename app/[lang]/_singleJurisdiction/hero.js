@@ -18,7 +18,7 @@ export default function Hero({
   government,
   jurisdictionsCopy,
 }) {
-  const indicatorsHero = ["1", "26", "2", "3"];
+  const indicatorsHero = [1, 26, 2, 3];
   const url = typeof window !== "undefined" ? window.location.href : null;
   const shareText = `${government.name} - ${government[`description_${lang}`]}`;
   return (
@@ -112,11 +112,11 @@ export default function Hero({
         )}
       </div>{" "}
       <div className="col-span-8 bg-background max-md:h-[50vh]">
-        <MapGoverment
+        {/* <MapGoverment
           governmentID={government.id}
           nivel={government.level_per_country_id.split("_")[0]}
           lang={lang}
-        />
+        /> */}
       </div>
     </div>
   );

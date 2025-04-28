@@ -24,6 +24,7 @@
     "next-i18next": "^15.4.2",
     "next-intl": "^4.0.2",
     "next-share": "^0.27.0",
+    "papaparse": "^5.5.2",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
     "react-i18next": "^15.4.1",

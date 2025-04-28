@@ -7,23 +7,22 @@ const govColor = "#1774AD";
 const countryColor = "#55C7D5";
 
 export default function RadarChart({ data, indicators, government, copy }) {
-  console.log(government);
   const [tooltip, setTootip] = useState();
   const params = useParams();
   const lang = params.lang; // Obtenemos el idioma directamente de los parámetros de la URL
   const svgRef = useRef(null);
   const indicatorsID = [
-    "21",
-    "5",
-    "7",
-    "8",
-    "13",
-    "19",
-    "10",
-    "11",
-    "12",
-    "17",
-    "20",
+    21,
+    5,
+    7,
+    8,
+    13,
+    19,
+    10,
+    11,
+    12,
+    17,
+    20,
   ];
   const [nationalData, setNationalData] = useState(null);
   const [infoTooltip, setInfoTooltip] = useState(false);
@@ -41,7 +40,7 @@ export default function RadarChart({ data, indicators, government, copy }) {
       pt: "Nacional",
     },
   };
-
+console.log("national",nationalData)
   // Fetch national averages
   useEffect(() => {
     if (!government || !government.country_iso3) return;
@@ -62,7 +61,7 @@ export default function RadarChart({ data, indicators, government, copy }) {
         if (nivel) {
           url += `&nivel=${nivel}`;
         }
-
+console.log(url)
         const response = await fetch(url);
         if (!response.ok) {
           throw new Error("Failed to fetch national averages");
@@ -500,7 +499,6 @@ export default function RadarChart({ data, indicators, government, copy }) {
   //     setTootip(null);
   //   }
   // };
-  console.log(tooltip);
   return (
     <>
       <div className="radar-chart-container h-full">

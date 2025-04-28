@@ -2,6 +2,7 @@
  * Utility functions to fetch data from various CSV sources
  */
 import { getFromCache, setInCache } from "./cache";
+import Papa from "papaparse";
 
 const csv = {
   indicators:
@@ -41,92 +42,55 @@ const csv = {
 };
 
 /**
- * Fetches and parses data from a CSV URL
+ * Fetches data from a URL with caching
+ * @param {string} cacheKey - Key to use for caching
+ * @param {Function} fetchFn - Function to fetch data
+ * @returns {Promise<any>} - Fetched data
+ */
+async function fetchWithCache(cacheKey, fetchFn) {
+  // Check if data is in cache
+  const cachedData = getFromCache(cacheKey);
+  if (cachedData) {
+    return cachedData;
+  }
+
+  // Fetch data
+  const data = await fetchFn();
+
+  // Store in cache
+  setInCache(cacheKey, data);
+
+  return data;
+}
+
+/**
+ * Fetches and parses CSV data using PapaParse
  * @param {string} csvUrl - URL of the CSV file
- * @returns {Promise<Array>} - Array of objects parsed from the CSV
+ * @returns {Promise<Array>} - Parsed CSV data
  */
 async function fetchAndParseCSV(csvUrl) {
   try {
     const response = await fetch(csvUrl);
     const csvText = await response.text();
 
-    // Parse CSV respecting quotes and commas within text
-    const rows = [];
-    let currentRow = [];
-    let currentCell = "";
-    let insideQuotes = false;
-
-    for (let i = 0; i < csvText.length; i++) {
-      const char = csvText[i];
-
-      if (char === '"') {
-        if (insideQuotes && csvText[i + 1] === '"') {
-          // Handle escaped quotes (double quotes)
-          currentCell += '"';
-          i++;
-        } else {
-          // Toggle quote state
-          insideQuotes = !insideQuotes;
-        }
-      } else if (char === "," && !insideQuotes) {
-        // End of cell
-        currentRow.push(currentCell.trim());
-        currentCell = "";
-      } else if (char === "\n" && !insideQuotes) {
-        // End of row
-        currentRow.push(currentCell.trim());
-        rows.push(currentRow);
-        currentRow = [];
-        currentCell = "";
-      } else {
-        currentCell += char;
-      }
-    }
-
-    // Handle last row if not ended with newline
-    if (currentCell !== "" || currentRow.length > 0) {
-      currentRow.push(currentCell.trim());
-      rows.push(currentRow);
-    }
-
-    const headers = rows[0].map((h) => h.trim());
-
-    // Convert to array of objects
-    const data = rows.slice(1).map((row) => {
-      const item = {};
-      headers.forEach((header, index) => {
-        item[header] = row[index]?.trim();
+    return new Promise((resolve, reject) => {
+      Papa.parse(csvText, {
+        header: true,
+        skipEmptyLines: true,
+        dynamicTyping: true,
+        complete: (results) => {
+          resolve(results.data);
+        },
+        error: (error) => {
+          console.error(`Error parsing CSV from ${csvUrl}:`, error);
+          reject(error);
+        },
       });
-      return item;
     });
-
-    return data;
   } catch (error) {
     console.error(`Error fetching data from ${csvUrl}:`, error);
     return [];
   }
-}
-
-/**
- * Fetches data with caching
- * @param {string} key - Cache key
- * @param {Function} fetchFn - Function to fetch data if not in cache
- * @returns {Promise<Array>} - Array of data objects
- */
-async function fetchWithCache(key, fetchFn) {
-  // Intentar obtener del caché
-  const cachedData = getFromCache(key);
-  if (cachedData) {
-    return cachedData;
-  }
-
-  // Si no está en caché, obtener los datos
-  const data = await fetchFn();
-
-  // Almacenar en caché
-  setInCache(key, data);
-
-  return data;
 }
 
 /**
@@ -135,25 +99,23 @@ async function fetchWithCache(key, fetchFn) {
  */
 export async function getIndicators() {
   const csvUrl = csv.indicators;
-  const startTime = performance.now();
+  const unitMeasures = await fetchAndParseCSV(csv.unitMeasures);
+  // const result = await fetchWithCache("indicators", async () => {
 
-  const result = await fetchWithCache("indicators", async () => {
-    const unitMeasures = await fetchAndParseCSV(csv.unitMeasures);
-    const indicators = await fetchAndParseCSV(csvUrl).then((res) =>
-      res.map((elm) => {
-        elm.unit_measure_id = unitMeasures.find(
-          (unit) => unit.id === elm.unit_measure_id
-        );
-        return elm;
-      })
-    );
-    return indicators;
-  });
+  const indicators = fetchWithCache("indicators", () =>
+    fetchAndParseCSV(csvUrl)
+  ).then((res) =>
+    res.map((elm) => {
+      elm.unit_measure_id = unitMeasures.find(
+        (unit) => unit.id === elm.unit_measure_id
+      );
+      return elm;
+    })
+  );
+  return indicators;
+  // });
 
-  const endTime = performance.now();
-  console.log(`getIndicators execution time: ${endTime - startTime}ms`);
-  
-  return result;
+  // return fetchWithCache("indicators", () => fetchAndParseCSV(csvUrl));
 }
 
 /**
@@ -193,42 +155,63 @@ export async function getGovernments() {
 }
 
 /**
- * Fetches all data in parallel
- * @returns {Promise<Object>} - Object containing all data
+ * Fetches home copy data
+ * @returns {Promise<Array>} - Array of home copy objects
  */
-
 export async function getHomeCopy() {
   const csvUrl = csv.homeCopy;
-  const startTime = performance.now();
-  
-  const result = await fetchWithCache("homeCopy", () => fetchAndParseCSV(csvUrl));
-  
-  const endTime = performance.now();
-  console.log(`getHomeCopy execution time: ${endTime - startTime}ms`);
-  
-  return result;
+  return fetchWithCache("homeCopy", () => fetchAndParseCSV(csvUrl));
 }
+
+/**
+ * Fetches navbar copy data
+ * @returns {Promise<Array>} - Array of navbar copy objects
+ */
 export async function getNavbarCopy() {
   const csvUrl = csv.navbarCopy;
   return fetchWithCache("navbarCopy", () => fetchAndParseCSV(csvUrl));
 }
+
+/**
+ * Fetches footer copy data
+ * @returns {Promise<Array>} - Array of footer copy objects
+ */
 export async function getFooterCopy() {
   const csvUrl = csv.footerCopy;
   return fetchWithCache("footerCopy", () => fetchAndParseCSV(csvUrl));
 }
+
+/**
+ * Fetches about copy data
+ * @returns {Promise<Array>} - Array of about copy objects
+ */
 export async function getAboutCopy() {
   const csvUrl = csv.aboutCopy;
   return fetchWithCache("aboutCopy", () => fetchAndParseCSV(csvUrl));
 }
+
+/**
+ * Fetches home map tooltip data
+ * @returns {Promise<Array>} - Array of home map tooltip objects
+ */
 export async function getHomeMapTooltip() {
   const csvUrl = csv.homeMapTooltip;
   return fetchWithCache("homeMapTooltip", () => fetchAndParseCSV(csvUrl));
 }
+
+/**
+ * Fetches all data
+ * @returns {Promise<Array>} - Array of all data objects
+ */
 export async function getAllData() {
   const csvUrl = csv.allData;
   return fetchWithCache("allData", () => fetchAndParseCSV(csvUrl));
 }
 
+/**
+ * Fetches year data
+ * @returns {Promise<Array>} - Array of year data objects
+ */
 export async function getYearData() {
   const csvUrl = csv.yearData;
   return fetchWithCache("yearData", () => fetchAndParseCSV(csvUrl));
@@ -236,18 +219,26 @@ export async function getYearData() {
 
 /**
  * Fetches national averages data
- * @returns {Promise<Array>} - Array of national average objects
+ * @returns {Promise<Array>} - Array of national averages objects
  */
 export async function getNationalAverages() {
   const csvUrl = csv.nationalAverages;
   return fetchWithCache("nationalAverages", () => fetchAndParseCSV(csvUrl));
 }
 
+/**
+ * Fetches indicators copy data
+ * @returns {Promise<Array>} - Array of indicators copy objects
+ */
 export async function getIndicatorsCopy() {
   const csvUrl = csv.indicatorsCopy;
   return fetchWithCache("indicatorsCopy", () => fetchAndParseCSV(csvUrl));
 }
 
+/**
+ * Fetches jurisdictions copy data
+ * @returns {Promise<Array>} - Array of jurisdictions copy objects
+ */
 export async function getJurisdictionsCopy() {
   const csvUrl = csv.jurisdictionsCopy;
   return fetchWithCache("jurisdictionsCopy", () => fetchAndParseCSV(csvUrl));
