@@ -3,135 +3,170 @@
 import { useState, useEffect, useRef } from "react";
 import { Map, Source, Layer, NavigationControl } from "react-map-gl/mapbox";
 import "mapbox-gl/dist/mapbox-gl.css";
-import * as topojson from "topojson-client";
-
-// Import the JSON files directly
-import nivel1Data from "../../../public/maps/nivel_1.json";
-import nivel2Data from "../../../public/maps/nivel_2.json";
-import nivel3Data from "../../../public/maps/nivel_3.json";
+import { basicSettings, handleMapLoad } from "@/app/utils/mapSettings";
 
 export default function MapGoverment({ nivel, governmentID, lang }) {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [geoJsonData, setGeoJsonData] = useState(null);
   const [viewState, setViewState] = useState({
     longitude: -58.3816,
     latitude: -34.6037,
     zoom: 4,
   });
+  const mapRef = useRef();
 
   useEffect(() => {
     try {
       setLoading(true);
-      
-      // Select the appropriate data based on the nivel parameter
-      let data;
+
+      // Set default view state based on the nivel
+      let defaultZoom = 4;
+      let defaultLng = -58.3816;
+      let defaultLat = -34.6037;
+
+      // Adjust default view based on nivel
       switch (nivel) {
         case "1":
-          data = nivel1Data;
+          defaultZoom = 4;
           break;
         case "2":
-          data = nivel2Data;
+          defaultZoom = 6;
           break;
         case "3":
-          data = nivel3Data;
+          defaultZoom = 8;
           break;
         default:
           throw new Error(`Nivel no válido: ${nivel}`);
       }
 
-      // Get the objects from the TopoJSON data
-      const objects = Object.keys(data.objects || {});
-      
-      // Convert each object to GeoJSON
-      const geoJsonFeatures = objects.map((obj) =>
-        topojson.feature(data, data.objects[obj])
-      );
-      
-      // Find the feature that matches the governmentID
-      let targetFeature = null;
-      
-      for (const feature of geoJsonFeatures) {
-        // Check if any feature in the GeoJSON has the matching codigo_uni
-        const matchingFeature = feature.features.find(
-          (f) => f.properties.codigo_uni === governmentID
-        );
-        
-        if (matchingFeature) {
-          targetFeature = matchingFeature;
-          break;
-        }
-      }
-      
-      if (!targetFeature) {
-        throw new Error(`No se encontró la geometría para el gobierno con ID: ${governmentID}`);
-      }
-      
-      // Set the GeoJSON data
-      setGeoJsonData(targetFeature);
-      
-      // Calculate the center of the feature for the map view
-      if (targetFeature.geometry.type === "Polygon" || targetFeature.geometry.type === "MultiPolygon") {
-        // For polygons, calculate the centroid
-        const coordinates = targetFeature.geometry.type === "Polygon" 
-          ? targetFeature.geometry.coordinates[0] 
-          : targetFeature.geometry.coordinates[0][0];
-        
-        let sumLng = 0;
-        let sumLat = 0;
-        let count = 0;
-        
-        coordinates.forEach(coord => {
-          sumLng += coord[0];
-          sumLat += coord[1];
-          count++;
-        });
-        
-        if (count > 0) {
-          setViewState({
-            longitude: sumLng / count,
-            latitude: sumLat / count,
-            zoom: 6,
-          });
-        }
-      }
-      
+      // Set initial view state
+      setViewState({
+        longitude: defaultLng,
+        latitude: defaultLat,
+        zoom: defaultZoom,
+      });
+
       setLoading(false);
     } catch (error) {
-      console.error("Error al cargar la geometría:", error);
+      console.error("Error al configurar el mapa:", error);
       setError(error.message);
       setLoading(false);
     }
   }, [nivel, governmentID]);
 
-  // Layer style for the government shape
-  const governmentLayer = {
-    id: "government-layer",
+  // Function to center map on the jurisdiction when it's loaded
+  const centerOnJurisdiction = () => {
+    if (!mapRef.current) return;
+
+    const map = mapRef.current.getMap();
+
+    // Query the features for the current jurisdiction
+    const features = map.queryRenderedFeatures({
+      layers: [`nivel${nivel}-layer`],
+    });
+
+    if (features && features.length > 0) {
+      // Get the feature
+      const feature = features[0];
+
+      // Use fitBounds to zoom to the feature's bounds with padding
+      map.fitBounds(getBoundsFromFeature(feature), {
+        padding: 50,
+        maxZoom: 15, // Limit max zoom to prevent excessive zooming
+      });
+    }
+  };
+
+  // Helper function to extract bounds from a feature
+  const getBoundsFromFeature = (feature) => {
+    if (!feature.geometry) return null;
+
+    // For polygons, we need to get the outer ring coordinates
+    let coordinates;
+
+    if (feature.geometry.type === "Polygon") {
+      coordinates = feature.geometry.coordinates[0]; // Outer ring
+    } else if (feature.geometry.type === "MultiPolygon") {
+      // For MultiPolygon, we'll use the first polygon's outer ring
+      coordinates = feature.geometry.coordinates[0][0];
+    } else {
+      return null;
+    }
+
+    // Calculate bounds
+    let minLng = Infinity;
+    let maxLng = -Infinity;
+    let minLat = Infinity;
+    let maxLat = -Infinity;
+
+    coordinates.forEach((coord) => {
+      minLng = Math.min(minLng, coord[0]);
+      maxLng = Math.max(maxLng, coord[0]);
+      minLat = Math.min(minLat, coord[1]);
+      maxLat = Math.max(maxLat, coord[1]);
+    });
+
+    return [
+      [minLng, minLat],
+      [maxLng, maxLat],
+    ];
+  };
+
+  // Layer styles for each level using tilesets
+  const nivel1Layer = {
+    id: "nivel1-layer",
     type: "fill",
     paint: {
-      "stroke-color": "#1774AD",
-      "stroke-width": 2,
       "fill-color": "#55C7D5",
       "fill-opacity": 0.1,
-      "fill-outline-color": "#627BC1",
+      "fill-outline-color": "#1774AD",
+      "fill-opacity-transition": { duration: 0 },
     },
+    filter: ["==", ["get", "codigo_uni"], governmentID],
+    minzoom: 0,
+    maxzoom: 22,
   };
-  const mapRef = useRef();
 
-  const handleMapLoad = () => {
-    const map = mapRef.current.getMap();
-    const textField = ['get', `name_${lang}`]; // por ej. 'name_es'
-
-    map.getStyle().layers.forEach((layer) => {
-      if (layer.type === 'symbol' && layer.layout?.['text-field']) {
-        map.setLayoutProperty(layer.id, 'text-field', textField);
-      }
-    });
+  const nivel2Layer = {
+    id: "nivel2-layer",
+    type: "fill",
+    paint: {
+      "fill-color": "#55C7D5",
+      "fill-opacity": 0.1,
+      "fill-outline-color": "#1774AD",
+      "fill-opacity-transition": { duration: 0 },
+    },
+    filter: ["==", ["get", "codigo_uni"], governmentID],
+    minzoom: 0,
+    maxzoom: 22,
   };
+
+  const nivel3Layer = {
+    id: "nivel3-layer",
+    type: "fill",
+    paint: {
+      "fill-color": "#55C7D5",
+      "fill-opacity": 0.1,
+      "fill-outline-color": "#1774AD",
+      "fill-opacity-transition": { duration: 0 },
+    },
+    filter: ["==", ["get", "codigo_uni"], governmentID],
+    minzoom: 0,
+    maxzoom: 22,
+  };
+
+  function handleLoad() {
+    const map = mapRef.current?.getMap();
+    handleMapLoad(map, lang);
+
+    // Wait a bit for the map to fully load and render the features
+    setTimeout(() => {
+      centerOnJurisdiction();
+    }, 1500);
+  }
 
   return (
-    <div className="w-full h-full relative">        
-
+    <div className="w-full h-full relative">
       {loading ? (
         <div className="absolute inset-0 flex items-center justify-center bg-gray-100">
           <p>Cargando mapa...</p>
@@ -142,29 +177,45 @@ export default function MapGoverment({ nivel, governmentID, lang }) {
         </div>
       ) : (
         <Map
-        ref={mapRef}
-        onLoad={handleMapLoad}
-          mapboxAccessToken={process.env.NEXT_PUBLIC_MAPBOX_TOKEN}
+          ref={mapRef}
+          onLoad={handleLoad}
           initialViewState={viewState}
-          mapStyle="mapbox://styles/mapbox/light-v11"
-          projection="mercator"
-          minZoom={1}
+          minZoom={nivel === "1" ? 1 : 4}
           maxZoom={22}
-          dragRotate={false}
-          touchRotate={false}
-          pitchEnabled={false}
-          attributionControl={false}
+          {...basicSettings}
         >
           <NavigationControl position="top-right" />
 
-          {/* Government shape */}
-          {geoJsonData && (
+          {/* Nivel 1 - Visible at low zoom levels */}
+          {nivel === "1" && (
             <Source
-              id="government-source"
-              type="geojson"
-              data={geoJsonData}
+              id="nivel1-source"
+              type="vector"
+              url="mapbox://dis-caf.3i72hiat"
             >
-              <Layer {...governmentLayer} />
+              <Layer {...nivel1Layer} source-layer="nivel_1-7n3yuu" />
+            </Source>
+          )}
+
+          {/* Nivel 2 - Visible at medium zoom levels */}
+          {nivel === "2" && (
+            <Source
+              id="nivel2-source"
+              type="vector"
+              url="mapbox://dis-caf.5o44vlx3"
+            >
+              <Layer {...nivel2Layer} source-layer="nivel_2-721y7u" />
+            </Source>
+          )}
+
+          {/* Nivel 3 - Visible at high zoom levels */}
+          {nivel === "3" && (
+            <Source
+              id="nivel3-source"
+              type="vector"
+              url="mapbox://dis-caf.1yjc4k9u"
+            >
+              <Layer {...nivel3Layer} source-layer="nivel_3-2264x6" />
             </Source>
           )}
         </Map>
@@ -172,5 +223,3 @@ export default function MapGoverment({ nivel, governmentID, lang }) {
     </div>
   );
 }
-
-

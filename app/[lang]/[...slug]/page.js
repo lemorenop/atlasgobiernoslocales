@@ -1,7 +1,7 @@
 import { notFound } from "next/navigation";
-import Jurisdictions from "../_jurisdictions/page";
 import Jurisdiction from "../_singleJurisdiction/page";
 import Indicator from "../_indicators/[slug]/page";
+import Home from "../page";
 const { default: About } = require("../_about/page");
 function getKeyFromSlug(map, slug, lang) {
   for (const [key, translations] of Object.entries(map)) {
@@ -18,7 +18,8 @@ const pageMap = {
   },
   indicators: { en: "indicators", es: "indicadores", pt: "indicadores" },
 };
-export default function Page({ params: { lang, slug } }) {
+export default async function Page({params}) {
+  const {lang,slug} = await params;
   
   if (slug.length === 1) {
     const pageKey = getKeyFromSlug(pageMap, slug[0], lang);
@@ -27,12 +28,11 @@ export default function Page({ params: { lang, slug } }) {
     switch (pageKey) {
       case "about":
         return <About lang={lang} />;
-      case "jurisdictions":
-        return <Jurisdictions lang={lang} />;
+      
       // case 'indicators':
       //   return <IndicatorsList lang={lang} />
-      // default:
-      //   return notFound()
+      default:
+        return notFound()
     }
   }
 

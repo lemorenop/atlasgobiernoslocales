@@ -18,7 +18,7 @@ export default function Hero({
   government,
   jurisdictionsCopy,
 }) {
-  const indicatorsHero = ["1", "26", "2", "3"];
+  const indicatorsHero = [1, 26, 2, 3];
   const url = typeof window !== "undefined" ? window.location.href : null;
   const shareText = `${government.name} - ${government[`description_${lang}`]}`;
   return (

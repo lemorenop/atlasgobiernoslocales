@@ -10,9 +10,9 @@ import { getDictionary } from "@/app/i18n.config";
 import { getJurisdictionsCopy, getYearData } from "@/app/utils/dataFetchers";
 import { getTextById } from "@/app/utils/textUtils";
 import Loader from "@/app/[lang]/components/loader";
-export default function Jurisdiction({lang,slug}) {
+export default function Jurisdiction({ lang, slug }) {
   const router = useRouter();
- 
+
   const [government, setGovernment] = useState(null);
   const [governmentData, setGovernmentData] = useState([]);
   const [indicators, setIndicators] = useState([]);
@@ -51,7 +51,7 @@ export default function Jurisdiction({lang,slug}) {
   }, [slug, router, lang]); // Añadimos lang como dependencia
 
   if (loading) {
-    return <Loader/>
+    return <Loader />;
   }
 
   if (!government) {
@@ -62,13 +62,15 @@ export default function Jurisdiction({lang,slug}) {
     "No hay datos disponibles para esta jurisdicción";
   return (
     <main className="flex flex-col justify-start text-black bg-white ">
-      <Hero
-        jurisdictionsCopy={jurisdictionsCopy}
-        indicators={indicators}
-        data={governmentData}
-        lang={lang}
-        government={government}
-      />
+      {(jurisdictionsCopy || indicators || governmentData || government) && (
+        <Hero
+          jurisdictionsCopy={jurisdictionsCopy}
+          indicators={indicators}
+          data={governmentData}
+          lang={lang}
+          government={government}
+        />
+      )}
 
       {/* Mostrar los datos filtrados del gobierno */}
       <div className="p-[80px] grid lg:grid-cols-12 gap-xl">
@@ -78,11 +80,18 @@ export default function Jurisdiction({lang,slug}) {
           </h2>
           <div className="bg-background p-xl ">
             <p className="text-p">
-              {getTextById(jurisdictionsCopy, "indicators_subtitle", lang,[{id:"jurisdiction",replace:government.name},{id:"country",replace:government.country[`name_${lang}`]}])
+              {
+                getTextById(jurisdictionsCopy, "indicators_subtitle", lang, [
+                  { id: "jurisdiction", replace: government.name },
+                  {
+                    id: "country",
+                    replace: government.country[`name_${lang}`],
+                  },
+                ])
                 // .replace("[jurisdiction]", government.name)
                 // .replace("[country]", government.country[`name_${lang}`])
-                // 
-                }
+                //
+              }
             </p>
           </div>
         </div>
@@ -90,7 +99,7 @@ export default function Jurisdiction({lang,slug}) {
         {governmentData.length > 0 ? (
           <div className="flex flex-col lg:col-span-8 min-h-[600px]">
             <RadarChart
-            copy={jurisdictionsCopy}
+              copy={jurisdictionsCopy}
               government={government}
               data={governmentData}
               indicators={indicators}
