@@ -4,7 +4,6 @@ import { getHomeCopy, getIndicators } from "@/app/utils/dataFetchers";
 import { getTextById } from "@/app/utils/textUtils";
 import MapView from "./components/map";
 import SearchBox from "./components/searchBox";
-import GovernmentDataProvider from "./components/governmentDataProvider";
 import Hero from "./hero";
 import SelectLink from "./components/selectLink";
 
@@ -23,7 +22,6 @@ export default async function Home({ params }) {
           hero_explore={getTextById(homeCopyData, "hero_explore", lang)}
           lang={lang}
         />{" "}
-        {/* <GovernmentDataProvider lang={lang}> */}
           <div className="px-[80px] grid grid-cols-2 gap-[64px] py-[112px] bg-white">
             <div className="bg-background p-xl flex flex-col gap-[24px] justify-between">
               <div className="flex flex-col gap-[24px]">
@@ -80,7 +78,6 @@ export default async function Home({ params }) {
               )}
             />
           </div>{" "}
-        {/* </GovernmentDataProvider> */}
       </main>
     )
   );

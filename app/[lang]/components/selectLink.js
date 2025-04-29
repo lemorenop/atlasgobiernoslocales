@@ -10,10 +10,15 @@ export default function SelectLink({
   lang,
   title,
   activeOption,
+  colorLabel = "black",
 }) {
   return (
     <>
-      <p className=" paragraph-small">{title}</p>
+      <p
+        className={` paragraph-small ${colorLabel === "white" ? "text-white":'text-black'}`}
+      >
+        {title}
+      </p>
 
       <Menu>
         <MenuButton
@@ -40,13 +45,13 @@ export default function SelectLink({
           className="w-96 z-20 origin-top-right transition duration-100 ease-out [--anchor-gap:var(--spacing-1)] focus:outline-none data-[closed]:scale-95 data-[closed]:opacity-0 bg-white text-blue-CAF border-1 border-background uppercase description p-m flex flex-col font-bold h-[300px] overflow-y-auto z-20"
         >
           {options.map((option) => (
-            <MenuItem
+          option.slug_es &&  <MenuItem
               key={option.slug_es}
               className="hover:bg-blue-CAF hover:text-white p-xs"
             >
-              <Link href={`/${lang}/${path}/${option[`slug_${lang}`]}`}>
+              <a href={`/${lang}/${path}/${option[`slug_${lang}`]}`}>
                 {option[`name_${lang}`]}
-              </Link>
+              </a>
             </MenuItem>
           ))}
         </MenuItems>

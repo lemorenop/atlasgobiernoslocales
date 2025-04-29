@@ -6,8 +6,8 @@
  * Obtiene los datos de los gobiernos
  * @returns {Promise<Array>} - Array de objetos de gobierno
  */
-export async function fetchGovernments() {
-  const response = await fetch("/api/governments");
+export async function fetchGovernments(lang,responseType) {
+  const response = await fetch(`/api/governments?lang=${lang}&responseType=${responseType}`);
   if (!response.ok) {
     throw new Error("Error al obtener los datos de gobiernos");
   }

@@ -80,7 +80,7 @@ export default function MapGoverment({ nivel, governmentID, lang }) {
       // Use fitBounds to zoom to the feature's bounds with padding
       map.fitBounds(getBoundsFromFeature(feature), {
         padding: 50,
-        maxZoom: 15, // Limit max zoom to prevent excessive zooming
+        // maxZoom: 15, // Limit max zoom to prevent excessive zooming
       });
     }
   };

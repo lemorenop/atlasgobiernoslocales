@@ -21,13 +21,13 @@ export default function IndicatorDataProvider({ lang, children,indicatorCode }) 
             console.timeEnd('fetchIndicatorData');
             
             console.time('fetchGovernments');
-            const governments = await fetchGovernments();
+            const governments = await fetchGovernments(lang,"json").then(res=>res.data);
             console.timeEnd('fetchGovernments');
             
             setData({data:response.data,governments});
         } catch (error) {
           console.error("Error loading government data:", error);
-          setError(pageError);
+          // setError(pageError);
         }
       }
   
