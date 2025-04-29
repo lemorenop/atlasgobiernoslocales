@@ -67,10 +67,19 @@ export default function MapView({ lang = "es" }) {
   function handleLoad() {
     return handleMapLoad(mapRef.current?.getMap(), lang);
   }
-  // Handle click events for tooltips
-  // const onClick = (event) => {
-    
-  // };
+
+  // Layer styles for each level using tilesets
+  const nivel0Layer = {
+    id: "nivel0-layer",
+    type: "line",
+    paint: {
+      "line-color": "#55C7D5",
+      "line-width": 3,
+    },
+    minzoom: 0,
+    maxzoom: 22,
+    interactive: true,
+  };
 
   // Layer styles for each level using tilesets
   const nivel1Layer = {
@@ -81,7 +90,7 @@ export default function MapView({ lang = "es" }) {
       "line-width": 0.5,
     },
     minzoom: 0,
-    maxzoom: 4,
+    maxzoom: 22,
     interactive: true,
   };
 
@@ -90,7 +99,7 @@ export default function MapView({ lang = "es" }) {
     type: "line",
     paint: {
       "line-color": "#55C7D5",
-      "line-width": 0.5,
+      "line-width": 0.1,
     },
     minzoom: 4,
     maxzoom: 22,
@@ -102,7 +111,7 @@ export default function MapView({ lang = "es" }) {
     type: "line",
     paint: {
       "line-color": "#55C7D5",
-      "line-width": 0.5,
+      "line-width": 0.2,
     },
     minzoom: 5,
     maxzoom: 22,
@@ -179,6 +188,15 @@ export default function MapView({ lang = "es" }) {
           {...basicSettings}
         >
           <NavigationControl position="top-right" />
+
+          {/* Nivel 1 - Visible at low zoom levels */}
+          <Source
+            id="nivel0-source"
+            type="vector"
+            url="mapbox://dis-caf.4eo2m2u3"
+          >
+            <Layer {...nivel0Layer} source-layer="countries_sm-2an4y3" />
+          </Source>
 
           {/* Nivel 1 - Visible at low zoom levels */}
           <Source

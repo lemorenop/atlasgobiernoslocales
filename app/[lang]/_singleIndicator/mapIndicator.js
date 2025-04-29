@@ -69,13 +69,13 @@ export default function MapIndicator({
 
   // Crear escala de colores usando d3
   const colorScale = useMemo(() => {
-    if (!data) return null;
+    if (!data) return "#ff0000";
 
     const values = Object.values(data)
       .map((item) => item.value)
       .filter((value) => value !== undefined && value !== null);
 
-    if (values.length === 0) return null;
+    if (values.length === 0) return "#ffffff";
 
     return d3
       .scaleSequential()

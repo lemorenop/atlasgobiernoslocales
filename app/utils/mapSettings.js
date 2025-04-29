@@ -28,7 +28,7 @@ export const handleMapLoad = (
   }
 };
 export const lineColor="#55C7D5"
-export const noDataColor="#929292"
+export const noDataColor="#f3f3f3"
 export const basicSettings={
     mapboxAccessToken:process.env.NEXT_PUBLIC_MAPBOX_TOKEN,
     dragRotate:false,   

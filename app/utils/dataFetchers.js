@@ -99,7 +99,9 @@ async function fetchAndParseCSV(csvUrl) {
  */
 export async function getIndicators() {
   const csvUrl = csv.indicators;
-  const unitMeasures = await fetchAndParseCSV(csv.unitMeasures);
+  const unitMeasures = await fetchWithCache("unitMeasures", () => fetchAndParseCSV(csv.unitMeasures));
+
+  console.log(unitMeasures);
   // const result = await fetchWithCache("indicators", async () => {
 
   const indicators = fetchWithCache("indicators", () =>
