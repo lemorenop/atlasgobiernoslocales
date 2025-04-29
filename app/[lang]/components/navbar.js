@@ -140,7 +140,7 @@ export default async function Navbar({ lang }) {
                 />
                 {getTextById(navbarCopy, "about", lang)}
               </Link> */}
-              <LanguageSwitcher lang={lang} slugs={navbarCopy} />{" "}
+              <LanguageSwitcher lang={lang} slugs={navbarCopy} indicators={indicators} />{" "}
             </div>
           </div>{" "}
         </div>
