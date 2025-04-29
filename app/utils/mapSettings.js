@@ -1,6 +1,15 @@
 export const handleMapLoad = (
     map, // mapRef    
     lang) => {
+
+
+const VISIBLE_LAYERS = [
+  'continent-layer',
+  'state-label',
+  'country-label',
+  "settlement-major-label",
+  "settlement-minor-label"
+];
         
   if(map){
     // Muestra el nombre según el idioma activo del sitio (lang = 'es', 'en', 'fr', etc.)
@@ -19,10 +28,16 @@ export const handleMapLoad = (
       ['has', field], ['get', field],
       ['get', fallbackField]
     ];
-  
+
     map.getStyle().layers.forEach((layer) => {
       if (layer.type === 'symbol' && layer.layout?.['text-field']) {
-        map.setLayoutProperty(layer.id, 'text-field', customLabelExpression);
+        // console.log(layer.id);
+        if (VISIBLE_LAYERS.includes(layer.id)) {
+          map.setLayoutProperty(layer.id, 'text-field', customLabelExpression);
+          map.setLayoutProperty(layer.id, 'visibility', 'visible');
+        } else {
+          map.setLayoutProperty(layer.id, 'visibility', 'none');
+        }
       }
     });
   }

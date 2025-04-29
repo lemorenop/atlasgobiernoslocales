@@ -68,13 +68,20 @@ export default function MapView({ lang = "es" }) {
     return handleMapLoad(mapRef.current?.getMap(), lang);
   }
 
+  const isoA3List = tooltipData.map((item) => item.country_iso3); // Reemplaza con los códigos ISO_A3 que desees
+
   // Layer styles for each level using tilesets
   const nivel0Layer = {
     id: "nivel0-layer",
     type: "line",
     paint: {
       "line-color": "#55C7D5",
-      "line-width": 3,
+      "line-width": [
+        'case',
+        ['in', ['get', 'ISO_A3'], ['literal', isoA3List]],
+        2.5,
+        0
+      ],
     },
     minzoom: 0,
     maxzoom: 22,
@@ -129,12 +136,8 @@ export default function MapView({ lang = "es" }) {
   };
 
   const mapRef = useRef();
-  const onZoom = () => {
-    setSelectedCountry(null);
-    setSelectedCoordinates(null);
-  };
 
-  const onMouseEnter = (event) => {
+  const onClick = (event) => {
     const feature = event.features && event.features[0];
     // console.log(event.features);
     if (feature && feature.properties && feature.properties.GID_0) {
@@ -148,7 +151,7 @@ export default function MapView({ lang = "es" }) {
     }
   };
 
-  const onMouseLeave = () => {
+  const onZoomOrPan = () => {
     setSelectedCountry(null);
     setSelectedCoordinates(null);
   };
@@ -173,10 +176,9 @@ export default function MapView({ lang = "es" }) {
           ref={mapRef}
           onLoad={handleLoad}
           initialViewState={initialViewState}
-          onZoom={onZoom}
-          onMouseEnter={onMouseEnter}
-          onMouseLeave={onMouseLeave}
-          onMouseMove={onMouseEnter}
+          onZoom={onZoomOrPan}
+          onMove={onZoomOrPan}
+          onClick={onClick}
           minZoom={1}
           maxZoom={22}
           interactiveLayerIds={[
