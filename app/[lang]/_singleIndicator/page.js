@@ -30,7 +30,7 @@ export default async function Indicator({ lang, slug }) {
         indicators={indicators}
         indicator={currentIndicator}
       />
-      <IndicatorDataProvider indicatorCode={currentIndicator.code}>
+      <IndicatorDataProvider indicatorCode={currentIndicator.code} lang={lang}>
       <MapContainer
         regions={regions}
         countries={countries}

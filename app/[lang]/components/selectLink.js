@@ -27,9 +27,9 @@ export default function SelectLink({
           }`}
         >
           {activeOption ? (
-            <span className=" text-blue font-bold">{activeOption}</span>
+            <span className=" text-blue font-bold text-left">{activeOption}</span>
           ) : (
-            <span className=" description ">{label}</span>
+            <span className=" description text-left">{label}</span>
           )}
 
           <Expand
@@ -42,14 +42,16 @@ export default function SelectLink({
         <MenuItems
           transition
           anchor="bottom end"
-          className="w-96 z-20 origin-top-right transition duration-100 ease-out [--anchor-gap:var(--spacing-1)] focus:outline-none data-[closed]:scale-95 data-[closed]:opacity-0 bg-white text-blue-CAF border-1 border-background uppercase description p-m flex flex-col font-bold h-[300px] overflow-y-auto z-20"
+          className="w-96 z-20 origin-top-right transition duration-100 ease-out [--anchor-gap:var(--spacing-1)] focus:outline-none data-[closed]:scale-95 data-[closed]:opacity-0 bg-white text-blue-CAF border-1 border-background uppercase description p-m flex flex-col  font-bold h-[300px] overflow-y-auto "
         >
           {options.map((option) => (
           option.slug_es &&  <MenuItem
               key={option.slug_es}
               className="hover:bg-blue-CAF hover:text-white p-xs"
             >
-              <a href={`/${lang}/${path}/${option[`slug_${lang}`]}`}>
+              <a
+              className="w-full "
+              href={`/${lang}/${path}/${option[`slug_${lang}`]}`}>
                 {option[`name_${lang}`]}
               </a>
             </MenuItem>
