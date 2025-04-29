@@ -1,8 +1,5 @@
-import { getDictionary } from "@/app/i18n.config";
-import { i18n } from "@/app/i18n.config";
 import { getHomeCopy, getIndicators } from "@/app/utils/dataFetchers";
 import { getTextById } from "@/app/utils/textUtils";
-import MapView from "./components/map";
 import SearchBox from "./components/searchBox";
 import Hero from "./hero";
 import SelectLink from "./components/selectLink";

@@ -7,6 +7,7 @@ import NavbarDialogs from "./navbarDialogs";
 import SearchBox from "./searchBox";
 import { getHomeCopy, getIndicators } from "@/app/utils/dataFetchers";
 import SelectLink from "./selectLink";
+
 export default async function Navbar({ lang }) {
   const navbarCopy = await fetchApi("navbar-copy");
   const homeCopyData = await getHomeCopy();

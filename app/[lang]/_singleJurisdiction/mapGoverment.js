@@ -143,7 +143,7 @@ export default function MapGoverment({ nivel, governmentID, lang, bounds }) {
     type: "fill",
     paint: {
       "fill-color": "#55C7D5",
-      "fill-opacity": 0.1,
+      "fill-opacity": 0.25,
       "fill-outline-color": "#1774AD",
       "fill-opacity-transition": { duration: 0 },
     },
@@ -157,7 +157,7 @@ export default function MapGoverment({ nivel, governmentID, lang, bounds }) {
     type: "fill",
     paint: {
       "fill-color": "#55C7D5",
-      "fill-opacity": 0.1,
+      "fill-opacity": 0.25,
       "fill-outline-color": "#1774AD",
       "fill-opacity-transition": { duration: 0 },
     },
@@ -171,7 +171,7 @@ export default function MapGoverment({ nivel, governmentID, lang, bounds }) {
     type: "fill",
     paint: {
       "fill-color": "#55C7D5",
-      "fill-opacity": 0.1,
+      "fill-opacity": 0.25,
       "fill-outline-color": "#1774AD",
       "fill-opacity-transition": { duration: 0 },
     },
