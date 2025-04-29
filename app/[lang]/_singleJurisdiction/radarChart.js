@@ -196,13 +196,13 @@ export default function RadarChart({ data, indicators, government, copy }) {
 
         const displayGovValue = govData.value != null
           ? `${parseFloat(govData.value).toFixed(0)} ${
-              indicatorInfo.unit_measure_id.unit
+              indicatorInfo.unit_measure_id?.unit
             }`
           : getTextById(copy, "no_data", lang);
 
         const displayNatValue = natData.value != null
           ? `${parseFloat(natData.value).toFixed(0)} ${
-              indicatorInfo.unit_measure_id.unit
+              indicatorInfo.unit_measure_id?.unit
             }`
           : getTextById(copy, "no_data", lang);
         // Draw the segment background

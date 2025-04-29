@@ -13,6 +13,9 @@ export default function MapGoverment({ nivel, governmentID, lang }) {
     latitude: -34.6037,
     zoom: 4,
   });
+
+  console.log(governmentID);
+
   const mapRef = useRef();
 
   useEffect(() => {
@@ -62,12 +65,17 @@ export default function MapGoverment({ nivel, governmentID, lang }) {
 
     // Query the features for the current jurisdiction
     const features = map.queryRenderedFeatures({
-      layers: [`nivel${nivel}-layer`],
+      layers: [`nivel1-layer`, `nivel2-layer`, `nivel3-layer`],
     });
+
+    console.log(nivel);
+    console.log(features);
 
     if (features && features.length > 0) {
       // Get the feature
       const feature = features[0];
+
+      console.log(feature);
 
       // Use fitBounds to zoom to the feature's bounds with padding
       map.fitBounds(getBoundsFromFeature(feature), {
@@ -162,7 +170,7 @@ export default function MapGoverment({ nivel, governmentID, lang }) {
     // Wait a bit for the map to fully load and render the features
     setTimeout(() => {
       centerOnJurisdiction();
-    }, 1500);
+    }, 3000);
   }
 
   return (
