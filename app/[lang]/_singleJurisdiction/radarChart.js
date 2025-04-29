@@ -194,6 +194,9 @@ export default function RadarChart({ data, indicators, government, copy }) {
           }
         }
 
+        console.log(indicatorInfo.unit_measure_id);
+        console.log(indicatorInfo.unit_measure_id?.unit);
+
         const displayGovValue = govData.value != null
           ? `${parseFloat(govData.value).toFixed(0)} ${
               indicatorInfo.unit_measure_id?.unit

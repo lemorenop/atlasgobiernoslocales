@@ -71,7 +71,8 @@ export default function SearchBox({
                 className="flex flex-col w-full uppercase text-[14px] tracking-wide"
                 href={`/${lang}/${path}/${item.id}`}
               >
-                {item.name}, {item.completeName}
+                {item.name}, {item.parentName ? item.parentName + ", " : ""}
+                {item.countryName}
               </a>
             </ComboboxOption>
           ))}
