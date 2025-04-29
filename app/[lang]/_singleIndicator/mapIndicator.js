@@ -10,6 +10,7 @@ import { useState, useEffect, useContext, useMemo, useRef } from "react";
 import { Map, Source, Layer, NavigationControl } from "react-map-gl/mapbox";
 import "mapbox-gl/dist/mapbox-gl.css";
 import * as d3 from "d3";
+import { getTextById } from "@/app/utils/textUtils";
 
 export default function MapIndicator({
   selectedNivel,
@@ -18,7 +19,23 @@ export default function MapIndicator({
   lang,
   selectedCountryIso3,
   countryCoordinates,
+  copy,
 }) {
+  const localType =
+    selectedCountryIso3 !== "PER" &&
+    selectedCountryIso3 !== "SLV" &&
+    selectedCountryIso3 !== "HTI" &&
+    selectedCountryIso3 !== "DOM"
+      ? "default"
+      : selectedCountryIso3 === "PER"
+      ? "PER"
+      : selectedCountryIso3 === "SLV"
+      ? "SLV"
+      : selectedCountryIso3 === "DOM"
+      ? "DOM"
+      : selectedCountryIso3 === "HTI"
+      ? "HTI"
+      : "";
   const mapRef = useRef();
   // Efecto para manejar el zoom al país seleccionado
   useEffect(() => {
@@ -127,6 +144,7 @@ export default function MapIndicator({
       "fill-opacity": 0.7,
       "fill-outline-color": lineColor,
     },
+
     minzoom: 0,
     maxzoom: 22,
     interactive: true,
@@ -157,7 +175,13 @@ export default function MapIndicator({
     maxzoom: 22,
     interactive: true,
   };
-
+  if (localType === "default") {
+    nivel3Layer.filter = ["==", ["get", "GID_0"], "PER"];
+    nivel2Layer.filter = ["!=", ["get", "GID_0"], "PER"];
+  }
+  if (localType === "SLV") nivel3Layer.filter = ["==", ["get", "GID_0"], "SLV"];
+  if (localType === "DOM") nivel3Layer.filter = ["==", ["get", "GID_0"], "DOM"];
+  if (localType === "HTI") nivel3Layer.filter = ["==", ["get", "GID_0"], "HTI"];
   const nivel1LayerTooltip = {
     id: "nivel1LayerTooltip",
     type: "fill",
@@ -167,7 +191,34 @@ export default function MapIndicator({
     },
     interactive: true,
   };
-
+  const [tooltip, setTooltip] = useState();
+  // Handle click events for tooltips
+  const onClick = (event) => {
+    const feature = event.features && event.features[0];
+    if (feature && feature.properties && feature.properties.codigo_uni) {
+      const map = mapRef.current && mapRef.current.getMap();
+      const { x, y } = map.project([event.lngLat.lng, event.lngLat.lat]);
+      if (
+        data[feature.properties.codigo_uni] &&
+        data[feature.properties.codigo_uni].value
+      )
+        setTooltip({
+          governmentCode: governments[feature.properties.codigo_uni].fullName,
+          value: data[feature.properties.codigo_uni].value,
+          x: x,
+          y: y,
+        });
+      else
+        setTooltip({
+          governmentCode: governments[feature.properties.codigo_uni].fullName,
+          value: getTextById(copy, "no_data", lang),
+          x: x,
+          y: y,
+        });
+    } else {
+      setTooltip(null);
+    }
+  };
   return (
     <div style={{ width: "100%", height: "100%", position: "relative" }}>
       <Map
@@ -177,6 +228,9 @@ export default function MapIndicator({
         initialViewState={latinAmericaView}
         style={{ width: "100%", height: "100%" }}
         minZoom={4}
+        onClick={onClick}
+        maxZoom={22}
+        interactiveLayerIds={["nivel1-layer", "nivel2-layer", "nivel3-layer"]}
       >
         <NavigationControl position="bottom-left" />
 
@@ -203,20 +257,43 @@ export default function MapIndicator({
               <Layer {...nivel2Layer} source-layer="nivel_2-721y7u" />
             </Source>
             {/* Nivel 3 - Visible at high zoom levels */}
-            <Source
+            {/* <Source
               id="nivel3-source"
               type="vector"
               url="mapbox://dis-caf.1yjc4k9u"
             >
               <Layer {...nivel3Layer} source-layer="nivel_3-2264x6" />
-            </Source>
+            </Source> */}
           </>
         )}
+
+        {/* Show Peru's level 3 data when selectedCountryIso3 is "all" */}
+        {localType === "default" && selectedNivel.value === "2" && (
+          <Source
+            id="peru-nivel3-source"
+            type="vector"
+            url="mapbox://dis-caf.1yjc4k9u"
+          >
+            <Layer {...nivel3Layer} source-layer="nivel_3-2264x6" />
+          </Source>
+        )}
+        {(localType === "PER" ||
+          localType === "SLV" ||
+          localType === "DOM" ||
+          localType === "HTI") &&
+          selectedNivel.value === "3" && (
+            <Source
+              id="peru-nivel3-source"
+              type="vector"
+              url="mapbox://dis-caf.1yjc4k9u"
+            >
+              <Layer {...nivel3Layer} source-layer="nivel_3-2264x6" />
+            </Source>
+          )}
       </Map>
       {/* Legend */}
       {colorScale && (
         <div
-      
           style={{
             position: "absolute",
             bottom: 10,
@@ -225,11 +302,12 @@ export default function MapIndicator({
             padding: 8,
             borderRadius: 4,
             boxShadow: "0 2px 6px #0002",
-            
           }}
         >
-        
-          <div   className="border-1 border-CAF" style={{ display: "flex", alignItems: "center" }}>
+          <div
+            className="border-1 border-CAF"
+            style={{ display: "flex", alignItems: "center" }}
+          >
             {[0, 0.25, 0.5, 0.75, 1].map((t) => (
               <div
                 key={t}
@@ -245,7 +323,7 @@ export default function MapIndicator({
             ))}
           </div>
           <div
-          className="text-black"
+            className="text-black"
             style={{
               display: "flex",
               justifyContent: "space-between",
@@ -255,6 +333,29 @@ export default function MapIndicator({
             <span>{colorScale.domain()[0].toFixed(2)}</span>
             <span>{colorScale.domain()[1].toFixed(2)}</span>
           </div>
+        </div>
+      )}
+      {/* Tooltip popup */}
+      {tooltip && (
+        <div
+          className="tooltip flex flex-col gap-xs font-[Raleway]"
+          style={{
+            top: tooltip.y,
+            left: tooltip.x,
+            position: "absolute",
+            background: "#fff",
+            border: "1px solid #212529",
+            padding: "16px",
+            maxWidth: "300px",
+            boxShadow: "0 2px 4px rgba(0, 0, 0, 0.1)",
+            pointerEvents: "none",
+            opacity: 1,
+          }}
+        >
+          <p className="description text-black font-bold">
+            {tooltip.governmentCode}
+          </p>
+          <p className="description text-black font-normal">{tooltip.value}</p>
         </div>
       )}
     </div>

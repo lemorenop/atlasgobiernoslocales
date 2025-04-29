@@ -66,12 +66,12 @@ export default function SearchBox({
               value={item}
               className="group flex cursor-default items-center gap-2 p-1 select-none hover:bg-blue-CAF hover:text-white transition-colors text-black"
             >
-              <Link
+              <a
                 className="flex flex-col w-full uppercase text-[14px] tracking-wide"
                 href={`/${lang}/${path}/${item.id}`}
               >
                 {item.name}, {item.completeName}
-              </Link>
+              </a>
             </ComboboxOption>
           ))}
         </ComboboxOptions>

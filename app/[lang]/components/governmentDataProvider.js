@@ -22,14 +22,14 @@ export default function GovernmentDataProvider({ lang, children }) {
       try {
         // Usar la API route en lugar de acceder directamente al archivo
         const url = `/api/governments?lang=${lang}`;
-        const pageError = await fetchPageError().then(res=>getTextById(res,"title_no_data",lang));
-        console.log(pageError);
+        // const pageError = await fetchPageError().then(res=>getTextById(res,"title_no_data",lang));
+        // console.log(pageError);
         const response = await fetch(url, {
           cache: "no-store",
         });
-        if (!response.ok) {setError(pageError);         
+        if (!response.ok) {setError();         
           throw new Error(
-            `Error ${response.status}: ${pageError}`
+            `Error ${response.status}:`
           );
           
         }
@@ -40,7 +40,6 @@ export default function GovernmentDataProvider({ lang, children }) {
         setIsLoaded(true);
       } catch (error) {
         console.error("Error loading government data:", error);
-        setError(pageError);
       }
     }
 
