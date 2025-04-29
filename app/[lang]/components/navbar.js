@@ -5,10 +5,12 @@ import Image from "next/image";
 import Link from "next/link";
 import NavbarDialogs from "./navbarDialogs";
 import SearchBox from "./searchBox";
-import { getHomeCopy } from "@/app/utils/dataFetchers";
+import { getHomeCopy, getIndicators } from "@/app/utils/dataFetchers";
+import SelectLink from "./selectLink";
 export default async function Navbar({ lang }) {
   const navbarCopy = await fetchApi("navbar-copy");
   const homeCopyData = await getHomeCopy();
+  const indicators = await getIndicators();
   const defaulIndicator =
     lang === "es" ? "poblacion" : lang === "en" ? "population" : "populacao";
   return (
@@ -26,23 +28,54 @@ export default async function Navbar({ lang }) {
           </Link>
           <div className="hidden md:block">
             <div className=" flex items-center gap-m">
-              {/* <Link
-                href={`/${lang}/${getTextById(
-                  navbarCopy,
-                  "indicators_slug",
-                  lang
-                )}/${defaulIndicator}`}
-                className="flex items center gap-xs  description"
+             
+                 <NavbarDialogs
+                lang={lang}
+                button={
+                  <div
+                    className={`flex items center gap-xs  description cursor-pointer`}
+                  >
+                    {" "}
+                    <Image
+                      src="/ind.png"
+                      alt=""
+                      width={24}
+                      height={24}
+                      className="object-contain "
+                    />
+                    {getTextById(navbarCopy, "indicators", lang)}
+                  </div>
+                }
               >
-                <Image
-                  src="/ind.png"
-                  alt="about"
-                  width={24}
-                  height={24}
-                  className="object-contain"
-                />
-                {getTextById(navbarCopy, "indicators", lang)}
-              </Link> */}
+
+<div className="bg-background p-xl flex flex-col gap-[24px] justify-between">
+              <div className="flex flex-col gap-[24px]">
+                <h2 className="text-h3 font-bold text-navy">
+                  {getTextById(homeCopyData, "explore_indicator_title", lang)}
+                </h2>
+                <p className="text-description text-black">
+                  {getTextById(
+                    homeCopyData,
+                    "explore_indicator_subtitle",
+                    lang
+                  )}
+                </p>
+              </div>
+            { indicators &&   <SelectLink
+                title={""}
+                path={
+                  lang === "es"
+                    ? "indicadores"
+                    : lang === "en"
+                    ? "indicators"
+                    : "indicadores"
+                }
+                lang={lang}
+                options={indicators}
+                label={getTextById(homeCopyData, "select", lang)}
+              />}
+            </div>
+              </NavbarDialogs>
               <NavbarDialogs
                 lang={lang}
                 button={
@@ -60,24 +93,7 @@ export default async function Navbar({ lang }) {
                     {getTextById(navbarCopy, "jurisdictions", lang)}
                   </div>
                 }
-              >
-                {/* <div className="bg-background p-xl flex flex-col gap-[24px] justify-between"> */}
-                {/* <div className="flex flex-col gap-[24px]">
-                    <h2 className="text-h3 font-bold text-navy">
-                      {getTextById(
-                        homeCopyData,
-                        "explore_jurisdiction_title",
-                        lang
-                      )}
-                    </h2>
-                    <p className="text-description text-black">
-                      {getTextById(
-                        homeCopyData,
-                        "explore_jurisdiction_subtitle",
-                        lang
-                      )}
-                    </p>
-                  </div> */}
+              >              
                 <SearchBox
                   title={getTextById(
                     homeCopyData,
