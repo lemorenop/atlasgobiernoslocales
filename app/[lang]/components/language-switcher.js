@@ -21,11 +21,9 @@ export default function LanguageSwitcher({ lang, slugs, indicators }) {
     const slugID = slugs.find((elm) => elm[`text_${lang}`] === firstSlug)?.id;
     slug = slugs.find((elm) => elm.id === slugID);
     if (slugID === "indicators_slug") {
-      console.log("**",secondSlug)
       const indicator = indicators.find(
         (elm) => elm[`slug_${lang}`] === secondSlug[lang]
       );
-      console.log("*",indicator)
       if (indicator)
         secondSlug = {
           es: indicator.slug_es,

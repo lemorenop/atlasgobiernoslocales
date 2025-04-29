@@ -5,7 +5,7 @@ import { Map, Source, Layer, NavigationControl } from "react-map-gl/mapbox";
 import "mapbox-gl/dist/mapbox-gl.css";
 import { basicSettings, handleMapLoad } from "@/app/utils/mapSettings";
 
-export default function MapGoverment({ nivel, governmentID, lang }) {
+export default function MapGoverment({ nivel, governmentID, lang, bounds }) {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [viewState, setViewState] = useState({
@@ -13,8 +13,8 @@ export default function MapGoverment({ nivel, governmentID, lang }) {
     latitude: -34.6037,
     zoom: 4,
   });
-
-  console.log(governmentID);
+  console.log(  bounds)
+  const [minZoom, setMinZoom] = useState(1);
 
   const mapRef = useRef();
 
@@ -23,30 +23,15 @@ export default function MapGoverment({ nivel, governmentID, lang }) {
       setLoading(true);
 
       // Set default view state based on the nivel
-      let defaultZoom = 4;
+
       let defaultLng = -58.3816;
       let defaultLat = -34.6037;
-
-      // Adjust default view based on nivel
-      switch (nivel) {
-        case "1":
-          defaultZoom = 4;
-          break;
-        case "2":
-          defaultZoom = 6;
-          break;
-        case "3":
-          defaultZoom = 8;
-          break;
-        default:
-          throw new Error(`Nivel no válido: ${nivel}`);
-      }
 
       // Set initial view state
       setViewState({
         longitude: defaultLng,
         latitude: defaultLat,
-        zoom: defaultZoom,
+        zoom: minZoom,
       });
 
       setLoading(false);
@@ -59,21 +44,62 @@ export default function MapGoverment({ nivel, governmentID, lang }) {
 
   // Function to center map on the jurisdiction when it's loaded
   const centerOnJurisdiction = (map) => {
+    if(bounds){
+      map.fitBounds(bounds.bounds, {
+        padding: 50,
+      });
+    } else {
+      let sourceId, sourceLayer;
+    switch (nivel) {
+      case "1":
+        sourceId = "nivel1-source";
+        sourceLayer = "nivel_1-7n3yuu";
+        break;
+      case "2":
+        sourceId = "nivel2-source";
+        sourceLayer = "nivel_2-721y7u";
+        break;
+      case "3":
+        sourceId = "nivel3-source";
+        sourceLayer = "nivel_3-2264x6";
+        break;
+      default:
+        console.error("Nivel no válido:", nivel);
+        return;
+    }
+
     // Query the features for the current jurisdiction
     const features = map.queryRenderedFeatures({
       layers: [`nivel${nivel}-layer`],
     });
-    console.log("features", features);
 
     if (features && features.length > 0) {
       // Get the feature
       const feature = features[0];
-      // Use fitBounds to zoom to the feature's bounds with padding
       map.fitBounds(getBoundsFromFeature(feature), {
         padding: 50,
-        // maxZoom: 15, // Limit max zoom to prevent excessive zooming
       });
+    } else {
+      console.log('BUSCO EN TODO EL MAPA')
+      const sourceFeatures = map.querySourceFeatures(sourceId, {
+        sourceLayer: sourceLayer,
+        filter: ["==", ["get", "codigo_uni"], governmentID],
+      });
+      console.log(sourceFeatures);
+      if (sourceFeatures && sourceFeatures.length > 0) {
+        // Si encontramos características en la fuente, usarlas
+        const feature = sourceFeatures[0];
+        map.fitBounds(getBoundsFromFeature(feature), {
+          padding: 50,
+        });
+      }
     }
+    }
+    
+
+    // Consultar características directamente desde la fuente
+
+    // if(nivel!==1)setMinZoom(4)
   };
 
   // Helper function to extract bounds from a feature
@@ -136,7 +162,7 @@ export default function MapGoverment({ nivel, governmentID, lang }) {
       "fill-opacity-transition": { duration: 0 },
     },
     filter: ["==", ["get", "codigo_uni"], governmentID],
-    minzoom: 0,
+    minzoom: 4,
     maxzoom: 22,
   };
 
@@ -151,19 +177,21 @@ export default function MapGoverment({ nivel, governmentID, lang }) {
     },
     filter: ["==", ["get", "codigo_uni"], governmentID],
     minzoom: 0,
+    minzoom: 0,
     maxzoom: 22,
   };
 
   function handleLoad() {
-    console.log("el mapa cargó");
     const map = mapRef.current?.getMap();
     handleMapLoad(map, lang);
 
-    // Wait a bit for the map to fully load and render the features
-    if (map)
+    // Esperar a que el mapa esté completamente cargado y las características renderizadas
+    if (map) {
+      // Y también después de un tiempo para asegurarse
       setTimeout(() => {
         centerOnJurisdiction(map);
-      }, 3000);
+      }, 1500);
+    }
   }
 
   return (
@@ -181,7 +209,7 @@ export default function MapGoverment({ nivel, governmentID, lang }) {
           ref={mapRef}
           onLoad={handleLoad}
           initialViewState={viewState}
-          minZoom={nivel === "1" ? 1 : 4}
+          minZoom={nivel === "2" ? 4 : 1}
           maxZoom={22}
           {...basicSettings}
         >

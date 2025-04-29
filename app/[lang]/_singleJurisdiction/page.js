@@ -19,7 +19,7 @@ export default function Jurisdiction({ lang, slug }) {
   const [loading, setLoading] = useState(true);
   const [dictionary, setDictionary] = useState({});
   const [jurisdictionsCopy, setJurisdictionsCopy] = useState([]);
-
+  const [bounds, setBounds] = useState(null);
   useEffect(() => {
     const fetchData = async () => {
       try {
@@ -28,6 +28,11 @@ export default function Jurisdiction({ lang, slug }) {
           fetchJurisdictionData(slug),
           getDictionary(lang),
         ]);
+        console.log(data.government)
+        const nivel = data.government.level_per_country_id.split("_")[0]
+        
+        const bounds = await fetch(`/api/bounds?govID=${data.government.id}&nivel=${nivel}`).then(res=>res.json());
+        if(bounds)setBounds(bounds);
         const jurCopy = await getJurisdictionsCopy();
         setJurisdictionsCopy(jurCopy);
         setGovernment(data.government);
@@ -64,6 +69,7 @@ export default function Jurisdiction({ lang, slug }) {
     <main className="flex flex-col justify-start text-black bg-white ">
       {(jurisdictionsCopy || indicators || governmentData || government) && (
         <Hero
+          bounds={bounds}
           jurisdictionsCopy={jurisdictionsCopy}
           indicators={indicators}
           data={governmentData}

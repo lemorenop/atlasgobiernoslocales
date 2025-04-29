@@ -11,8 +11,6 @@ export default async function Navbar({ lang }) {
   const navbarCopy = await fetchApi("navbar-copy");
   const homeCopyData = await getHomeCopy();
   const indicators = await getIndicators();
-  const defaulIndicator =
-    lang === "es" ? "poblacion" : lang === "en" ? "population" : "populacao";
   return (
     navbarCopy && (
       <nav className="bg-white text-black py-s px-4 sm:px-6 lg:px-8 w-full">

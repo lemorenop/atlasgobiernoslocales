@@ -17,6 +17,7 @@ export default function Hero({
   lang,
   government,
   jurisdictionsCopy,
+  bounds,
 }) {
   const indicatorsHero = [1, 26, 2, 3];
   const url = typeof window !== "undefined" ? window.location.href : null;
@@ -117,6 +118,7 @@ export default function Hero({
       </div>{" "}
       <div className="col-span-8 bg-background max-md:h-[50vh]">
         <MapGoverment
+          bounds={bounds} 
           governmentID={government.id}
           nivel={government.level_per_country_id.split("_")[0]}
           lang={lang}
