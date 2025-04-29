@@ -59,7 +59,7 @@ export default function RadarChart({ data, indicators, government, copy }) {
         setNationalData(
           indicatorsID.map((id) => ({
             indicator_code: id,
-            value: 0,
+            value: null,
           }))
         );
       }
