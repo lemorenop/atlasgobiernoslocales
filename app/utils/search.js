@@ -20,7 +20,7 @@ export function addDocuments(docs) {
     document: {
       id: "id",
       index: ["name", "parentName", "countryName", "completeName", "fullName"],
-      store: true
+      store: ["id", "name", "parentName", "countryName", "completeName", "fullName"]
     }
   });
   
