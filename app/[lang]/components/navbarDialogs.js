@@ -7,16 +7,13 @@ export default function NavbarDialogs({children,button,path}) {
     let [isOpen, setIsOpen] = useState(false)
     const pathname = usePathname();
 
-    console.log(pathname.split("/")[2]);
-    console.log(path);
+  function open() {
+    setIsOpen(true);
+  }
 
-    function open() {
-      setIsOpen(true)
-    }
-  
-    function close() {
-      setIsOpen(false)
-    }
+  function close() {
+    setIsOpen(false);
+  }
 
     return (
         <>
@@ -31,7 +28,7 @@ export default function NavbarDialogs({children,button,path}) {
             <div className="bg-[#004A8080] h-creen fixed inset-0 z-10 w-screen overflow-y-auto flex items-center justify-center"
             style={{backdropFilter: "blur(8px)"}}
             >
-                <DialogPanel
+            <DialogPanel
               transition
               className="w-full max-w-4xl duration-300 ease-out data-[closed]:transform-[scale(95%)] data-[closed]:opacity-0"
             >               

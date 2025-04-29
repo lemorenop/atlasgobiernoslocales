@@ -7,8 +7,6 @@ import {
   ComboboxOptions,
 } from "@headlessui/react";
 import { useEffect, useState, useRef } from "react";
-import { search } from "@/app/utils/search";
-import Link from "next/link";
 import { useIndexesLoaded } from "./governmentDataProvider";
 
 export default function SearchBox({
@@ -21,19 +19,40 @@ export default function SearchBox({
 }) {
   const [query, setQuery] = useState("");
   const [results, setResults] = useState([]);
+  const [isLoading, setIsLoading] = useState(false);
 
   const isLoaded = useIndexesLoaded();
 
   // Open dropdown when query changes
   useEffect(() => {
-    if (query.length > 1) {
-      const result = search(query);
+    const fetchResults = async () => {
+      if (query.length > 1) {
+        setIsLoading(true);
+        try {
+          const response = await fetch(`/api/search?query=${encodeURIComponent(query)}&lang=${encodeURIComponent(lang)}`);
+          if (!response.ok) {
+            throw new Error('Error fetching search results');
+          }
+          const data = await response.json();
+          setResults(data);
+        } catch (error) {
+          console.error('Error searching:', error);
+          setResults([]);
+        } finally {
+          setIsLoading(false);
+        }
+      } else {
+        setResults([]);
+      }
+    };
 
-      setResults(result);
-    } else {
-      setResults([]);
-    }
-  }, [query]);
+    // Add a small delay to avoid too many API calls while typing
+    const timeoutId = setTimeout(() => {
+      fetchResults();
+    }, 300);
+
+    return () => clearTimeout(timeoutId);
+  }, [query, lang]);
 
   return (
     <div className="bg-background p-xl flex flex-col gap-[24px] justify-between">
@@ -52,6 +71,11 @@ export default function SearchBox({
             onChange={(e) => setQuery(e.target.value)}
             disabled={!isLoaded}
           />
+          {isLoading && (
+            <div className="absolute right-3 top-1/2 transform -translate-y-1/2">
+              <div className="animate-spin h-5 w-5 border-2 border-blue-500 rounded-full border-t-transparent"></div>
+            </div>
+          )}
         </div>
 
         <ComboboxOptions

@@ -196,19 +196,21 @@ export default function MapIndicator({
   const onClick = (event) => {
     const feature = event.features && event.features[0];
     if (feature && feature.properties && feature.properties.codigo_uni) {
+      console.log(feature);
       const map = mapRef.current && mapRef.current.getMap();
       const { x, y } = map.project([event.lngLat.lng, event.lngLat.lat]);
       if (
         data[feature.properties.codigo_uni] &&
         data[feature.properties.codigo_uni].value
-      )
+      ) {
+        console.log(data[feature.properties.codigo_uni]);
         setTooltip({
           governmentCode: governments[feature.properties.codigo_uni].fullName,
           value: data[feature.properties.codigo_uni].value,
           x: x,
           y: y,
         });
-      else
+      } else
         setTooltip({
           governmentCode: governments[feature.properties.codigo_uni].fullName,
           value: getTextById(copy, "no_data", lang),

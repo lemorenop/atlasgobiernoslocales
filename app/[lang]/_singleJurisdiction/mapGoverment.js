@@ -58,25 +58,16 @@ export default function MapGoverment({ nivel, governmentID, lang }) {
   }, [nivel, governmentID]);
 
   // Function to center map on the jurisdiction when it's loaded
-  const centerOnJurisdiction = () => {
-    if (!mapRef.current) return;
-
-    const map = mapRef.current.getMap();
-
+  const centerOnJurisdiction = (map) => {
     // Query the features for the current jurisdiction
     const features = map.queryRenderedFeatures({
-      layers: [`nivel1-layer`, `nivel2-layer`, `nivel3-layer`],
+      layers: [`nivel${nivel}-layer`],
     });
-
-    console.log(nivel);
-    console.log(features);
+    console.log("features", features);
 
     if (features && features.length > 0) {
       // Get the feature
       const feature = features[0];
-
-      console.log(feature);
-
       // Use fitBounds to zoom to the feature's bounds with padding
       map.fitBounds(getBoundsFromFeature(feature), {
         padding: 50,
@@ -164,13 +155,15 @@ export default function MapGoverment({ nivel, governmentID, lang }) {
   };
 
   function handleLoad() {
+    console.log("el mapa cargó");
     const map = mapRef.current?.getMap();
     handleMapLoad(map, lang);
 
     // Wait a bit for the map to fully load and render the features
-    setTimeout(() => {
-      centerOnJurisdiction();
-    }, 3000);
+    if (map)
+      setTimeout(() => {
+        centerOnJurisdiction(map);
+      }, 3000);
   }
 
   return (

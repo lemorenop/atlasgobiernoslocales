@@ -15,8 +15,8 @@ export async function GET(request) {
     // Construir la ruta al archivo JSON
     const filePath = path.join(
       process.cwd(),
-      "public",
-      "data",
+      "app",
+      "utils","governments",
       `governments_${language}.json`
     );
 
