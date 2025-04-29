@@ -32,7 +32,7 @@ export default function Hero({
             {government.name}
             <br />
             <span className="paragraph-small font-medium">
-              {government[`description_${lang}`]}
+              {(government.parentGovernment ? government["description_" + lang].split(",")[0] + ", " + government.parentGovernment["description_" + lang] : government["description_" + lang])}
             </span>
           </h1>
         </div>

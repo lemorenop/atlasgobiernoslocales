@@ -42,7 +42,7 @@ export default function SelectLink({
         <MenuItems
           transition
           anchor="bottom end"
-          className="w-96 origin-top-right transition duration-100 ease-out [--anchor-gap:var(--spacing-1)] focus:outline-none data-[closed]:scale-95 data-[closed]:opacity-0 bg-white text-blue-CAF border-1 border-background uppercase description p-m flex flex-col font-bold h-[300px] overflow-y-auto z-20"
+          className="w-96 z-20 origin-top-right transition duration-100 ease-out [--anchor-gap:var(--spacing-1)] focus:outline-none data-[closed]:scale-95 data-[closed]:opacity-0 bg-white text-blue-CAF border-1 border-background uppercase description p-m flex flex-col font-bold h-[300px] overflow-y-auto z-20"
         >
           {options.map((option) => (
           option.slug_es &&  <MenuItem
