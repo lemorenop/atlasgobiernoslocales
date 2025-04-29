@@ -5,17 +5,13 @@ import { i18n } from "@/app/i18n.config";
 import "@/app/globals.css";
 import { Raleway } from "next/font/google";
 import GovernmentDataProvider from "./components/governmentDataProvider";
+import GAnalytics from "./components/analytics";
 
 const raleway = Raleway({
   subsets: ["latin"],
   weight: ["400", "700"], // puedes ajustar los pesos según lo que necesites
   variable: "--font-raleway", // opcional, si quieres usarlo como una variable CSS
 });
-
-// export async function generateStaticParams() {
-//   console.log('hola ')
-//   return i18n.locales.map((locale) => ({ lang: locale }));
-// }
 
 export const metadata = {
   title: "CAF",
@@ -29,7 +25,8 @@ export default async function RootLayout({ children, params }) {
       <body
         className={`${raleway.className} antialiased min-h-screen flex flex-col justify-between bg-white font-normal font-[Raleway]`}
       >
-        <GovernmentDataProvider lang={lang}>
+      <GAnalytics/>
+      <GovernmentDataProvider lang={lang}>
           <Navbar lang={lang} />
           <div className="flex-grow">{children}</div>
           <Footer lang={lang} />

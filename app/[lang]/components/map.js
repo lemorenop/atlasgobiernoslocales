@@ -68,19 +68,9 @@ export default function MapView({ lang = "es" }) {
     return handleMapLoad(mapRef.current?.getMap(), lang);
   }
   // Handle click events for tooltips
-  const onClick = (event) => {
-    const feature = event.features && event.features[0];
-    console.log(event.features);
-    if (feature && feature.properties && feature.properties.GID_0) {
-      // Show the tooltip for the new country
-      setSelectedCountry(feature.properties.GID_0);
-      setSelectedCoordinates([event.lngLat.lng, event.lngLat.lat]);
-    } else {
-      // If clicking on empty space, close the tooltip
-      setSelectedCountry(null);
-      setSelectedCoordinates(null);
-    }
-  };
+  // const onClick = (event) => {
+    
+  // };
 
   // Layer styles for each level using tilesets
   const nivel1Layer = {
@@ -135,6 +125,25 @@ export default function MapView({ lang = "es" }) {
     setSelectedCoordinates(null);
   };
 
+  const onMouseEnter = (event) => {
+    const feature = event.features && event.features[0];
+    // console.log(event.features);
+    if (feature && feature.properties && feature.properties.GID_0) {
+      // Show the tooltip for the new country
+      setSelectedCountry(feature.properties.GID_0);
+      setSelectedCoordinates([event.lngLat.lng, event.lngLat.lat]);
+    } else {
+      // If clicking on empty space, close the tooltip
+      setSelectedCountry(null);
+      setSelectedCoordinates(null);
+    }
+  };
+
+  const onMouseLeave = () => {
+    setSelectedCountry(null);
+    setSelectedCoordinates(null);
+  };
+
   // Ensure map is loaded and selectedCoordinates is available
   const map = mapRef.current && mapRef.current.getMap();
   const pixelCoordinates =
@@ -156,7 +165,9 @@ export default function MapView({ lang = "es" }) {
           onLoad={handleLoad}
           initialViewState={initialViewState}
           onZoom={onZoom}
-          onClick={onClick}
+          onMouseEnter={onMouseEnter}
+          onMouseLeave={onMouseLeave}
+          onMouseMove={onMouseEnter}
           minZoom={1}
           maxZoom={22}
           interactiveLayerIds={[
