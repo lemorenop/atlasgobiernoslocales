@@ -28,6 +28,7 @@ export default function SearchBox({
   useEffect(() => {
     if (query.length > 1) {
       const result = search(query);
+
       setResults(result);
     } else {
       setResults([]);

@@ -66,7 +66,7 @@ export default function Hero({
                       {ind[`name_${lang}`]}
                       <br />
                       <span className="font-bold description">
-                        {Math.round(value)?.toLocaleString()}
+                        {Math.round(value)?.toLocaleString(lang === 'es' || lang === 'pt' ? 'es' : 'en')}
                         <sup className="text-[10px]">{ind.unit_measure_id?.unit}</sup>
                       </span>
                     </p>
