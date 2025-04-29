@@ -194,18 +194,15 @@ export default function RadarChart({ data, indicators, government, copy }) {
           }
         }
 
-        // console.log(govData.value)
-
         const displayGovValue = govData.value != null
           ? `${parseFloat(govData.value).toFixed(0)} ${
-              indicatorInfo.unit_measure_id?.unit
+              indicatorInfo.unit_measure_id.unit
             }`
           : getTextById(copy, "no_data", lang);
 
-
         const displayNatValue = natData.value != null
           ? `${parseFloat(natData.value).toFixed(0)} ${
-              indicatorInfo.unit_measure_id?.unit
+              indicatorInfo.unit_measure_id.unit
             }`
           : getTextById(copy, "no_data", lang);
         // Draw the segment background
@@ -221,6 +218,14 @@ export default function RadarChart({ data, indicators, government, copy }) {
           .attr("d", arc)
           .attr("fill", "rgba(231, 246, 248, 0.50)")
           .attr("stroke", "rgba(85, 199, 213, 0.15)")
+          .attr("cursor", "pointer")     
+          .on("mousemove", function (event) {
+            setTootip({
+              ...valuesTooltip,
+              x: event.pageX,
+              y: event.pageY,
+            });
+          })
           .on("mouseover", function (event) {
             setTootip({
               ...valuesTooltip,
@@ -239,15 +244,6 @@ export default function RadarChart({ data, indicators, government, copy }) {
         // Start angle ray
         const startX = rayLength * Math.cos(startAngle - Math.PI / 2);
         const startY = rayLength * Math.sin(startAngle - Math.PI / 2);
-
-        // svg
-        //   .append("line")
-        //   .attr("x1", 0)
-        //   .attr("y1", 0)
-        //   .attr("x2", startX)
-        //   .attr("y2", startY)
-        //   .attr("stroke", "#55C7D54D")
-        //   .attr("stroke-width", 2)
 
         // End angle ray
         const endX = rayLength * Math.cos(endAngle - Math.PI / 2);
@@ -285,19 +281,6 @@ export default function RadarChart({ data, indicators, government, copy }) {
           .attr("y2", govY)
           .attr("stroke", countryColor)
           .attr("stroke-width", 2)
-          .attr("cursor", "pointer")         
-          // .on("mouseover", function (event) {
-          //   setTootip({
-          //     ...valuesTooltip,
-          //     x: event.pageX,
-          //     y: event.pageY,
-          //   });
-          // })
-          // .on("mouseout", function () {
-          //   setTootip(null);
-          // })
-         
-          
 
         // Ángulo para el promedio nacional (3/4 del segmento)
 
@@ -317,18 +300,6 @@ export default function RadarChart({ data, indicators, government, copy }) {
           .attr("y2", natY)
           .attr("stroke", govColor)
           .attr("stroke-width", 2)
-          .attr("cursor", "pointer")
-         
-          // .on("mouseover", function (event) {
-          //   setTootip({
-          //     ...valuesTooltip,
-          //     x: event.pageX,
-          //     y: event.pageY,
-          //   });
-          // })
-          // .on("mouseout", function () {
-          //   setTootip(null);
-          // })
          
         svg
           .append("circle")
@@ -336,18 +307,7 @@ export default function RadarChart({ data, indicators, government, copy }) {
           .attr("cy", natY)
           .attr("r", 6)
           .attr("fill", govColor)
-          .attr("cursor", "pointer")
           .attr("tabindex", 0)
-          // .on("mouseover", function (event) {
-          //   setTootip({
-          //     ...valuesTooltip,
-          //     x: event.pageX,
-          //     y: event.pageY,
-          //   });
-          // })
-          // .on("mouseout", function () {
-          //   setTootip(null);
-          // })
           .on("focus", function (event) {
             setTootip({
               ...valuesTooltip,
@@ -368,17 +328,6 @@ export default function RadarChart({ data, indicators, government, copy }) {
           .attr("r", 6)
           .attr("fill", countryColor)
           .attr("tabindex", 0)
-          .attr("cursor", "pointer")
-          // .on("mouseover", function (event) {
-          //   setTootip({
-          //     ...valuesTooltip,
-          //     x: event.pageX,
-          //     y: event.pageY,
-          //   });
-          // })
-          // .on("mouseout", function () {
-          //   setTootip(null);
-          // })
           .on("focus", function (event) {
             setTootip({
               ...valuesTooltip,
@@ -452,6 +401,14 @@ export default function RadarChart({ data, indicators, government, copy }) {
         textGroup
           .attr("tabindex", 0) // Make it focusable
           .on("mouseover", function (event) {
+            setTootip({
+              title: indicatorName,
+              subtitle: indDescription,
+              x: event.pageX,
+              y: event.pageY,
+            });
+          })
+          .on("mousemove", function (event) {
             setTootip({
               title: indicatorName,
               subtitle: indDescription,

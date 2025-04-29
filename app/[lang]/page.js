@@ -48,7 +48,7 @@ export default async function Home({ params }) {
                     : "indicadores"
                 }
                 lang={lang}
-                options={indicators}
+                options={indicators.filter(i => i["slug_" + lang])}
                 label={getTextById(homeCopyData, "select", lang)}
               />}
             </div>

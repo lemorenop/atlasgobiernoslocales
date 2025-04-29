@@ -103,7 +103,7 @@ export async function fetchHomeCopy() {
  * @returns {Promise<Array>} - Array de objetos de la barra de navegación
  */
 export async function fetchNavbarCopy() {
-  const response = await fetch('http://localhost:3000/api/navbar-copy');
+  const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/navbar-copy`);
   if (!response.ok) {
     throw new Error('Error al obtener los datos de la barra de navegación');
   }
