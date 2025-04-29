@@ -28,6 +28,7 @@ export default function SearchBox({
   useEffect(() => {
     if (query.length > 1) {
       const result = search(query);
+
       setResults(result);
     } else {
       setResults([]);
@@ -70,7 +71,9 @@ export default function SearchBox({
                 className="flex flex-col w-full uppercase text-[14px] tracking-wide"
                 href={`/${lang}/${path}/${item.id}`}
               >
-                {item.name}, {item.completeName}
+                {item.name + ", "}
+                {item.parentName && item.countryName !== item.parentName ? item.parentName + ", " : ""}
+                {item.countryName}
               </Link>
             </ComboboxOption>
           ))}
