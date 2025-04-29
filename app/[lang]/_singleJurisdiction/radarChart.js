@@ -152,6 +152,8 @@ export default function RadarChart({ data, indicators, government, copy }) {
       // Calculate the angle for each indicator
       const angleStep = (2 * Math.PI) / indicatorsID.length;
 
+      console.log(indicators);
+
       // Draw segments for each indicator
       indicatorsID.forEach((indicator, i) => {
         const startAngle = i * angleStep;
@@ -194,8 +196,7 @@ export default function RadarChart({ data, indicators, government, copy }) {
           }
         }
 
-        console.log(indicatorInfo.unit_measure_id);
-        console.log(indicatorInfo.unit_measure_id?.unit);
+        console.log(indicatorInfo);
 
         const displayGovValue = govData.value != null
           ? `${parseFloat(govData.value).toFixed(0)} ${

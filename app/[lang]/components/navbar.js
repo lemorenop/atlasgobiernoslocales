@@ -29,8 +29,9 @@ export default async function Navbar({ lang }) {
           <div className="hidden md:block">
             <div className=" flex items-center gap-m">
              
-                 <NavbarDialogs
+              <NavbarDialogs
                 lang={lang}
+                path={getTextById(navbarCopy, "indicators", lang)}
                 button={
                   <div
                     className={`flex items center gap-xs  description cursor-pointer`}
@@ -48,7 +49,7 @@ export default async function Navbar({ lang }) {
                 }
               >
 
-<div className="bg-background p-xl flex flex-col gap-[24px] justify-between">
+            <div className="bg-background p-xl flex flex-col gap-[24px] justify-between">
               <div className="flex flex-col gap-[24px]">
                 <h2 className="text-h3 font-bold text-navy">
                   {getTextById(homeCopyData, "explore_indicator_title", lang)}
@@ -62,6 +63,7 @@ export default async function Navbar({ lang }) {
                 </p>
               </div>
             { indicators &&   <SelectLink
+                highlightedIfHere={true}
                 title={""}
                 path={
                   lang === "es"
@@ -78,6 +80,7 @@ export default async function Navbar({ lang }) {
               </NavbarDialogs>
               <NavbarDialogs
                 lang={lang}
+                path={getTextById(navbarCopy, "jurisdictions", lang)}
                 button={
                   <div
                     className={`flex items center gap-xs  description cursor-pointer`}
