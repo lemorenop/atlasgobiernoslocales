@@ -1,7 +1,8 @@
+
+
 import LanguageSwitcher from "./language-switcher";
 import { getTextById } from "@/app/utils/textUtils";
 import Image from "next/image";
-import Link from "next/link";
 import NavbarDialogs from "./navbarDialogs";
 import SearchBox from "./searchBox";
 import {
@@ -17,6 +18,7 @@ export default async function Navbar({ lang }) {
     getHomeCopy(lang),
     getIndicators(lang),
   ]);
+
   const defaultIndicator = indicators.find((indicator) => indicator.code === 10);
 
   return (
@@ -55,7 +57,7 @@ export default async function Navbar({ lang }) {
               <NavbarLink path="indicadores">
               <a
                 href={`/${lang}/indicadores/${defaultIndicator.slug}`}
-                className={`flex items center gap-xs  description cursor-pointer`}
+                className={`flex  items center gap-xs  description cursor-pointer`}
               >
                 {" "}
                 <Image
@@ -69,6 +71,7 @@ export default async function Navbar({ lang }) {
               </a>
               </NavbarLink>
               <NavbarDialogs
+                highlightIfActive={true}
                 lang={lang}
                 path={"jurisdicciones"}
                 button={

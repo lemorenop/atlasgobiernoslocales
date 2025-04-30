@@ -3,7 +3,7 @@ import { Button, Dialog, DialogPanel, } from '@headlessui/react'
 import { useState } from 'react'
 import { usePathname } from 'next/navigation'
 
-export default function NavbarDialogs({children,button,path}) {
+export default function NavbarDialogs({children,button,path, highlightIfActive = false}) {
     let [isOpen, setIsOpen] = useState(false)
     const pathname = usePathname();
 
@@ -15,7 +15,7 @@ export default function NavbarDialogs({children,button,path}) {
         <>
           <Button
             onClick={open}
-            className={`cursor-pointer ${pathname.split("/")[2] === path?.toLowerCase() ? "font-bold" : "font-normal"}`}
+            className={`cursor-pointer ${pathname.split("/")[2] === path?.toLowerCase() && highlightIfActive ? "font-bold" : "font-normal"}`}
           >
             {button}
           </Button>
