@@ -227,9 +227,8 @@ export default function MapIndicator({
       const { x, y } = map.project([event.lngLat.lng, event.lngLat.lat]);
       if (
         data[feature.properties.codigo_uni] &&
-        data[feature.properties.codigo_uni].value
+        !isNaN(data[feature.properties.codigo_uni].value)
       ) {
-        // console.log(data[feature.properties.codigo_uni]);
         setTooltip({
           governmentCode: governments[feature.properties.codigo_uni].fullName,
           value: isPercentage ? data[feature.properties.codigo_uni].value * 100 + " %" : data[feature.properties.codigo_uni].value.toLocaleString(lang === "es" || lang === "pt" ? "es" : "en"),

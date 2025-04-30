@@ -17,7 +17,9 @@ export default async function Navbar({ lang }) {
     getHomeCopy(lang),
     getIndicators(lang),
   ]);
-  const defaultIndicator = indicators.find((indicator) => indicator.code === 3);
+
+  const defaultIndicator = indicators.find((indicator) => indicator.code === 10);
+
   return (
     navbarCopy &&
     homeCopyData &&
@@ -35,6 +37,22 @@ export default async function Navbar({ lang }) {
           </Link>
           <div className="hidden md:block">
             <div className=" flex items-center gap-m">
+              <NavbarLink path="home">
+                <a
+                  href={`/${lang}`}
+                  className={`flex items center gap-xs  description cursor-pointer`}
+                >
+                  {" "}
+                  <Image
+                    src="/home.png"
+                    alt=""
+                    width={24}
+                    height={24}
+                    className="object-contain "
+                  />
+                  {getTextById(navbarCopy, "home", lang)}
+                </a>
+              </NavbarLink>
               <NavbarLink path="indicadores">
               <a
                 href={`/${lang}/indicadores/${defaultIndicator.slug}`}
