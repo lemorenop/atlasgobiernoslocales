@@ -5,15 +5,14 @@ import Image from "next/image";
 import Link from "next/link";
 import NavbarDialogs from "./navbarDialogs";
 import SearchBox from "./searchBox";
-import { getHomeCopy, getIndicators } from "@/app/utils/dataFetchers";
+import { getHomeCopy, getIndicators, getNavbarCopy } from "@/app/utils/dataFetchers";
 import SelectLink from "./selectLink";
 
 export default async function Navbar({ lang }) {
-  const navbarCopy = await fetchApi("navbar-copy");
-  const homeCopyData = await getHomeCopy();
-  const indicators = await getIndicators();
+  const [navbarCopy,homeCopyData,indicators] = await Promise.all([getNavbarCopy(lang),getHomeCopy(lang),getIndicators(lang)]);
+  const defaultIndicator = indicators.find((indicator) => indicator.code === 3);
   return (
-    navbarCopy && (
+    (navbarCopy && homeCopyData && indicators) && (
       <nav className="bg-white text-black py-s px-4 sm:px-6 lg:px-8 w-full">
         <div className="flex items-center justify-between w-full">
           <Link href={`/${lang}`} className="">
@@ -27,8 +26,21 @@ export default async function Navbar({ lang }) {
           </Link>
           <div className="hidden md:block">
             <div className=" flex items-center gap-m">
-             
-              <NavbarDialogs
+              <a
+                href={`/${lang}/indicators/${defaultIndicator[`slug_${lang}`]}`}
+                className={`flex items center gap-xs  description cursor-pointer`}
+              >
+                {" "}
+                <Image
+                  src="/ind.png"
+                  alt=""
+                  width={24}
+                  height={24}
+                  className="object-contain "
+                />
+                {getTextById(navbarCopy, "indicators", lang)}
+              </a>
+              {/* <NavbarDialogs
                 lang={lang}
                 path={getTextById(navbarCopy, "indicators", lang)}
                 button={
@@ -76,10 +88,10 @@ export default async function Navbar({ lang }) {
                 label={getTextById(homeCopyData, "select", lang)}
               />}
             </div>
-              </NavbarDialogs>
+              </NavbarDialogs> */}
               <NavbarDialogs
                 lang={lang}
-                path={getTextById(navbarCopy, "jurisdictions", lang)}
+                path={"jurisdicciones"}
                 button={
                   <div
                     className={`flex items center gap-xs  description cursor-pointer`}
@@ -95,7 +107,7 @@ export default async function Navbar({ lang }) {
                     {getTextById(navbarCopy, "jurisdictions", lang)}
                   </div>
                 }
-              >              
+              >
                 <SearchBox
                   title={getTextById(
                     homeCopyData,
@@ -107,11 +119,7 @@ export default async function Navbar({ lang }) {
                     "explore_jurisdiction_subtitle",
                     lang
                   )}
-                  path={ lang === "es"
-                    ? "jurisdicciones"
-                    : lang === "en"
-                    ? "jurisdictions"
-                    : "jurisdicoes"}
+                  path={"jurisdicciones"}
                   label={getTextById(
                     homeCopyData,
                     "explore_jurisdiction_button",
@@ -139,7 +147,11 @@ export default async function Navbar({ lang }) {
                 />
                 {getTextById(navbarCopy, "about", lang)}
               </Link> */}
-              <LanguageSwitcher lang={lang} slugs={navbarCopy} indicators={indicators} />{" "}
+              <LanguageSwitcher
+                lang={lang}
+                slugs={navbarCopy}
+                indicators={indicators}
+              />{" "}
             </div>
           </div>{" "}
         </div>

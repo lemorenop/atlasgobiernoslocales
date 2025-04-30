@@ -12,7 +12,9 @@ import {
   getHomeCopy,
   getNavbarCopy,
   getFooterCopy,
+  getIndicators,
 } from "@/app/utils/dataFetchers";
+import SelectLink from "@/app/[lang]/components/selectLink";
 const socialMedia = {
   instagram: () => <Instagram className="w-6 h-6 fill-blue-CAF" />,
   x: () => <X className="w-6 h-6 fill-blue-CAF" />,
@@ -22,10 +24,11 @@ const socialMedia = {
   x: () => <X className="w-6 h-6 fill-blue-CAF" />,
 };
 export default async function Footer({ lang }) {
-  const [footerCopy, navbarCopy, homeCopyData] = await Promise.all([
+  const [footerCopy, navbarCopy, homeCopyData,indicators] = await Promise.all([
     getFooterCopy(lang),
     getNavbarCopy(lang),
     getHomeCopy(lang),
+    getIndicators(lang),
   ]);
   function findLink(id, lang) {
     return footerCopy.find((elm) => elm.id === id)?.[
