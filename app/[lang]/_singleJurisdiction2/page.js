@@ -7,13 +7,15 @@ import {
   getGovernments,
   getCountries,
   getYearData,
+  getUnitMeasures,
 } from "@/app/utils/dataFetchers";
 import JurisdictionDataProvider from "@/app/[lang]/_singleJurisdiction/jurisdictionDataProvider";
 export default async function Jurisdiction2({ lang, slug }) {
-  const [jurisdictionsCopy, indicators, government] = await Promise.all([
+  const [jurisdictionsCopy, indicatorsAll, government,unitMeasures] = await Promise.all([
     getJurisdictionsCopy(lang),
     getIndicators(lang),
     getGovernments(lang, slug).then((data) => data[0]),
+    getUnitMeasures(lang),
   ]);
   const country = government
     ? await getCountries(lang, government.country_iso3).then((data) => data[0])
@@ -23,6 +25,13 @@ export default async function Jurisdiction2({ lang, slug }) {
         (data) => data[0].year_population
       )
     : null;
+    const indicators=indicatorsAll.map(elm=>{
+      const unit=unitMeasures.find(unit=>unit.id===elm.unit_measure_id)
+      elm.unit=unit
+      return {...elm}
+    })
+    console.log(unitMeasures)
+    console.log(indicators)
   return (
     <main className="flex flex-col justify-start text-black bg-white min-h-screen">
       <JurisdictionDataProvider slug={slug} lang={lang}>
