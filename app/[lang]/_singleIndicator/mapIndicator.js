@@ -368,7 +368,7 @@ export default function MapIndicator({
                 style={{
                   width: 120,
                   height: 10,
-                  background: `linear-gradient(to right, ${colorScale(colorScale.domain()[0])}, ${colorScale(colorScale.domain()[0] + (colorScale.domain()[1] - colorScale.domain()[0])/2)} ${colorScale(colorScale.domain()[1])})`,
+                  background: `linear-gradient(to right, ${d3.interpolateBlues(0)}, ${d3.interpolateBlues(0.25)}, ${d3.interpolateBlues(0.5)}, ${d3.interpolateBlues(0.75)}, ${d3.interpolateBlues(1)})`,
                 }}
               />
           </div>
