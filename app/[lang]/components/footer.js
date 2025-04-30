@@ -8,8 +8,9 @@ import Youtube from "./icons/youtube";
 import { getTextById } from "@/app/utils/textUtils";
 import NavbarDialogs from "./navbarDialogs";
 import SearchBox from "./searchBox";
-import { getHomeCopy, getIndicators } from "@/app/utils/dataFetchers";
+import { getHomeCopy} from "@/app/utils/dataFetchers";
 import SelectLink from "./selectLink";
+import Link from "next/link";
 const socialMedia = {
   instagram: () => <Instagram className="w-6 h-6 fill-blue-CAF" />,
   x: () => <X className="w-6 h-6 fill-blue-CAF" />,
@@ -21,8 +22,11 @@ const socialMedia = {
 export default async function Footer({ lang }) {
   const footerCopy = await fetchApi("footer-copy");
   const navbarCopy = await fetchApi("navbar-copy");
-  const indicators = await getIndicators();
   const homeCopyData = await getHomeCopy();
+  
+  const densidad = {es: "densidad-poblacional", en: "population-density", pt: "densidade-populacional"}
+
+
   function findLink(id,lang) {
     return footerCopy.find((elm) => elm.id === id)?.[lang?`link_${lang}`:`link`];
   }
@@ -165,58 +169,14 @@ style={{
                       )}
                     />
                   </NavbarDialogs>
-                  <NavbarDialogs
-                lang={lang}
-                path={getTextById(navbarCopy, "indicators", lang)}
-                button={
-                  <div
-                    className={`flex items center gap-xs underline description cursor-pointer`}
+                  <Link
+                    className={`flex items center gap-xs underline  description cursor-pointer`}
+                    href={`/${lang}/${getTextById(navbarCopy, "indicators", lang).toLowerCase()}/${densidad[lang]}`}
                   >
+                    {" "}
                     {getTextById(navbarCopy, "indicators", lang)}
-                  </div>
-                }
-              >
+                  </Link>            
 
-            <div className="bg-background p-xl flex flex-col gap-[24px] justify-between">
-              <div className="flex flex-col gap-[24px]">
-                <h2 className="text-h3 font-bold text-navy">
-                  {getTextById(homeCopyData, "explore_indicator_title", lang)}
-                </h2>
-                <p className="text-description text-black">
-                  {getTextById(
-                    homeCopyData,
-                    "explore_indicator_subtitle",
-                    lang
-                  )}
-                </p>
-              </div>
-            { indicators &&   <SelectLink
-                highlightedIfHere={true}
-                title={""}
-                path={
-                  lang === "es"
-                    ? "indicadores"
-                    : lang === "en"
-                    ? "indicators"
-                    : "indicadores"
-                }
-                lang={lang}
-                options={indicators}
-                label={getTextById(homeCopyData, "select", lang)}
-              />}
-            </div>
-              </NavbarDialogs>
-
-                  {/* <a href={`/${lang}/${findNavbarLink("indicators")}`} className="text-paragraph-small" target="_blank">
-                  {getTextById(navbarCopy, "indicators", lang)}
-                </a> */}
-                  {/* <a
-                    href={`/${lang}/${findNavbarLink("about")}`}
-                    className="text-paragraph-small underline"
-                    target="_blank"
-                  >
-                    {getTextById(navbarCopy, "about", lang)}
-                  </a> */}
                 </div>
               </div>
               
