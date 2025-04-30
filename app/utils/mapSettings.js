@@ -43,7 +43,9 @@ const VISIBLE_LAYERS = [
   }
 };
 export const lineColor="#55C7D5"
-export const noDataColor="#f3f3f3"
+// export const noDataColor="#AECDD5"
+export const noDataColor="#97ABC4"
+
 export const basicSettings={
     mapboxAccessToken:process.env.NEXT_PUBLIC_MAPBOX_TOKEN,
     dragRotate:false,   
@@ -54,8 +56,8 @@ export const basicSettings={
     projection:"mercator"
 }
 export const latinAmericaView= {
-    longitude: -58.3816,
-    latitude: -34.6037,
+    longitude: -53.09102246964113,
+    latitude: -12.994618925386675,
     zoom: 1,
     bounds: [
       [-116, 31],

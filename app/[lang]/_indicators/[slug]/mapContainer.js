@@ -12,7 +12,6 @@ export default function MapContainer({ regions, countries, levelPerCountry, lang
     );
     setCountryLevels(countryLevels);
   }, [selectedCountry]);
-  console.log(countryLevels)
   return (
     <div>
       {/* <Select options={regions} label="Region" onChange={setSelectedRegion} /> */}

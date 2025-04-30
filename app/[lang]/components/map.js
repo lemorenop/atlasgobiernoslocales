@@ -118,7 +118,7 @@ export default function MapView({ lang = "es" }) {
     type: "line",
     paint: {
       "line-color": "#55C7D5",
-      "line-width": 0.2,
+      "line-width": 0.05,
     },
     minzoom: 5,
     maxzoom: 22,
@@ -191,7 +191,7 @@ export default function MapView({ lang = "es" }) {
         >
           <NavigationControl position="top-right" />
 
-          {/* Nivel 1 - Visible at low zoom levels */}
+          {/* Nivel 0 - Visible at low zoom levels */}
           <Source
             id="nivel0-source"
             type="vector"

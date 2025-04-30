@@ -38,6 +38,7 @@ export default async function Indicator({ lang, slug }) {
         lang={lang}
         levelPerCountry={levelPerCountry}
         copy={copy}
+        indicator={currentIndicator}
       />
       </IndicatorDataProvider>
     </main>

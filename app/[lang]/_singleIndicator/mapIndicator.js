@@ -20,6 +20,7 @@ export default function MapIndicator({
   selectedCountryIso3,
   countryCoordinates,
   copy,
+  indicator
 }) {
   const localType =
     selectedCountryIso3 !== "PER" &&
@@ -37,6 +38,8 @@ export default function MapIndicator({
       ? "HTI"
       : "";
   const mapRef = useRef();
+
+  const isPercentage = indicator.description_es.charAt(0) === "%";
   // Efecto para manejar el zoom al país seleccionado
   useEffect(() => {
     if (!mapRef.current) return;
@@ -69,13 +72,13 @@ export default function MapIndicator({
 
   // Crear escala de colores usando d3
   const colorScale = useMemo(() => {
-    if (!data) return "#ff0000";
+    if (!data) return null;
 
     const values = Object.values(data)
       .map((item) => item.value)
       .filter((value) => value !== undefined && value !== null);
 
-    if (values.length === 0) return "#ffffff";
+    if (values.length === 0) return null;
 
     return d3
       .scaleSequential()
@@ -95,6 +98,28 @@ export default function MapIndicator({
   function handleLoad() {
     return handleMapLoad(mapRef.current?.getMap(), lang);
   }
+
+  // const isoA3List = tooltipData.map((item) => item.country_iso3); // Reemplaza con los códigos ISO_A3 que desees
+
+  // console.log(Object.values(data))
+
+  // Layer styles for each level using tilesets
+  const nivel0Layer = {
+    id: "nivel0-layer",
+    type: "line",
+    paint: {
+      "line-color": "#55C7D5",
+      "line-width": [
+        'case',
+        ['in', ['get', 'ISO_A3'], ['literal', Object.values(data).map((item) => item.government_id.slice(0,3))]],
+        2.5,
+        0
+      ],
+    },
+    minzoom: 0,
+    maxzoom: 22,
+    interactive: true,
+  };
 
   // Layer styles for each level using tilesets
   const nivel1Layer = {
@@ -175,6 +200,7 @@ export default function MapIndicator({
     maxzoom: 22,
     interactive: true,
   };
+
   if (localType === "default") {
     nivel3Layer.filter = ["==", ["get", "GID_0"], "PER"];
     nivel2Layer.filter = ["!=", ["get", "GID_0"], "PER"];
@@ -196,17 +222,17 @@ export default function MapIndicator({
   const onClick = (event) => {
     const feature = event.features && event.features[0];
     if (feature && feature.properties && feature.properties.codigo_uni) {
-      console.log(feature);
+      // console.log(feature);
       const map = mapRef.current && mapRef.current.getMap();
       const { x, y } = map.project([event.lngLat.lng, event.lngLat.lat]);
       if (
         data[feature.properties.codigo_uni] &&
         data[feature.properties.codigo_uni].value
       ) {
-        console.log(data[feature.properties.codigo_uni]);
+        // console.log(data[feature.properties.codigo_uni]);
         setTooltip({
           governmentCode: governments[feature.properties.codigo_uni].fullName,
-          value: data[feature.properties.codigo_uni].value,
+          value: isPercentage ? data[feature.properties.codigo_uni].value * 100 + " %" : data[feature.properties.codigo_uni].value.toLocaleString(lang === "es" || lang === "pt" ? "es" : "en"),
           x: x,
           y: y,
         });
@@ -221,6 +247,11 @@ export default function MapIndicator({
       setTooltip(null);
     }
   };
+
+  const onZoomOrPan = () => {
+    setTooltip(null);
+  };
+
   return (
     <div style={{ width: "100%", height: "100%", position: "relative" }}>
       <Map
@@ -231,10 +262,20 @@ export default function MapIndicator({
         style={{ width: "100%", height: "100%" }}
         minZoom={4}
         onClick={onClick}
+        onZoom={onZoomOrPan}
+        onMove={onZoomOrPan}  
         maxZoom={22}
         interactiveLayerIds={["nivel1-layer", "nivel2-layer", "nivel3-layer"]}
       >
         <NavigationControl position="bottom-left" />
+         {/* Nivel 0 - Visible at low zoom levels */}
+         <Source
+            id="nivel0-source"
+            type="vector"
+            url="mapbox://dis-caf.4eo2m2u3"
+          >
+            <Layer {...nivel0Layer} source-layer="countries_sm-2an4y3" />
+          </Source>
 
         {/* Nivel 1 - Visible at low zoom levels */}
         {selectedNivel.value === "1" && (
@@ -306,24 +347,33 @@ export default function MapIndicator({
             boxShadow: "0 2px 6px #0002",
           }}
         >
+          <div style={{display:"flex", alignItems:"center", gap:4}}>
           <div
             className="border-1 border-CAF"
             style={{ display: "flex", alignItems: "center" }}
           >
-            {[0, 0.25, 0.5, 0.75, 1].map((t) => (
-              <div
-                key={t}
+            <div
                 style={{
-                  width: 30,
+                  width: 50,
                   height: 10,
-                  background: colorScale(
-                    t * (colorScale.domain()[1] - colorScale.domain()[0]) +
-                      colorScale.domain()[0]
-                  ),
+                  background: noDataColor
                 }}
               />
-            ))}
+              </div>
+              <div
+            className="border-1 border-CAF"
+            style={{ display: "flex", alignItems: "center" }}
+          >
+              <div
+                style={{
+                  width: 120,
+                  height: 10,
+                  background: `linear-gradient(to right, ${colorScale(colorScale.domain()[0])}, ${colorScale(colorScale.domain()[0] + (colorScale.domain()[1] - colorScale.domain()[0])/2)} ${colorScale(colorScale.domain()[1])})`,
+                }}
+              />
           </div>
+          </div>
+          <div style={{display:"flex", alignItems:"center", gap:4}}>
           <div
             className="text-black"
             style={{
@@ -332,9 +382,22 @@ export default function MapIndicator({
               fontSize: 10,
             }}
           >
-            <span>{colorScale.domain()[0].toFixed(2)}</span>
-            <span>{colorScale.domain()[1].toFixed(2)}</span>
+            <span style={{width: 50}}>no data</span>
           </div>
+          <div
+            className="text-black"
+            style={{
+              display: "flex",
+              marginLeft: 4,
+              width: "100%",
+              justifyContent: "space-between",
+              fontSize: 10,
+            }}
+          >
+            <span>{isPercentage ? colorScale.domain()[0] * 100 + " %" : (colorScale.domain()[0] > 100 ? colorScale.domain()[0].toLocaleString(lang === "es" || lang === "pt" ? "es" : "en") :  colorScale.domain()[0].toFixed(2))}</span>
+            <span>{isPercentage ? colorScale.domain()[1] * 100 + " %" : (colorScale.domain()[1] > 100 ? colorScale.domain()[1].toLocaleString(lang === "es" || lang === "pt" ? "es" : "en") :  colorScale.domain()[1].toFixed(2))}</span>
+          </div>
+        </div>
         </div>
       )}
       {/* Tooltip popup */}
