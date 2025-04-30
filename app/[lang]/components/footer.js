@@ -8,7 +8,11 @@ import Youtube from "./icons/youtube";
 import { getTextById } from "@/app/utils/textUtils";
 import NavbarDialogs from "./navbarDialogs";
 import SearchBox from "./searchBox";
-import { getHomeCopy } from "@/app/utils/dataFetchers";
+import {
+  getHomeCopy,
+  getNavbarCopy,
+  getFooterCopy,
+} from "@/app/utils/dataFetchers";
 const socialMedia = {
   instagram: () => <Instagram className="w-6 h-6 fill-blue-CAF" />,
   x: () => <X className="w-6 h-6 fill-blue-CAF" />,
@@ -18,11 +22,15 @@ const socialMedia = {
   x: () => <X className="w-6 h-6 fill-blue-CAF" />,
 };
 export default async function Footer({ lang }) {
-  const footerCopy = await fetchApi("footer-copy");
-  const navbarCopy = await fetchApi("navbar-copy");
-  const homeCopyData = await getHomeCopy();
-  function findLink(id,lang) {
-    return footerCopy.find((elm) => elm.id === id)?.[lang?`link_${lang}`:`link`];
+  const [footerCopy, navbarCopy, homeCopyData] = await Promise.all([
+    getFooterCopy(lang),
+    getNavbarCopy(lang),
+    getHomeCopy(lang),
+  ]);
+  function findLink(id, lang) {
+    return footerCopy.find((elm) => elm.id === id)?.[
+      lang ? `link_${lang}` : `link`
+    ];
   }
   function findNavbarLink(id) {
     return navbarCopy.find((elm) => elm.id === `${id}_slug`)?.[`text_${lang}`];
@@ -45,24 +53,25 @@ export default async function Footer({ lang }) {
           <div className="py-[48px] relative col-span-5 col-start-8 h-full">
             <div className="absolute top-0 right-0 z-0 h-full flex w-full gap-xl justify-end">
               <svg
-              xmlns="http://www.w3.org/2000/svg"
-              viewBox="0 0 116 232"
-              fill="none"
-              className="h-full"
-              alt=""
-            >
-              <path
-                d="M116 232C85.2349 232 55.7298 219.779 33.9756 198.024C12.2214 176.27 0 146.765 0 116C-7.62939e-06 85.2349 12.2214 55.7299 33.9756 33.9756C55.7298 12.2214 85.2349 5.99019e-06 116 0L116 232Z"
-                fill="#428DBA"
+                xmlns="http://www.w3.org/2000/svg"
+                viewBox="0 0 116 232"
+                fill="none"
+                className="h-full"
+                alt=""
+              >
+                <path
+                  d="M116 232C85.2349 232 55.7298 219.779 33.9756 198.024C12.2214 176.27 0 146.765 0 116C-7.62939e-06 85.2349 12.2214 55.7299 33.9756 33.9756C55.7298 12.2214 85.2349 5.99019e-06 116 0L116 232Z"
+                  fill="#428DBA"
+                />
+              </svg>
+              <div
+                className="franjas-diagonales-small aspect-square w-fit"
+                style={{
+                  width: "fit-content",
+                }}
               />
-            </svg>
-            <div className="franjas-diagonales-small aspect-square w-fit"
-style={{
-  width:"fit-content"
-}}
-            />
             </div>
-            
+
             <p className="p-[24px] bg-navy z-10 relative my-auto">
               {getTextById(footerCopy, "highlighted_message_1", lang)}
             </p>
@@ -79,7 +88,7 @@ style={{
                   height={40}
                 />
                 <a
-                  href={`mailto:${findLink("email")}` }
+                  href={`mailto:${findLink("email")}`}
                   target="_blank"
                   className="description underline"
                 >
@@ -109,14 +118,14 @@ style={{
               <div className="flex gap-2xl">
                 <div className="flex flex-col gap-s">
                   <a
-                    href={findLink("caf_button",lang)}
+                    href={findLink("caf_button", lang)}
                     className="text-paragraph-small underline"
                     target="_blank"
                   >
                     {getTextById(footerCopy, "caf_button", lang)}
                   </a>
                   <a
-                    href={findLink("red_button",lang)}
+                    href={findLink("red_button", lang)}
                     className="text-paragraph-small underline"
                     target="_blank"
                   >
@@ -125,15 +134,19 @@ style={{
                 </div>
                 <div className="flex flex-col gap-s">
                   <NavbarDialogs
-                    button={<span className="underline">{getTextById(navbarCopy, "jurisdictions", lang)}</span>}
+                    button={
+                      <span className="underline">
+                        {getTextById(navbarCopy, "jurisdictions", lang)}
+                      </span>
+                    }
                   >
                     <SearchBox
                       path={
                         lang === "es"
-                        ? "jurisdicciones"
-                        : lang === "en"
-                        ? "jurisdictions"
-                        : "jurisdicoes"
+                          ? "jurisdicciones"
+                          : lang === "en"
+                          ? "jurisdictions"
+                          : "jurisdicoes"
                       }
                       intro={getTextById(
                         homeCopyData,
@@ -171,11 +184,12 @@ style={{
                   </a> */}
                 </div>
               </div>
-              
             </div>
-            <div className="pt-s pb-[24px]"><span className="description ">Copyright {" "}{year}.{" "}
-                {getTextById(footerCopy, "copyright_1", lang)} 
-              </span></div>
+            <div className="pt-s pb-[24px]">
+              <span className="description ">
+                Copyright {year}. {getTextById(footerCopy, "copyright_1", lang)}
+              </span>
+            </div>
           </>
         </footer>
       </>
