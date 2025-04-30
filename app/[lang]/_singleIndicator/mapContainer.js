@@ -178,7 +178,7 @@ export default function MapContainer({
                 name_pt: "Todos",
                 iso3: "all",
               },
-              ...countries,
+              ...countries.sort((a,b) => a["name_" + lang].localeCompare(b["name_" + lang])),
             ]}
             defaultAllLabel={getTextById(copy, "map_country_select", lang)}
             label="Country"

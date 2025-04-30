@@ -46,6 +46,7 @@ export default async function Navbar({ lang }) {
                 button={
                   <div
                     className={`flex items center gap-xs  description cursor-pointer`}
+                    href={`/${lang}/${getTextById(navbarCopy, "indicators", lang).toLowerCase()}/${densidad[lang]}`}
                   >
                     {" "}
                     <Image
