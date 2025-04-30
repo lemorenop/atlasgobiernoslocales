@@ -7,13 +7,21 @@ import MapGoverment from "./mapGoverment";
 import Share from "./share";
 export default function Hero({
   indicators,
-
   lang,
   government,
   jurisdictionsCopy,
   yearPoblacion,data
 }) {
-  // const { data } = useContext(JurisdictionDataContext);
+
+  const toLocaleString = (value) => {
+    const divisor = lang === "es" || lang === "pt" ? "." : ",";
+  
+    if (value < 10000 && value >= 1000) 
+      // return value + "jej?";
+      return "" + parseInt(value / 1000) + divisor + parseInt(value % 1000);
+    return value.toLocaleString(lang === "es" || lang === "pt" ? "es" : "en");
+  }
+  const { data } = useContext(JurisdictionDataContext);
   const indicatorsHero = [1, 26, 2, 3];
   return (
     jurisdictionsCopy && (
@@ -48,6 +56,12 @@ export default function Hero({
                     (item) => item.indicator_code === ind.code
                   )?.value;
 
+                  const fullInd = indicators.find(
+                    (item) => item.code === ind.code
+                  )
+
+                  console.log(fullInd)
+
                   return (
                     value &&
                     value !== "" && (
@@ -66,11 +80,9 @@ export default function Hero({
                           {ind[`name_${lang}`]}
                           <br />
                           <span className="font-bold description">
-                            {Math.round(value)?.toLocaleString(
-                              lang === "es" || lang === "pt" ? "es" : "en"
-                            )}
+                            {toLocaleString(value)}
                             <sup className="text-[10px]">
-                              {ind.unit?.unit}
+                              {fullInd.unit?.unit ? fullInd.unit?.unit : ""}
                             </sup>
                           </span>
                         </p>

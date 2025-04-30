@@ -6,6 +6,7 @@ import { getTextById } from "@/app/utils/textUtils";
 import Info from "../components/icons/info";
 import { JurisdictionDataContext } from "./jurisdictionDataProvider";
 import Loader from "../components/loader";
+// import { getUnitMeasures } from "@/app/utils/dataFetchers";
 const govColor = "#1774AD";
 const countryColor = "#55C7D5";
 
@@ -24,6 +25,9 @@ export default function RadarChart({ indicators, government, copy ,data,country}
 
     const fetchNationalAverages = async () => {
       try {
+
+        // const um = await getUnitMeasures(lang);
+        // setUnitMeasures(um);
         // Extraer el nivel del gobierno del level_per_country_id (el número antes del guión bajo)
         let nivel = null;
         if (government.level_per_country_id) {
@@ -52,6 +56,7 @@ export default function RadarChart({ indicators, government, copy ,data,country}
           indicatorsID.map((id) => ({
             indicator_code: id,
             value: null,
+            // unit_measure_id: unitMeasures.find((um) => um.id === id),
           }))
         );
       }
@@ -168,6 +173,10 @@ export default function RadarChart({ indicators, government, copy ,data,country}
         const indicatorInfo = indicators
           ? indicators.find((ind) => ind.code === indicator)
           : null;
+
+
+        // console.log(indicatorInfo)
+
         let indicatorName = `Ind ${indicator}`;
         let indDescription = null;
         if (indicatorInfo) {
@@ -192,14 +201,14 @@ export default function RadarChart({ indicators, government, copy ,data,country}
         const displayGovValue =
           govData.value != null
             ? `${parseFloat(govData.value).toFixed(0)} ${
-                indicatorInfo.unit?.unit
+              indicatorInfo.unit?.unit ? indicatorInfo.unit?.unit : ""  
               }`
             : getTextById(copy, "no_data", lang);
 
         const displayNatValue =
           natData.value != null
             ? `${parseFloat(natData.value).toFixed(0)} ${
-                indicatorInfo.unit?.unit
+                indicatorInfo.unit?.unit ? indicatorInfo.unit?.unit : ""
               }`
             : getTextById(copy, "no_data", lang);
         // Draw the segment background
