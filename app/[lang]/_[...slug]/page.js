@@ -53,3 +53,4 @@ export default async function Page({params}) {
     }
   }
 }
+export const revalidate = 600; // Revalidar cada 10 minutos

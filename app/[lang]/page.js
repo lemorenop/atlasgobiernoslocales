@@ -68,3 +68,4 @@ export default async function Home({ params }) {
     )
   );
 }
+export const revalidate = 600; // Revalidar cada 10 minutos
