@@ -3,7 +3,6 @@ import { getTextById } from "@/app/utils/textUtils";
 
 export default async function Custom404({ lang }) {
   const copy = await getPageError();    
-  console.log(copy)
   return (
     <main className="flex flex-col justify-center items-center min-h-screen bg-white p-m">
       {" "}

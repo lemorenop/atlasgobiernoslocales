@@ -6,8 +6,7 @@ import {
   ComboboxOption,
   ComboboxOptions,
 } from "@headlessui/react";
-import { useEffect, useState, useRef } from "react";
-import { useIndexesLoaded } from "./governmentDataProvider";
+import { useEffect, useState,  } from "react";
 
 export default function SearchBox({
   lang,
@@ -21,7 +20,6 @@ export default function SearchBox({
   const [results, setResults] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
 
-  const isLoaded = useIndexesLoaded();
 
   // Open dropdown when query changes
   useEffect(() => {
@@ -61,7 +59,7 @@ export default function SearchBox({
         <p className="text-description text-black">{subtitle}</p>
       </div>
       <p className="paragraph-small text-black">{intro}</p>
-      <Combobox value={""} disabled={!isLoaded}>
+      <Combobox value={""} >
         <div className="relative">
           <ComboboxInput
             className="border border1 py-1.5 px-3 w-full focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all bg-white description text-black"
@@ -69,7 +67,7 @@ export default function SearchBox({
             placeholder={label}
             displayValue={query}
             onChange={(e) => setQuery(e.target.value)}
-            disabled={!isLoaded}
+           
           />
           {isLoading && (
             <div className="absolute right-3 top-1/2 transform -translate-y-1/2">

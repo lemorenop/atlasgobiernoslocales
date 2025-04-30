@@ -6,12 +6,12 @@ import SelectLink from "./components/selectLink";
 
 export default async function Home({ params }) {
   const { lang } = await params;
-  const homeCopyData = await getHomeCopy();
-  const indicators = await getIndicators();
-
+  const [homeCopyData, indicators] = await Promise.all([
+    getHomeCopy(lang),
+    getIndicators(lang),
+  ]);
   return (
-    homeCopyData &&
-    (
+    homeCopyData && indicators && (
       <main className="flex flex-col justify-start text-black bg-white">
         <Hero
           hero_title={getTextById(homeCopyData, "hero_title", lang)}
@@ -19,62 +19,49 @@ export default async function Home({ params }) {
           hero_explore={getTextById(homeCopyData, "hero_explore", lang)}
           lang={lang}
         />{" "}
-          <div className="px-[80px] grid grid-cols-2 gap-[64px] py-[112px] bg-white">
-            <div className="bg-background p-xl flex flex-col gap-[24px] justify-between">
-              <div className="flex flex-col gap-[24px]">
-                <h2 className="text-h3 font-bold text-navy">
-                  {getTextById(homeCopyData, "explore_indicator_title", lang)}
-                </h2>
-                <p className="text-description ">
-                  {getTextById(
-                    homeCopyData,
-                    "explore_indicator_subtitle",
-                    lang
-                  )}
-                </p>
-              </div>
-            { indicators &&   <SelectLink
-                title={""}
-                path={
-                  lang === "es"
-                    ? "indicadores"
-                    : lang === "en"
-                    ? "indicators"
-                    : "indicadores"
-                }
-                lang={lang}
-                options={indicators.filter(i => i["slug_" + lang])}
-                label={getTextById(homeCopyData, "select", lang)}
-              />}
+        <div className="px-[80px] grid grid-cols-2 gap-[64px] py-[112px] bg-white">
+          <div className="bg-background p-xl flex flex-col gap-[24px] justify-between">
+            <div className="flex flex-col gap-[24px]">
+              <h2 className="text-h3 font-bold text-navy">
+                {getTextById(homeCopyData, "explore_indicator_title", lang)}
+              </h2>
+              <p className="text-description ">
+                {getTextById(homeCopyData, "explore_indicator_subtitle", lang)}
+              </p>
             </div>
+            {indicators && (
+              <SelectLink
+                title={""}
+                path={"indicadores"}
+                lang={lang}
+                options={indicators.filter((i) => i.slug)}
+                label={getTextById(homeCopyData, "select", lang)}
+              />
+            )}
+          </div>
 
-            <SearchBox
-              path={
-                lang === "es"
-                  ? "jurisdicciones"
-                  : lang === "en"
-                  ? "jurisdictions"
-                  : "jurisdicoes"
-              }
-              title={getTextById(
-                homeCopyData,
-                "explore_jurisdiction_title",
-                lang
-              )}
-              subtitle={getTextById(
-                homeCopyData,
-                "explore_jurisdiction_subtitle",
-                lang
-              )}
-              lang={lang}
-              intro={""}
-              label={getTextById(
-                homeCopyData,
-                "explore_jurisdiction_button",
-                lang
-              )}
-            />
-          </div>{" "}
+          <SearchBox
+            path={"jurisdicciones"
+            }
+            title={getTextById(
+              homeCopyData,
+              "explore_jurisdiction_title",
+              lang
+            )}
+            subtitle={getTextById(
+              homeCopyData,
+              "explore_jurisdiction_subtitle",
+              lang
+            )}
+            lang={lang}
+            intro={""}
+            label={getTextById(
+              homeCopyData,
+              "explore_jurisdiction_button",
+              lang
+            )}
+          />
+        </div>{" "}
       </main>
     )
   );

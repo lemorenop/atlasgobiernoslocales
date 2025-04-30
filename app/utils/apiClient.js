@@ -14,6 +14,7 @@ export async function fetchGovernments(lang,responseType) {
   return response.json();
 }
 
+
 /**
  * Obtiene los datos de los indicadores
  * @returns {Promise<Array>} - Array de objetos de indicadores
@@ -176,11 +177,9 @@ export async function fetchPageError() {
  */
 export async function fetchJurisdictionData(slug) {
   const response = await fetch(`/api/jurisdiction/${slug}`);
-  const startTime = performance.now();
-
   if (!response.ok) {
     if (response.status === 404) {
-      throw new Error("Gobierno no encontrado");
+      throw new Error(`Gobierno no encontrado: ${slug}`);
     }
     throw new Error("Error al obtener los datos de la jurisdicción");
   }

@@ -10,20 +10,22 @@ import MapContainer from "./mapContainer";
 import IndicatorDataProvider from "./indicatorDataProvider";
 import Custom404 from "../not-found";
 export default async function Indicator({ lang, slug }) {
-  const indicators = await getIndicators();
-  const copy = await getIndicatorsCopy();
+  const [indicators, copy,countries,levelPerCountry ] = await Promise.all([
+    getIndicators(lang),
+    getIndicatorsCopy(lang),
+    getCountries(lang),
+    getLevelPerCountry(lang),
+  ]);
   const currentIndicator = indicators.find(
-    (indicator) => indicator[`slug_${lang}`] === slug
+    (indicator) => indicator.slug === slug
   );
   if (!currentIndicator) {
-    return <Custom404 lang={lang} />
+    return <Custom404 lang={lang} />;
   }
   // const indicatorData = await fetchIndicatorData(currentIndicator.code);
-  const countries = await getCountries();
-  const regions = await getRegions();
-  const levelPerCountry = await getLevelPerCountry();
+
   return (
-    <main>
+    indicators&& copy && countries && levelPerCountry && <main>
       <Hero
         lang={lang}
         slug={slug}
@@ -32,14 +34,13 @@ export default async function Indicator({ lang, slug }) {
         indicator={currentIndicator}
       />
       <IndicatorDataProvider indicatorCode={currentIndicator.code} lang={lang}>
-      <MapContainer
-        regions={regions}
-        countries={countries}
-        lang={lang}
-        levelPerCountry={levelPerCountry}
-        copy={copy}
-        indicator={currentIndicator}
-      />
+        <MapContainer
+          countries={countries}
+          lang={lang}
+          levelPerCountry={levelPerCountry}
+          copy={copy}
+          indicator={currentIndicator}
+        />
       </IndicatorDataProvider>
     </main>
   );

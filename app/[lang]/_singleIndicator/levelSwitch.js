@@ -14,7 +14,7 @@ export default function LevelSwitch({ options, handleChange, value }) {
           <Radio
             key={plan.value}
             value={plan}
-            className="group relative flex cursor-pointer bg-white p-s transition  focus:not-data-focus:outline-none data-checked:bg-blue data-checked:text-white data-focus:outline data-focus:outline-white text-blue"
+            className="group relative flex cursor-pointer bg-white p-s transition  focus:not-data-focus:outline-none data-checked:bg-blue data-checked:text-white data-focus:outline data-focus:outline-white text-blue border-1 border-blue"
           >
             <p className="font-semibold uppercase description">{plan.name}</p>
           </Radio>

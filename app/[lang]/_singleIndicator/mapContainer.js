@@ -37,9 +37,6 @@ export default function MapContainer({
       value: "2",
     },
   ]);
-  console.log(indicator)
-  // console.log("niveles",niveles)
-// console.log("selectedCountry",selectedCountry)
   useEffect(() => {
     fetchCoordinates();
     async function fetchCoordinates() {

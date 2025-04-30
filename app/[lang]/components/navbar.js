@@ -1,18 +1,27 @@
 import LanguageSwitcher from "./language-switcher";
 import { getTextById } from "@/app/utils/textUtils";
-import { fetchApi } from "@/app/utils/apiClient";
 import Image from "next/image";
 import Link from "next/link";
 import NavbarDialogs from "./navbarDialogs";
 import SearchBox from "./searchBox";
-import { getHomeCopy, getIndicators, getNavbarCopy } from "@/app/utils/dataFetchers";
-import SelectLink from "./selectLink";
+import {
+  getHomeCopy,
+  getIndicators,
+  getNavbarCopy,
+} from "@/app/utils/dataFetchers";
+import NavbarLink from "./navbarLink";
 
 export default async function Navbar({ lang }) {
-  const [navbarCopy,homeCopyData,indicators] = await Promise.all([getNavbarCopy(lang),getHomeCopy(lang),getIndicators(lang)]);
+  const [navbarCopy, homeCopyData, indicators] = await Promise.all([
+    getNavbarCopy(lang),
+    getHomeCopy(lang),
+    getIndicators(lang),
+  ]);
   const defaultIndicator = indicators.find((indicator) => indicator.code === 3);
   return (
-    (navbarCopy && homeCopyData && indicators) && (
+    navbarCopy &&
+    homeCopyData &&
+    indicators && (
       <nav className="bg-white text-black py-s px-4 sm:px-6 lg:px-8 w-full">
         <div className="flex items-center justify-between w-full">
           <Link href={`/${lang}`} className="">
@@ -26,8 +35,9 @@ export default async function Navbar({ lang }) {
           </Link>
           <div className="hidden md:block">
             <div className=" flex items-center gap-m">
+              <NavbarLink path="indicadores">
               <a
-                href={`/${lang}/indicators/${defaultIndicator[`slug_${lang}`]}`}
+                href={`/${lang}/indicadores/${defaultIndicator.slug}`}
                 className={`flex items center gap-xs  description cursor-pointer`}
               >
                 {" "}
@@ -40,56 +50,7 @@ export default async function Navbar({ lang }) {
                 />
                 {getTextById(navbarCopy, "indicators", lang)}
               </a>
-              {/* <NavbarDialogs
-                lang={lang}
-                path={getTextById(navbarCopy, "indicators", lang)}
-                button={
-                  <div
-                    className={`flex items center gap-xs  description cursor-pointer`}
-                    href={`/${lang}/${getTextById(navbarCopy, "indicators", lang).toLowerCase()}/${densidad[lang]}`}
-                  >
-                    {" "}
-                    <Image
-                      src="/ind.png"
-                      alt=""
-                      width={24}
-                      height={24}
-                      className="object-contain "
-                    />
-                    {getTextById(navbarCopy, "indicators", lang)}
-                  </div>
-                }
-              >
-
-            <div className="bg-background p-xl flex flex-col gap-[24px] justify-between">
-              <div className="flex flex-col gap-[24px]">
-                <h2 className="text-h3 font-bold text-navy">
-                  {getTextById(homeCopyData, "explore_indicator_title", lang)}
-                </h2>
-                <p className="text-description text-black">
-                  {getTextById(
-                    homeCopyData,
-                    "explore_indicator_subtitle",
-                    lang
-                  )}
-                </p>
-              </div>
-            { indicators &&   <SelectLink
-                highlightedIfHere={true}
-                title={""}
-                path={
-                  lang === "es"
-                    ? "indicadores"
-                    : lang === "en"
-                    ? "indicators"
-                    : "indicadores"
-                }
-                lang={lang}
-                options={indicators}
-                label={getTextById(homeCopyData, "select", lang)}
-              />}
-            </div>
-              </NavbarDialogs> */}
+              </NavbarLink>
               <NavbarDialogs
                 lang={lang}
                 path={"jurisdicciones"}
@@ -135,19 +96,6 @@ export default async function Navbar({ lang }) {
                 />
                 {/* </div> */}
               </NavbarDialogs>
-              {/* <Link
-                href={`/${lang}/${getTextById(navbarCopy, "about_slug", lang)}`}
-                className="flex items center gap-xs  description"
-              >
-                <Image
-                  src="/about.png"
-                  alt="about"
-                  width={24}
-                  height={24}
-                  className="object-contain"
-                />
-                {getTextById(navbarCopy, "about", lang)}
-              </Link> */}
               <LanguageSwitcher
                 lang={lang}
                 slugs={navbarCopy}

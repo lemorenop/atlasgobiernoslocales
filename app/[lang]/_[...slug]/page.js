@@ -1,7 +1,7 @@
-import { notFound } from "next/navigation";
-import Jurisdiction from "../_singleJurisdiction/page";
-import Indicator from "../_singleIndicator/page";
-import Home from "../page";
+// import { notFound } from "next/navigation";
+import Jurisdiction2 from "../_singleJurisdiction2/page";
+// import Indicator from "../_singleIndicator/page";
+// import Home from "../page";
 const { default: About } = require("../_about/page");
 const { default: Custom404 } = require("../not-found");
 function getKeyFromSlug(map, slug, lang) {
@@ -11,7 +11,7 @@ function getKeyFromSlug(map, slug, lang) {
   return null;
 }
 const pageMap = {
-  about: { en: "about", es: "Acerca de", pt: "sobre" },
+  about: { en: "about", es: "acerca-de", pt: "sobre" },
   jurisdictions: {
     en: "jurisdictions",
     es: "jurisdicciones",
@@ -27,8 +27,8 @@ export default async function Page({params}) {
     if (!pageKey) return <Custom404 lang={lang} />;
 
     switch (pageKey) {
-      case "about":
-        return <About lang={lang} />;
+      // case "about":
+      //   return <About lang={lang} />;
       
       // case 'indicators':
       //   return <IndicatorsList lang={lang} />
@@ -45,9 +45,9 @@ export default async function Page({params}) {
     if (!secondKey) return <Custom404 lang={lang} />;
     switch (key) {
       case "jurisdictions":
-        return <Jurisdiction lang={lang} slug={secondKey} />;
-      case "indicators":
-        return <Indicator lang={lang} slug={secondKey}/>;
+        return <Jurisdiction2 lang={lang} slug={secondKey} />;
+      // case "indicators":
+      //   return <Indicator lang={lang} slug={secondKey}/>;
       default:
         return <Custom404 lang={lang} />;
     }

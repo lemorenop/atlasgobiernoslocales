@@ -5,7 +5,7 @@ import { Map, Source, Layer, NavigationControl } from "react-map-gl/mapbox";
 import "mapbox-gl/dist/mapbox-gl.css";
 import { basicSettings, handleMapLoad } from "@/app/utils/mapSettings";
 
-export default function MapGoverment({ nivel, governmentID, lang, bounds }) {
+export default function MapGoverment({ nivel, governmentID, lang }) {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [viewState, setViewState] = useState({
@@ -13,12 +13,21 @@ export default function MapGoverment({ nivel, governmentID, lang, bounds }) {
     latitude: -34.6037,
     zoom: 4,
   });
-  console.log(  bounds)
+  const [bounds, setBounds] = useState(null);
+
   const [minZoom, setMinZoom] = useState(1);
 
   const mapRef = useRef();
 
   useEffect(() => {
+    const fetchBounds = async () => {
+      const response = await fetch(
+        `/api/bounds?govID=${governmentID}&nivel=${nivel}`
+      );
+      const data = await response.json();
+      if (data) setBounds(data);
+    };
+    fetchBounds();
     try {
       setLoading(true);
 
@@ -44,58 +53,55 @@ export default function MapGoverment({ nivel, governmentID, lang, bounds }) {
 
   // Function to center map on the jurisdiction when it's loaded
   const centerOnJurisdiction = (map) => {
-    if(bounds){
+    if (bounds) {
       map.fitBounds(bounds.bounds, {
         padding: 50,
       });
     } else {
       let sourceId, sourceLayer;
-    switch (nivel) {
-      case "1":
-        sourceId = "nivel1-source";
-        sourceLayer = "nivel_1-7n3yuu";
-        break;
-      case "2":
-        sourceId = "nivel2-source";
-        sourceLayer = "nivel_2-721y7u";
-        break;
-      case "3":
-        sourceId = "nivel3-source";
-        sourceLayer = "nivel_3-2264x6";
-        break;
-      default:
-        console.error("Nivel no válido:", nivel);
-        return;
-    }
+      switch (nivel) {
+        case "1":
+          sourceId = "nivel1-source";
+          sourceLayer = "nivel_1-7n3yuu";
+          break;
+        case "2":
+          sourceId = "nivel2-source";
+          sourceLayer = "nivel_2-721y7u";
+          break;
+        case "3":
+          sourceId = "nivel3-source";
+          sourceLayer = "nivel_3-2264x6";
+          break;
+        default:
+          console.error("Nivel no válido:", nivel);
+          return;
+      }
 
-    // Query the features for the current jurisdiction
-    const features = map.queryRenderedFeatures({
-      layers: [`nivel${nivel}-layer`],
-    });
+      // Query the features for the current jurisdiction
+      const features = map.queryRenderedFeatures({
+        layers: [`nivel${nivel}-layer`],
+      });
 
-    if (features && features.length > 0) {
-      // Get the feature
-      const feature = features[0];
-      map.fitBounds(getBoundsFromFeature(feature), {
-        padding: 50,
-      });
-    } else {
-      console.log('BUSCO EN TODO EL MAPA')
-      const sourceFeatures = map.querySourceFeatures(sourceId, {
-        sourceLayer: sourceLayer,
-        filter: ["==", ["get", "codigo_uni"], governmentID],
-      });
-      console.log(sourceFeatures);
-      if (sourceFeatures && sourceFeatures.length > 0) {
-        // Si encontramos características en la fuente, usarlas
-        const feature = sourceFeatures[0];
+      if (features && features.length > 0) {
+        // Get the feature
+        const feature = features[0];
         map.fitBounds(getBoundsFromFeature(feature), {
           padding: 50,
         });
+      } else {
+        const sourceFeatures = map.querySourceFeatures(sourceId, {
+          sourceLayer: sourceLayer,
+          filter: ["==", ["get", "codigo_uni"], governmentID],
+        });
+        if (sourceFeatures && sourceFeatures.length > 0) {
+          // Si encontramos características en la fuente, usarlas
+          const feature = sourceFeatures[0];
+          map.fitBounds(getBoundsFromFeature(feature), {
+            padding: 50,
+          });
+        }
       }
     }
-    }
-    
 
     // Consultar características directamente desde la fuente
 

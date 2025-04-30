@@ -24,7 +24,7 @@ const socialMedia = {
   x: () => <X className="w-6 h-6 fill-blue-CAF" />,
 };
 export default async function Footer({ lang }) {
-  const [footerCopy, navbarCopy, homeCopyData,indicators] = await Promise.all([
+  const [footerCopy, navbarCopy, homeCopyData, indicators] = await Promise.all([
     getFooterCopy(lang),
     getNavbarCopy(lang),
     getHomeCopy(lang),
@@ -35,9 +35,7 @@ export default async function Footer({ lang }) {
       lang ? `link_${lang}` : `link`
     ];
   }
-  function findNavbarLink(id) {
-    return navbarCopy.find((elm) => elm.id === `${id}_slug`)?.[`text_${lang}`];
-  }
+  const defaultIndicator = indicators.find((elm) => elm.code == 3)?.slug;
   const year = new Date().getFullYear();
   return (
     footerCopy && (
@@ -74,7 +72,7 @@ export default async function Footer({ lang }) {
                 }}
               />
             </div>
-            
+
             <p className="p-[24px] bg-navy z-10 relative my-auto specific-underline-style">
               {getTextById(footerCopy, "highlighted_message_1", lang)}
             </p>
@@ -139,19 +137,14 @@ export default async function Footer({ lang }) {
                   <NavbarDialogs
                     button={
                       <div
-                      className={`flex items center gap-xs underline description cursor-pointer`}
-                    >
-                      {getTextById(navbarCopy, "jurisdictions", lang)}
-                    </div>}
+                        className={`flex items center gap-xs underline description cursor-pointer`}
+                      >
+                        {getTextById(navbarCopy, "jurisdictions", lang)}
+                      </div>
+                    }
                   >
                     <SearchBox
-                      path={
-                        lang === "es"
-                          ? "jurisdicciones"
-                          : lang === "en"
-                          ? "jurisdictions"
-                          : "jurisdicoes"
-                      }
+                      path={"jurisdicciones"}
                       intro={getTextById(
                         homeCopyData,
                         "explore_jurisdiction_input",
@@ -177,12 +170,10 @@ export default async function Footer({ lang }) {
                   </NavbarDialogs>
                   <a
                     className={`flex items center gap-xs underline  description cursor-pointer`}
-                    href={`/${lang}/${getTextById(navbarCopy, "indicators", lang).toLowerCase()}/${densidad[lang]}`}
+                    href={`/${lang}/indicadores/${defaultIndicator}`}
                   >
-                    {" "}
                     {getTextById(navbarCopy, "indicators", lang)}
-                  </a>            
-
+                  </a>
                 </div>
               </div>
             </div>

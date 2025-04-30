@@ -1,12 +1,15 @@
-import { useEffect, useRef, useState } from "react";
+"use client"
+import { useEffect, useRef, useState, useContext } from "react";
 import * as d3 from "d3";
 import { useParams } from "next/navigation";
 import { getTextById } from "@/app/utils/textUtils";
 import Info from "../components/icons/info";
+import { JurisdictionDataContext } from "./jurisdictionDataProvider";
 const govColor = "#1774AD";
 const countryColor = "#55C7D5";
 
-export default function RadarChart({ data, indicators, government, copy }) {
+export default function RadarChart({  indicators, government, copy }) {
+  const { data } = useContext(JurisdictionDataContext);
   const [tooltip, setTootip] = useState();
   const params = useParams();
   const lang = params.lang; // Obtenemos el idioma directamente de los parámetros de la URL
@@ -70,7 +73,8 @@ export default function RadarChart({ data, indicators, government, copy }) {
 
   useEffect(() => {
     const updateChartDimensions = () => {
-      if (!svgRef.current) return;
+      if (data && nationalData) {
+         if (!svgRef.current) return;
       const container = svgRef.current.parentElement;
       const width = container.clientWidth;
       const height = container.clientHeight;
@@ -88,6 +92,8 @@ export default function RadarChart({ data, indicators, government, copy }) {
 
       // Redraw the chart with new dimensions
       drawChart(innerWidth, innerHeight, radius, margin, width, height);
+      }
+     
     };
 
     const drawChart = (
@@ -152,7 +158,6 @@ export default function RadarChart({ data, indicators, government, copy }) {
       // Calculate the angle for each indicator
       const angleStep = (2 * Math.PI) / indicatorsID.length;
 
-      console.log(indicators);
 
       // Draw segments for each indicator
       indicatorsID.forEach((indicator, i) => {
@@ -438,7 +443,7 @@ export default function RadarChart({ data, indicators, government, copy }) {
       });
     };
 
-    if (nationalData) updateChartDimensions();
+   updateChartDimensions();
     window.addEventListener("resize", updateChartDimensions);
 
     return () => {
@@ -548,7 +553,7 @@ export default function RadarChart({ data, indicators, government, copy }) {
           <div className="w-4 h-1 " style={{ backgroundColor: govColor }} />
           <p>
             {getTextById(copy, "average", lang)}{" "}
-            {government.country[`name_${lang}`]}
+            {/* {government.country[`name_${lang}`]} */}
           </p>
         </div>
       </div>

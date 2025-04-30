@@ -4,7 +4,6 @@ import Navbar from "@/app/[lang]/components/navbar";
 import { i18n } from "@/app/i18n.config";
 import "@/app/globals.css";
 import { Raleway } from "next/font/google";
-// import GovernmentDataProvider from "./components/governmentDataProvider";
 import GAnalytics from "./components/analytics";
 import Head from 'next/head';
 
@@ -40,11 +39,9 @@ export default async function RootLayout({ children, params }) {
           className={`${raleway.className} antialiased min-h-screen flex flex-col justify-between bg-white font-normal font-[Raleway]`}
         >
         <GAnalytics/>
-        {/* <GovernmentDataProvider lang={lang}> */}
             <Navbar lang={lang} />
             <div className="flex-grow">{children}</div>
             <Footer lang={lang} />
-          {/* </GovernmentDataProvider> */}
         </body>
       </html>
     </>

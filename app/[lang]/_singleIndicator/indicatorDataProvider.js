@@ -2,49 +2,39 @@
 
 import { useEffect, useState, createContext, useContext } from "react";
 import "@/app/globals.css";
-import { fetchIndicatorData } from "@/app/utils/apiClient";
-import { fetchGovernments } from "@/app/utils/apiClient";
-
+import { fetchIndicatorData, fetchGovernments } from "@/app/utils/apiClient";
 
 // Create a context for the loading state
 export const IndicatorDataContext = createContext();
 
-export default function IndicatorDataProvider({ lang, children,indicatorCode }) {
-    const [data, setData] = useState({data:null,governments:null});
-    const [error, setError] = useState(null);
-  
-    useEffect(() => {
-      async function loadData() {
-        try {
-            console.time('fetchIndicatorData');
-            const response = await fetchIndicatorData(indicatorCode);
-            console.timeEnd('fetchIndicatorData');
-            
-            console.time('fetchGovernments');
-            const governments = await fetchGovernments(lang,"json").then(res=>res.data);
-            console.timeEnd('fetchGovernments');
-            
-            setData({data:response.data,governments});
-        } catch (error) {
-          console.error("Error loading government data:", error);
-          // setError(pageError);
-        }
+export default function IndicatorDataProvider({
+  lang,
+  children,
+  indicatorCode,
+}) {
+  const [data, setData] = useState({ data: null, governments: null });
+
+  useEffect(() => {
+    async function loadData() {
+      try {
+        const [response, governments] = await Promise.all([
+          fetchIndicatorData(indicatorCode).then((res) => res.data),
+          fetchGovernments(lang, "json").then((res) => res.data),
+        ]);
+        setData({ data: response, governments });
+      } catch (error) {
+        setData({ data: null, governments: null });
+        console.error("Error loading government data:", error);
+        // setError(pageError);
       }
-  
-      loadData();
-    }, [lang]);
-  
-    if (error) {
-      return (
-        <div className="flex flex-col justify-center items-center text-black bg-white min-h-screen">
-          {error}
-        </div>
-      );
     }
-  
-    return (
-      <IndicatorDataContext.Provider value={data} >
-       {children}
-      </IndicatorDataContext.Provider>
-    );
-  }
+
+    loadData();
+  }, [lang]);
+
+  return (
+    <IndicatorDataContext.Provider value={data}>
+      {children}
+    </IndicatorDataContext.Provider>
+  );
+}

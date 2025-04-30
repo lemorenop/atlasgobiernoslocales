@@ -39,7 +39,7 @@ export default function MapIndicator({
       : "";
   const mapRef = useRef();
 
-  const isPercentage = indicator.description_es.charAt(0) === "%";
+  const isPercentage = indicator[`description_${lang}`].charAt(0) === "%";
   // Efecto para manejar el zoom al país seleccionado
   useEffect(() => {
     if (!mapRef.current) return;
