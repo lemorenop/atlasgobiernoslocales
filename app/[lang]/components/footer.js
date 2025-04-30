@@ -65,7 +65,7 @@ style={{
             />
             </div>
             
-            <p className="p-[24px] bg-navy z-10 relative my-auto">
+            <p className="p-[24px] bg-navy z-10 relative my-auto specific-underline-style">
               {getTextById(footerCopy, "highlighted_message_1", lang)}
             </p>
           </div>

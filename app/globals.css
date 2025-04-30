@@ -190,3 +190,8 @@ body {
     --h3-line-height: 34px;
   }
 }
+
+
+.specific-underline-style a {
+  text-decoration: underline;
+}

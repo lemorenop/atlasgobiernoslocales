@@ -58,10 +58,6 @@ export const basicSettings={
 export const latinAmericaView= {
     longitude: -53.09102246964113,
     latitude: -12.994618925386675,
-    zoom: 1,
-    bounds: [
-      [-116, 31],
-      [-31, -57],
-    ], // Adjusted to fit Latin America
+    zoom: 1, // Adjusted to fit Latin America
     fitBoundsOptions: { padding: 20 },
   };
