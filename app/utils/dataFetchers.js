@@ -47,9 +47,9 @@ const csv = {
  * @param {Function} fetchFn - Function to fetch data
  * @returns {Promise<any>} - Fetched data
  */
-async function fetchWithCache(cacheKey, fetchFn) {
+async function fetchWithCache(cacheKey, fetchFn, lang) {
   // Check if data is in cache
-  const cachedData = getFromCache(cacheKey);
+  const cachedData = getFromCache(`${cacheKey}_${lang}`);
   if (cachedData) {
     return cachedData;
   }
@@ -57,8 +57,8 @@ async function fetchWithCache(cacheKey, fetchFn) {
   // Fetch data
   const data = await fetchFn();
 
-  // Store in cache
-  setInCache(cacheKey, data);
+  // Store in cache with language
+  setInCache(`${cacheKey}_${lang}`, data);
 
   return data;
 }
@@ -144,43 +144,13 @@ async function fetchAndParseDataCSV(csvUrl, code) {
   }
 }
 
-const retryFetch = async (fetchFn, maxRetries = 3, delay = 1000) => {
-  let lastError;
-  
-  for (let i = 0; i < maxRetries; i++) {
-    try {
-      return await fetchFn();
-    } catch (error) {
-      lastError = error;
-      if (i < maxRetries - 1) {
-        await new Promise(resolve => setTimeout(resolve, delay * (i + 1)));
-      }
-    }
-  }
-  
-  throw lastError;
-};
-
 /**
  * Fetches indicators data
  * @returns {Promise<Array>} - Array of indicator objects
  */
 export async function getIndicators(lang) {
   const csvUrl = csv.indicators;
-  const indicators = await Promise.all([
-    fetchWithCache("unitMeasures", () =>
-      fetchAndParseCSV(csv.unitMeasures, lang)
-    ),
-    fetchWithCache("indicators", () => fetchAndParseCSV(csvUrl, lang)),
-  ]).then((results) => {
-    return results[1].map((elm) => {
-      elm.unit_measure_id = results[0].find(
-        (unit) => unit.id == elm.unit_measure_id
-      );
-      return elm;
-    });
-  });
-  return indicators;
+  return fetchWithCache("indicators", () => fetchAndParseCSV(csvUrl, lang), lang);
 }
 
 /**
@@ -189,7 +159,7 @@ export async function getIndicators(lang) {
  */
 export async function getRegions() {
   const csvUrl = csv.regions;
-  return fetchWithCache("regions", () => fetchAndParseCSV(csvUrl));
+  return fetchWithCache("regions", () => fetchAndParseCSV(csvUrl), "es");
 }
 
 /**
@@ -198,9 +168,7 @@ export async function getRegions() {
  */
 export async function getCountries(lang, iso3) {
   const csvUrl = csv.countries;
-  return fetchWithCache("countries", () => 
-    retryFetch(async () => fetchAndParseCSV(csvUrl, lang, iso3, "iso3"))
-  );
+  return fetchWithCache("countries", () => fetchAndParseCSV(csvUrl, lang, iso3, "iso3"), lang);
 }
 
 /**
@@ -209,7 +177,7 @@ export async function getCountries(lang, iso3) {
  */
 export async function getLevelPerCountry(lang) {
   const csvUrl = csv.levelPerCountry;
-  return fetchWithCache("levelPerCountry",() => retryFetch(async () => fetchAndParseCSV(csvUrl,lang)));
+  return fetchWithCache("levelPerCountry", () => fetchAndParseCSV(csvUrl, lang), lang);
 }
 
 /**
@@ -219,7 +187,7 @@ export async function getLevelPerCountry(lang) {
 export async function getGovernments(lang, slug,) {
   const csvUrl = csv.governments;
   return fetchWithCache("governments", () =>
-    retryFetch(async () => fetchAndParseCSV(csvUrl, lang, slug, "id"))
+    fetchAndParseCSV(csvUrl, lang, slug, "id"), lang
   );
 }
 
@@ -230,7 +198,7 @@ export async function getGovernments(lang, slug,) {
  */
 export async function getHomeCopy(lang) {
   const csvUrl = csv.homeCopy;
-  return fetchWithCache("homeCopy", () => retryFetch(async () => fetchAndParseCSV(csvUrl, lang)));
+  return fetchWithCache("homeCopy", () => fetchAndParseCSV(csvUrl, lang), lang);
 }
 
 /**
@@ -239,7 +207,7 @@ export async function getHomeCopy(lang) {
  */
 export async function getNavbarCopy(lang) {
   const csvUrl = csv.navbarCopy;
-  return fetchWithCache("navbarCopy", () => retryFetch(async () => fetchAndParseCSV(csvUrl, lang)));
+  return fetchWithCache("navbarCopy", () => fetchAndParseCSV(csvUrl, lang), lang);
 }
 
 /**
@@ -248,7 +216,7 @@ export async function getNavbarCopy(lang) {
  */
 export async function getFooterCopy(lang) {
   const csvUrl = csv.footerCopy;
-  return fetchWithCache("footerCopy", () => retryFetch(async () => fetchAndParseCSV(csvUrl, lang)));
+  return fetchWithCache("footerCopy", () => fetchAndParseCSV(csvUrl, lang), lang);
 }
 
 /**
@@ -257,7 +225,7 @@ export async function getFooterCopy(lang) {
  */
 export async function getAboutCopy() {
   const csvUrl = csv.aboutCopy;
-  return fetchWithCache("aboutCopy", () => retryFetch(async () => fetchAndParseCSV(csvUrl)));
+  return fetchWithCache("aboutCopy", () => fetchAndParseCSV(csvUrl), "es");
 }
 
 /**
@@ -266,7 +234,7 @@ export async function getAboutCopy() {
  */
 export async function getHomeMapTooltip(lang) {
   const csvUrl = csv.homeMapTooltip;
-  return fetchWithCache("homeMapTooltip", () => retryFetch(async () => fetchAndParseCSV(csvUrl,lang)));
+  return fetchWithCache("homeMapTooltip", () => fetchAndParseCSV(csvUrl, lang), lang);
 }
 
 /**
@@ -275,7 +243,7 @@ export async function getHomeMapTooltip(lang) {
  */
 export async function getAllData() {
   const csvUrl = csv.allData;
-  return fetchWithCache("allData", () => retryFetch(async () => fetchAndParseCSV(csvUrl)));
+  return fetchWithCache("allData", () => fetchAndParseCSV(csvUrl), "es");
 }
 
 /**
@@ -284,7 +252,7 @@ export async function getAllData() {
  */
 export async function getYearData(lang,id) {
   const csvUrl = csv.yearData;
-  return fetchWithCache("yearData", () => retryFetch(async () => fetchAndParseCSV(csvUrl,lang,id,"country_iso3")));
+  return fetchWithCache("yearData", () => fetchAndParseCSV(csvUrl, lang, id, "country_iso3"), lang);
 }
 
 /**
@@ -293,7 +261,7 @@ export async function getYearData(lang,id) {
  */
 export async function getNationalAverages() {
   const csvUrl = csv.nationalAverages;
-  return fetchWithCache("nationalAverages", () => retryFetch(async () => fetchAndParseCSV(csvUrl)));
+  return fetchWithCache("nationalAverages", () => fetchAndParseCSV(csvUrl), "es");
 }
 
 /**
@@ -302,7 +270,7 @@ export async function getNationalAverages() {
  */
 export async function getIndicatorsCopy(lang) {
   const csvUrl = csv.indicatorsCopy;
-  return fetchWithCache("indicatorsCopy", () => retryFetch(async () => fetchAndParseCSV(csvUrl,lang)));
+  return fetchWithCache("indicatorsCopy", () => fetchAndParseCSV(csvUrl, lang), lang);
 }
 
 /**
@@ -312,7 +280,7 @@ export async function getIndicatorsCopy(lang) {
 export async function getJurisdictionsCopy(lang) {
   const csvUrl = csv.jurisdictionsCopy;
   return fetchWithCache("jurisdictionsCopy", () =>
-    retryFetch(async () => fetchAndParseCSV(csvUrl, lang)   )
+    fetchAndParseCSV(csvUrl, lang), lang
   );
 }
 
@@ -363,12 +331,12 @@ export async function getGovernmentsData(lang = "es") {
 
 export async function getPageError() {
   const csvUrl = csv.pageError;
-  return fetchWithCache("pageError", () => retryFetch(async () => fetchAndParseCSV(csvUrl)));
+  return fetchWithCache("pageError", () => fetchAndParseCSV(csvUrl), "es");
 }
 
 export async function getJurisdictionData(slug) {
   const csvUrl = csv.allData;
   return fetchWithCache(`jurisdictionData_${slug}`, () =>
-    retryFetch(async () => fetchAndParseDataCSV(csvUrl, slug))
+    fetchAndParseDataCSV(csvUrl, slug), "es"
   );
 }
