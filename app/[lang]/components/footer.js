@@ -135,10 +135,11 @@ export default async function Footer({ lang }) {
                 <div className="flex flex-col gap-s">
                   <NavbarDialogs
                     button={
-                      <span className="underline">
-                        {getTextById(navbarCopy, "jurisdictions", lang)}
-                      </span>
-                    }
+                      <div
+                      className={`flex items center gap-xs underline description cursor-pointer`}
+                    >
+                      {getTextById(navbarCopy, "jurisdictions", lang)}
+                    </div>}
                   >
                     <SearchBox
                       path={
@@ -171,6 +172,47 @@ export default async function Footer({ lang }) {
                       )}
                     />
                   </NavbarDialogs>
+                  <NavbarDialogs
+                lang={lang}
+                path={getTextById(navbarCopy, "indicators", lang)}
+                button={
+                  <div
+                    className={`flex items center gap-xs underline description cursor-pointer`}
+                  >
+                    {getTextById(navbarCopy, "indicators", lang)}
+                  </div>
+                }
+              >
+
+            <div className="bg-background p-xl flex flex-col gap-[24px] justify-between">
+              <div className="flex flex-col gap-[24px]">
+                <h2 className="text-h3 font-bold text-navy">
+                  {getTextById(homeCopyData, "explore_indicator_title", lang)}
+                </h2>
+                <p className="text-description text-black">
+                  {getTextById(
+                    homeCopyData,
+                    "explore_indicator_subtitle",
+                    lang
+                  )}
+                </p>
+              </div>
+            { indicators &&   <SelectLink
+                highlightedIfHere={true}
+                title={""}
+                path={
+                  lang === "es"
+                    ? "indicadores"
+                    : lang === "en"
+                    ? "indicators"
+                    : "indicadores"
+                }
+                lang={lang}
+                options={indicators}
+                label={getTextById(homeCopyData, "select", lang)}
+              />}
+            </div>
+              </NavbarDialogs>
 
                   {/* <a href={`/${lang}/${findNavbarLink("indicators")}`} className="text-paragraph-small" target="_blank">
                   {getTextById(navbarCopy, "indicators", lang)}

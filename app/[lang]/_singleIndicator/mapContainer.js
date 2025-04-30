@@ -12,6 +12,7 @@ export default function MapContainer({
   levelPerCountry,
   lang,
   copy,
+  indicator
 }) {
   const { data, governments } = useContext(IndicatorDataContext);
   const [selectedCountry, setSelectedCountry] = useState({
@@ -36,9 +37,9 @@ export default function MapContainer({
       value: "2",
     },
   ]);
-  console.log("nivel seleccionado",selectedNivel)
-  console.log("niveles",niveles)
-console.log("selectedCountry",selectedCountry)
+  console.log(indicator)
+  // console.log("niveles",niveles)
+// console.log("selectedCountry",selectedCountry)
   useEffect(() => {
     fetchCoordinates();
     async function fetchCoordinates() {
@@ -202,6 +203,7 @@ console.log("selectedCountry",selectedCountry)
             governments={governments}
             lang={lang}
             selectedCountryIso3={selectedCountry.iso3}
+            indicator={indicator}
           />
         ) : (
           <Loader />
