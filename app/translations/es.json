@@ -38,6 +38,7 @@
   },
   "common": {
     "language": "Idioma",
-    "selectLanguage": "Seleccionar idioma"
+    "selectLanguage": "Seleccionar idioma",
+    "try_again":"No se encontraron datos, por favor inténtelo nuevamente."
   }
 } 

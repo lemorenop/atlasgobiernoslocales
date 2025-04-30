@@ -25,6 +25,7 @@
   },
   "common": {
     "language": "Language",
-    "selectLanguage": "Select language"
+    "selectLanguage": "Select language",
+    "try_again":"No data found, please try again."
   }
 } 

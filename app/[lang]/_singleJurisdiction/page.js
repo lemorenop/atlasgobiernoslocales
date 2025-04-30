@@ -20,7 +20,13 @@ export default function Jurisdiction({ lang, slug }) {
   const [dictionary, setDictionary] = useState({});
   const [jurisdictionsCopy, setJurisdictionsCopy] = useState([]);
   const [bounds, setBounds] = useState(null);
+  const [errorMessage, setErrorMessage] = useState("");
   useEffect(() => {
+    const fetchCopy = async () => {
+      const jurCopy = await getJurisdictionsCopy();
+      setJurisdictionsCopy(jurCopy);
+    };
+    fetchCopy();
     const fetchData = async () => {
       try {
         // Obtener los datos filtrados desde la API y el diccionario de traducción
@@ -28,25 +34,30 @@ export default function Jurisdiction({ lang, slug }) {
           fetchJurisdictionData(slug),
           getDictionary(lang),
         ]);
-        console.log(data.government)
-        const nivel = data.government.level_per_country_id.split("_")[0]
-        
-        const bounds = await fetch(`/api/bounds?govID=${data.government.id}&nivel=${nivel}`).then(res=>res.json());
-        if(bounds)setBounds(bounds);
-        const jurCopy = await getJurisdictionsCopy();
-        setJurisdictionsCopy(jurCopy);
+        const nivel = data.government.level_per_country_id.split("_")[0];
+
+        const bounds = await fetch(
+          `/api/bounds?govID=${data.government.id}&nivel=${nivel}`
+        ).then((res) => res.json());
+        if (bounds) setBounds(bounds);
         setGovernment(data.government);
         setGovernmentData(data.governmentData);
         setIndicators(data.indicators);
         setDictionary(dict);
       } catch (error) {
         console.error("Error fetching data:", error);
-        if (error.message === "Gobierno no encontrado") {
-          router.push(`/${lang}/404`);
-        } else {
-          // Manejar otros errores
-          console.error("Error:", error);
-        }
+        if (jurisdictionsCopy.length > 0)
+          setErrorMessage(getTextById(jurisdictionsCopy, "try_again", lang));
+        else
+          setErrorMessage(
+            lang === "es"
+              ? "No se encontraron datos disponibles. Intente nuevamente."
+              : lang === "en"
+              ? "No data available. Please try again."
+              : lang === "pt"
+              ? "Não existem dados disponíveis. Por favor, tente novamente."
+              : "No data"
+          );
       } finally {
         setLoading(false);
       }
@@ -58,63 +69,64 @@ export default function Jurisdiction({ lang, slug }) {
   if (loading) {
     return <Loader />;
   }
-
   if (!government) {
-    return null;
+    return (
+      <div className="flex flex-col justify-center items-center h-screen bg-white p-m">
+        <p className="text-black">{errorMessage}</p>
+      </div>
+    );
   }
   const noDataText =
     dictionary?.jurisdictions?.noData ||
     "No hay datos disponibles para esta jurisdicción";
   return (
-    <main className="flex flex-col justify-start text-black bg-white ">
+    <main className="flex flex-col justify-start text-black bg-white min-h-screen">
       {(jurisdictionsCopy || indicators || governmentData || government) && (
-        <Hero
-          bounds={bounds}
-          jurisdictionsCopy={jurisdictionsCopy}
-          indicators={indicators}
-          data={governmentData}
-          lang={lang}
-          government={government}
-        />
+        <>
+          <Hero
+            bounds={bounds}
+            jurisdictionsCopy={jurisdictionsCopy}
+            indicators={indicators}
+            data={governmentData}
+            lang={lang}
+            government={government}
+          />
+
+          {/* Mostrar los datos filtrados del gobierno */}
+          <div className="p-[80px] grid lg:grid-cols-12 gap-xl">
+            <div className="lg:col-span-4 flex flex-col gap-[24px] justify-center">
+              <h2 className="text-h1 font-bold mb-4 text-navy">
+                {getTextById(jurisdictionsCopy, "indicators_title", lang)}
+              </h2>
+              <div className="bg-background p-xl ">
+                <p className="text-p">
+                  {getTextById(jurisdictionsCopy, "indicators_subtitle", lang, [
+                    { id: "jurisdiction", replace: government.name },
+                    {
+                      id: "country",
+                      replace: government.country[`name_${lang}`],
+                    },
+                  ])}
+                </p>
+              </div>
+            </div>
+
+            {governmentData.length > 0 ? (
+              <div className="flex flex-col lg:col-span-8 min-h-[600px]">
+                <RadarChart
+                  copy={jurisdictionsCopy}
+                  government={government}
+                  data={governmentData}
+                  indicators={indicators}
+                />
+              </div>
+            ) : (
+              <p>{errorMessage}</p>
+            )}
+          </div>
+        </>
       )}
-
-      {/* Mostrar los datos filtrados del gobierno */}
-      <div className="p-[80px] grid lg:grid-cols-12 gap-xl">
-        <div className="lg:col-span-4 flex flex-col gap-[24px] justify-center">
-          <h2 className="text-h1 font-bold mb-4 text-navy">
-            {getTextById(jurisdictionsCopy, "indicators_title", lang)}
-          </h2>
-          <div className="bg-background p-xl ">
-            <p className="text-p">
-              {
-                getTextById(jurisdictionsCopy, "indicators_subtitle", lang, [
-                  { id: "jurisdiction", replace: government.name },
-                  {
-                    id: "country",
-                    replace: government.country[`name_${lang}`],
-                  },
-                ])
-                // .replace("[jurisdiction]", government.name)
-                // .replace("[country]", government.country[`name_${lang}`])
-                //
-              }
-            </p>
-          </div>
-        </div>
-
-        {governmentData.length > 0 ? (
-          <div className="flex flex-col lg:col-span-8 min-h-[600px]">
-            <RadarChart
-              copy={jurisdictionsCopy}
-              government={government}
-              data={governmentData}
-              indicators={indicators}
-            />
-          </div>
-        ) : (
-          <p>{noDataText}</p>
-        )}
-      </div>
+      {errorMessage && <p>{errorMessage}</p>}
     </main>
   );
 }

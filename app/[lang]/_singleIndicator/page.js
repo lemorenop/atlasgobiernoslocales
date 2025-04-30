@@ -8,6 +8,7 @@ import {
 import MapContainer from "./mapContainer";
 
 import IndicatorDataProvider from "./indicatorDataProvider";
+import Custom404 from "../not-found";
 export default async function Indicator({ lang, slug }) {
   const indicators = await getIndicators();
   const copy = await getIndicatorsCopy();
@@ -15,7 +16,7 @@ export default async function Indicator({ lang, slug }) {
     (indicator) => indicator[`slug_${lang}`] === slug
   );
   if (!currentIndicator) {
-    return <div>Indicator not found</div>;
+    return <Custom404 lang={lang} />
   }
   // const indicatorData = await fetchIndicatorData(currentIndicator.code);
   const countries = await getCountries();
