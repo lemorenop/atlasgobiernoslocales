@@ -56,7 +56,7 @@ export default async function Navbar({ lang }) {
               </NavbarLink>
               <NavbarLink path="indicadores">
               <a
-                href={`/${lang}/indicadores/${defaultIndicator.slug}`}
+                href={`/${lang}/indicadores/${defaultIndicator?.slug}`}
                 className={`flex  items center gap-xs  description cursor-pointer`}
               >
                 {" "}

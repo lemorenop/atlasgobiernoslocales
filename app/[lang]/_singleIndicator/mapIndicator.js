@@ -353,7 +353,7 @@ export default function MapIndicator({
           >
             <div
                 style={{
-                  width: 50,
+                  width: 100,
                   height: 10,
                   background: noDataColor
                 }}
@@ -381,7 +381,7 @@ export default function MapIndicator({
               fontSize: 10,
             }}
           >
-            <span style={{width: 50}}>no data</span>
+            <span style={{width: 100}}>{getTextById(copy, "no_data", lang)}</span>
           </div>
           <div
             className="text-black"

@@ -6,11 +6,13 @@ import { getTextById } from "@/app/utils/textUtils";
 import Info from "../components/icons/info";
 import { JurisdictionDataContext } from "./jurisdictionDataProvider";
 import Loader from "../components/loader";
+// import { getUnitMeasures } from "@/app/utils/dataFetchers";
 const govColor = "#1774AD";
 const countryColor = "#55C7D5";
 
 export default function RadarChart({ indicators, government, copy }) {
   const { data } = useContext(JurisdictionDataContext);
+  // const [unitMeasures, setUnitMeasures] = useState(null);
   const [tooltip, setTootip] = useState();
   const params = useParams();
   const lang = params.lang; // Obtenemos el idioma directamente de los parámetros de la URL
@@ -24,6 +26,9 @@ export default function RadarChart({ indicators, government, copy }) {
 
     const fetchNationalAverages = async () => {
       try {
+
+        // const um = await getUnitMeasures(lang);
+        // setUnitMeasures(um);
         // Extraer el nivel del gobierno del level_per_country_id (el número antes del guión bajo)
         let nivel = null;
         if (government.level_per_country_id) {
@@ -52,6 +57,7 @@ export default function RadarChart({ indicators, government, copy }) {
           indicatorsID.map((id) => ({
             indicator_code: id,
             value: null,
+            // unit_measure_id: unitMeasures.find((um) => um.id === id),
           }))
         );
       }
@@ -59,12 +65,12 @@ export default function RadarChart({ indicators, government, copy }) {
 
     fetchNationalAverages();
   }, [government]);
-  console.log(data,nationalData);
+  // console.log(data,nationalData);
   useEffect(() => {
     const updateChartDimensions = () => {
-      console.log("UPDATE CHART");
+      // console.log("UPDATE CHART");
       if (!svgRef.current) {
-        console.log("algo fue mal");
+        // console.log("algo fue mal");
         return;
       }
       const container = svgRef.current.parentElement;
@@ -95,7 +101,7 @@ export default function RadarChart({ indicators, government, copy }) {
       width,
       height
     ) => {
-      console.log("DRAW CHART");
+      // console.log("DRAW CHART");
       // Clear previous chart
       d3.select(svgRef.current).selectAll("*").remove();
 
@@ -172,6 +178,10 @@ export default function RadarChart({ indicators, government, copy }) {
         const indicatorInfo = indicators
           ? indicators.find((ind) => ind.code === indicator)
           : null;
+
+
+        // console.log(indicatorInfo)
+
         let indicatorName = `Ind ${indicator}`;
         let indDescription = null;
         if (indicatorInfo) {
@@ -193,18 +203,19 @@ export default function RadarChart({ indicators, government, copy }) {
         }
 
         // console.log(indicatorInfo);
+        // console.
 
         const displayGovValue =
           govData.value != null
             ? `${parseFloat(govData.value).toFixed(0)} ${
-                indicatorInfo.unit_measure_id?.unit
+              indicatorInfo.unit?.unit ? indicatorInfo.unit?.unit : ""  
               }`
             : getTextById(copy, "no_data", lang);
 
         const displayNatValue =
           natData.value != null
             ? `${parseFloat(natData.value).toFixed(0)} ${
-                indicatorInfo.unit_measure_id?.unit
+                indicatorInfo.unit?.unit ? indicatorInfo.unit?.unit : ""
               }`
             : getTextById(copy, "no_data", lang);
         // Draw the segment background

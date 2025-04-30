@@ -169,7 +169,7 @@ export default async function Footer({ lang }) {
                   </NavbarDialogs>
                   <a
                     className={`flex items center gap-xs underline  description cursor-pointer`}
-                    href={`/${lang}/indicadores/${defaultIndicator}`}
+                    href={`/${lang}/indicadores/${defaultIndicator?.slug}`}
                   >
                     {getTextById(navbarCopy, "indicators", lang)}
                   </a>

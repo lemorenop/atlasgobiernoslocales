@@ -191,6 +191,10 @@ export async function getGovernments(lang, slug,) {
   );
 }
 
+export async function getUnitMeasures(lang) {
+  const csvUrl = csv.unitMeasures;
+  return fetchWithCache("unitMeasures", () => fetchAndParseCSV(csvUrl, lang), lang);
+}
 
 /**
  * Fetches home copy data
