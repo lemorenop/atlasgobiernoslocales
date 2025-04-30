@@ -245,9 +245,9 @@ export async function getAboutCopy() {
  * Fetches home map tooltip data
  * @returns {Promise<Array>} - Array of home map tooltip objects
  */
-export async function getHomeMapTooltip() {
+export async function getHomeMapTooltip(lang) {
   const csvUrl = csv.homeMapTooltip;
-  return fetchWithCache("homeMapTooltip", () => fetchAndParseCSV(csvUrl));
+  return fetchWithCache("homeMapTooltip", () => fetchAndParseCSV(csvUrl,lang));
 }
 
 /**

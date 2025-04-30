@@ -1,7 +1,7 @@
 import Expand from "./components/icons/expand";
 import MapView from "./components/map";
 
-export default function Hero({ hero_title, hero_subtitle, hero_explore,lang }) {
+export default function Hero({ hero_title, hero_subtitle, hero_explore,lang,homeMapTooltip }) {
   return (
     <div className="grid grid-cols-12 bg-blue-CAF min-h-[70vh]">
       <div className="col-span-4 pl-[80px] text-white flex flex-col justify-between pt-xl  pb-m pr-xl franjas-diagonales gap-xl">
@@ -15,7 +15,7 @@ export default function Hero({ hero_title, hero_subtitle, hero_explore,lang }) {
         </div>
       </div>
       <div className="col-span-8 bg-background">
-        <MapView lang={lang} />
+        <MapView lang={lang} tooltipData={homeMapTooltip} />
       </div>
     </div>
   );

@@ -1,4 +1,3 @@
-import { fetchApi } from "@/app/utils/apiClient";
 import Image from "next/image";
 import Facebook from "./icons/facebook";
 import Instagram from "./icons/instagram";

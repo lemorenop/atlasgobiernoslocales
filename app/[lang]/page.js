@@ -1,4 +1,4 @@
-import { getHomeCopy, getIndicators } from "@/app/utils/dataFetchers";
+import { getHomeCopy, getIndicators , getHomeMapTooltip} from "@/app/utils/dataFetchers";
 import { getTextById } from "@/app/utils/textUtils";
 import SearchBox from "./components/searchBox";
 import Hero from "./hero";
@@ -6,9 +6,10 @@ import SelectLink from "./components/selectLink";
 
 export default async function Home({ params }) {
   const { lang } = await params;
-  const [homeCopyData, indicators] = await Promise.all([
+  const [homeCopyData, indicators, homeMapTooltip] = await Promise.all([
     getHomeCopy(lang),
     getIndicators(lang),
+    getHomeMapTooltip(lang),
   ]);
   return (
     homeCopyData && indicators && (
@@ -18,6 +19,7 @@ export default async function Home({ params }) {
           hero_subtitle={getTextById(homeCopyData, "hero_subtitle", lang)}
           hero_explore={getTextById(homeCopyData, "hero_explore", lang)}
           lang={lang}
+          homeMapTooltip={homeMapTooltip}
         />{" "}
         <div className="px-[80px] grid grid-cols-2 gap-[64px] py-[112px] bg-white">
           <div className="bg-background p-xl flex flex-col gap-[24px] justify-between">

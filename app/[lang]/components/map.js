@@ -1,37 +1,17 @@
 "use client"; // si usás App Router
 
 import { useState, useEffect, useRef } from "react";
-import {
-  Map,
-  Source,
-  Layer,
-  NavigationControl,
-} from "react-map-gl/mapbox";
+import { Map, Source, Layer, NavigationControl } from "react-map-gl/mapbox";
 import "mapbox-gl/dist/mapbox-gl.css";
 import { fetchHomeMapTooltip } from "@/app/utils/apiClient";
 import Loader from "./loader";
 import { basicSettings, handleMapLoad } from "@/app/utils/mapSettings";
 
-export default function MapView({ lang = "es" }) {
+export default function MapView({ lang = "es", tooltipData }) {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
-  const [tooltipData, setTooltipData] = useState([]);
   const [selectedCountry, setSelectedCountry] = useState(null);
   const [selectedCoordinates, setSelectedCoordinates] = useState(null);
-
-  // Fetch tooltip data
-  useEffect(() => {
-    const fetchTooltipData = async () => {
-      try {
-        const data = await fetchHomeMapTooltip();
-        setTooltipData(data);
-      } catch (error) {
-        console.error("Error fetching tooltip data:", error);
-      }
-    };
-
-    fetchTooltipData();
-  }, []);
 
   // Update the initial view state to focus on Brazil
   const initialViewState = {
@@ -51,7 +31,6 @@ export default function MapView({ lang = "es" }) {
       (item) => item.country_iso3 === countryIso3
     );
     if (!countryData) return "";
-
     // Return text based on active language
     switch (lang) {
       case "es":
@@ -59,7 +38,7 @@ export default function MapView({ lang = "es" }) {
       case "en":
         return countryData.text_en;
       case "pt":
-        return countryData.text_pr;
+        return countryData.text_pt;
       default:
         return countryData.text_es; // Default to Spanish
     }
@@ -77,10 +56,10 @@ export default function MapView({ lang = "es" }) {
     paint: {
       "line-color": "#55C7D5",
       "line-width": [
-        'case',
-        ['in', ['get', 'ISO_A3'], ['literal', isoA3List]],
+        "case",
+        ["in", ["get", "ISO_A3"], ["literal", isoA3List]],
         2.5,
-        0
+        0,
       ],
     },
     minzoom: 0,
