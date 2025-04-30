@@ -276,10 +276,7 @@ export async function getIndicatorsCopy(lang) {
   const csvUrl = csv.indicatorsCopy;
   return fetchWithCache(`indicatorsCopy_${lang}`, () => fetchAndParseCSV(csvUrl, lang), lang);
 }
-export async function getUnitMeasures(lang) {
-  const csvUrl = csv.unitMeasures;
-  return fetchWithCache("unitMeasures", () => fetchAndParseCSV(csvUrl, lang), lang);
-}
+
 
 /**
  * Fetches jurisdictions copy data

@@ -1,8 +1,6 @@
 "use client";
 import Image from "next/image";
-import { getTextById } from "@/app/utils/textUtils";
-import { JurisdictionDataContext } from "./jurisdictionDataProvider";
-import { useContext } from "react";
+import { getTextById } from "@/app/utils/textUtils";import { useContext } from "react";
 import MapGoverment from "./mapGoverment";
 import Share from "./share";
 export default function Hero({
@@ -21,7 +19,6 @@ export default function Hero({
       return "" + parseInt(value / 1000) + divisor + parseInt(value % 1000);
     return value.toLocaleString(lang === "es" || lang === "pt" ? "es" : "en");
   }
-  const { data } = useContext(JurisdictionDataContext);
   const indicatorsHero = [1, 26, 2, 3];
   return (
     jurisdictionsCopy && (
@@ -60,7 +57,6 @@ export default function Hero({
                     (item) => item.code === ind.code
                   )
 
-                  console.log(fullInd)
 
                   return (
                     value &&

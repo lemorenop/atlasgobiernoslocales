@@ -27,7 +27,7 @@ export default function LanguageSwitcher({ lang, slugs, indicators }) {
       {i18n.locales.map((locale) => (
         <a
           key={locale}
-          href={`/${locale}${currentSlug[0]}`}
+          href={`/${locale}${currentSlug.length > 0 ? currentSlug[0] : ""}`}
           locale={"false"} // Importante para evitar que Next.js añada el prefijo automáticamente
           className={`px-3 py-2 rounded-md text-sm font-medium ${
             lang === locale
