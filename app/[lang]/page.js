@@ -6,11 +6,13 @@ import SelectLink from "./components/selectLink";
 
 export default async function Home({ params }) {
   const { lang } = await params;
+  console.log(lang)
   const [homeCopyData, indicators, homeMapTooltip] = await Promise.all([
     getHomeCopy(lang),
     getIndicators(lang),
     getHomeMapTooltip(lang),
   ]);
+  console.log(homeCopyData)
   return (
     homeCopyData && indicators && (
       <main className="flex flex-col justify-start text-black bg-white">

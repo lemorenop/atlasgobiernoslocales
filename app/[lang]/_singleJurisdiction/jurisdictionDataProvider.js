@@ -2,7 +2,8 @@
 
 import { useEffect, useState, createContext, useContext } from "react";
 import "@/app/globals.css";
-import { fetchJurisdictionData } from "@/app/utils/apiClient";
+// import { fetchJurisdictionData } from "@/app/utils/apiClient";
+import { getJurisdictionData } from "@/app/utils/dataFetchers";
 
 // Create a context for the loading state
 export const JurisdictionDataContext = createContext();
@@ -13,8 +14,8 @@ export default function JurisdictionDataProvider({ lang, children, slug }) {
   useEffect(() => {
     async function loadData() {
       try {
-        const dataJur = await fetchJurisdictionData(slug)       
-        setData(dataJur);
+        const dataJur = await getJurisdictionData(slug);
+        setData({ data: dataJur });
       } catch (error) {
         setData({ data: null });
         console.error(`Error loading government ${slug} data:`, error);

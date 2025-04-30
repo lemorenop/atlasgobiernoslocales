@@ -21,6 +21,7 @@ export const metadata = {
 
 export default async function RootLayout({ children, params }) {
   const { lang } = await params;
+  console.log(lang)
   return (
     <>
       <Head>

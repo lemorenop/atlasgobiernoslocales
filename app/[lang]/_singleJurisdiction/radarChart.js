@@ -1,34 +1,23 @@
-"use client"
+"use client";
 import { useEffect, useRef, useState, useContext } from "react";
 import * as d3 from "d3";
 import { useParams } from "next/navigation";
 import { getTextById } from "@/app/utils/textUtils";
 import Info from "../components/icons/info";
 import { JurisdictionDataContext } from "./jurisdictionDataProvider";
+import Loader from "../components/loader";
 const govColor = "#1774AD";
 const countryColor = "#55C7D5";
 
-export default function RadarChart({  indicators, government, copy }) {
+export default function RadarChart({ indicators, government, copy }) {
   const { data } = useContext(JurisdictionDataContext);
   const [tooltip, setTootip] = useState();
   const params = useParams();
   const lang = params.lang; // Obtenemos el idioma directamente de los parámetros de la URL
   const svgRef = useRef(null);
-  const indicatorsID = [
-    21,
-    5,
-    7,
-    8,
-    13,
-    19,
-    10,
-    11,
-    12,
-    17,
-    20,
-  ];
+  const indicatorsID = [21, 5, 7, 8, 13, 19, 10, 11, 12, 17, 20];
   const [nationalData, setNationalData] = useState(null);
-
+  const [chartCreated, setChartCreated] = useState(false);
   // Fetch national averages
   useEffect(() => {
     if (!government || !government.country_iso3) return;
@@ -70,11 +59,14 @@ export default function RadarChart({  indicators, government, copy }) {
 
     fetchNationalAverages();
   }, [government]);
-
+  console.log(data,nationalData);
   useEffect(() => {
     const updateChartDimensions = () => {
-      if (data && nationalData) {
-         if (!svgRef.current) return;
+      console.log("UPDATE CHART");
+      if (!svgRef.current) {
+        console.log("algo fue mal");
+        return;
+      }
       const container = svgRef.current.parentElement;
       const width = container.clientWidth;
       const height = container.clientHeight;
@@ -91,9 +83,8 @@ export default function RadarChart({  indicators, government, copy }) {
         .attr("transform", `translate(${width / 2}, ${height / 2})`);
 
       // Redraw the chart with new dimensions
-      drawChart(innerWidth, innerHeight, radius, margin, width, height);
-      }
-     
+      if (data && nationalData)
+        drawChart(innerWidth, innerHeight, radius, margin, width, height);
     };
 
     const drawChart = (
@@ -104,6 +95,7 @@ export default function RadarChart({  indicators, government, copy }) {
       width,
       height
     ) => {
+      console.log("DRAW CHART");
       // Clear previous chart
       d3.select(svgRef.current).selectAll("*").remove();
 
@@ -158,7 +150,6 @@ export default function RadarChart({  indicators, government, copy }) {
       // Calculate the angle for each indicator
       const angleStep = (2 * Math.PI) / indicatorsID.length;
 
-
       // Draw segments for each indicator
       indicatorsID.forEach((indicator, i) => {
         const startAngle = i * angleStep;
@@ -203,17 +194,19 @@ export default function RadarChart({  indicators, government, copy }) {
 
         // console.log(indicatorInfo);
 
-        const displayGovValue = govData.value != null
-          ? `${parseFloat(govData.value).toFixed(0)} ${
-              indicatorInfo.unit_measure_id?.unit
-            }`
-          : getTextById(copy, "no_data", lang);
+        const displayGovValue =
+          govData.value != null
+            ? `${parseFloat(govData.value).toFixed(0)} ${
+                indicatorInfo.unit_measure_id?.unit
+              }`
+            : getTextById(copy, "no_data", lang);
 
-        const displayNatValue = natData.value != null
-          ? `${parseFloat(natData.value).toFixed(0)} ${
-              indicatorInfo.unit_measure_id?.unit
-            }`
-          : getTextById(copy, "no_data", lang);
+        const displayNatValue =
+          natData.value != null
+            ? `${parseFloat(natData.value).toFixed(0)} ${
+                indicatorInfo.unit_measure_id?.unit
+              }`
+            : getTextById(copy, "no_data", lang);
         // Draw the segment background
         const arc = d3
           .arc()
@@ -227,7 +220,7 @@ export default function RadarChart({  indicators, government, copy }) {
           .attr("d", arc)
           .attr("fill", "rgba(231, 246, 248, 0.50)")
           .attr("stroke", "rgba(85, 199, 213, 0.15)")
-          .attr("cursor", "pointer")     
+          .attr("cursor", "pointer")
           .on("mousemove", function (event) {
             setTootip({
               ...valuesTooltip,
@@ -289,7 +282,7 @@ export default function RadarChart({  indicators, government, copy }) {
           .attr("x2", govX)
           .attr("y2", govY)
           .attr("stroke", countryColor)
-          .attr("stroke-width", 2)
+          .attr("stroke-width", 2);
 
         // Ángulo para el promedio nacional (3/4 del segmento)
 
@@ -308,8 +301,8 @@ export default function RadarChart({  indicators, government, copy }) {
           .attr("x2", natX)
           .attr("y2", natY)
           .attr("stroke", govColor)
-          .attr("stroke-width", 2)
-         
+          .attr("stroke-width", 2);
+
         svg
           .append("circle")
           .attr("cx", natX)
@@ -441,9 +434,10 @@ export default function RadarChart({  indicators, government, copy }) {
             setTootip(null);
           });
       });
+      setChartCreated(true);
     };
 
-   updateChartDimensions();
+    updateChartDimensions();
     window.addEventListener("resize", updateChartDimensions);
 
     return () => {
@@ -454,6 +448,7 @@ export default function RadarChart({  indicators, government, copy }) {
   return (
     <>
       <div className="radar-chart-container h-full">
+        {!chartCreated && <Loader height={"[50px]"}/>}
         <svg ref={svgRef}></svg>
       </div>
       {tooltip && (
@@ -541,22 +536,24 @@ export default function RadarChart({  indicators, government, copy }) {
           />
         </button>
       </div>
-      <div className="flex justify-center gap-s pt-m">
-        <div className="flex gap-xs items-center">
-          <div
-            className="w-4 h-1 bg-blue-CAF"
-            style={{ backgroundColor: countryColor }}
-          />
-          <p>{government.name}</p>
+      {chartCreated && (
+        <div className="flex justify-center gap-s pt-m">
+          <div className="flex gap-xs items-center">
+            <div
+              className="w-4 h-1 bg-blue-CAF"
+              style={{ backgroundColor: countryColor }}
+            />
+            <p>{government.name}</p>
+          </div>
+          <div className="flex gap-xs items-center">
+            <div className="w-4 h-1 " style={{ backgroundColor: govColor }} />
+            <p>
+              {getTextById(copy, "average", lang)}{" "}
+              {/* {country[`name_${lang}`]} */}
+            </p>
+          </div>
         </div>
-        <div className="flex gap-xs items-center">
-          <div className="w-4 h-1 " style={{ backgroundColor: govColor }} />
-          <p>
-            {getTextById(copy, "average", lang)}{" "}
-            {/* {government.country[`name_${lang}`]} */}
-          </p>
-        </div>
-      </div>
+      )}
     </>
   );
 }

@@ -17,7 +17,6 @@ export default async function Navbar({ lang }) {
     getHomeCopy(lang),
     getIndicators(lang),
   ]);
-
   const defaultIndicator = indicators.find((indicator) => indicator.code === 10);
 
   return (
@@ -26,7 +25,7 @@ export default async function Navbar({ lang }) {
     indicators && (
       <nav className="bg-white text-black py-s px-4 sm:px-6 lg:px-8 w-full">
         <div className="flex items-center justify-between w-full">
-          <Link href={`/${lang}`} className="">
+          <a href={`/${lang}`} className="">
             <Image
               src={`/logo_${lang}.png`}
               alt="CAF Network Visualizer"
@@ -34,7 +33,7 @@ export default async function Navbar({ lang }) {
               height={40}
               className="object-contain"
             />
-          </Link>
+          </a>
           <div className="hidden md:block">
             <div className=" flex items-center gap-m">
               <NavbarLink path="home">
@@ -117,7 +116,7 @@ export default async function Navbar({ lang }) {
               <LanguageSwitcher
                 lang={lang}
                 slugs={navbarCopy}
-                indicators={indicators}
+                // indicators={indicators}
               />{" "}
             </div>
           </div>{" "}

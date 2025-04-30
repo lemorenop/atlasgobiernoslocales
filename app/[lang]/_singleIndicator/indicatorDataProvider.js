@@ -2,7 +2,7 @@
 
 import { useEffect, useState, createContext, useContext } from "react";
 import "@/app/globals.css";
-import { fetchIndicatorData, fetchGovernments } from "@/app/utils/apiClient";
+// import { fetchIndicatorData, fetchGovernments } from "@/app/utils/apiClient";
 
 // Create a context for the loading state
 export const IndicatorDataContext = createContext();
@@ -18,8 +18,8 @@ export default function IndicatorDataProvider({
     async function loadData() {
       try {
         const [response, governments] = await Promise.all([
-          fetchIndicatorData(indicatorCode).then((res) => res.data),
-          fetchGovernments(lang, "json").then((res) => res.data),
+          fetch(`/api/indicators/${indicatorCode}`).then((res) => res.data),
+          fetch(`/api/governments?lang=${lang}&responseType=json}`).then((res) => res.data),
         ]);
         setData({ data: response, governments });
       } catch (error) {
