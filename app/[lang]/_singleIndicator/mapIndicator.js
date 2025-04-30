@@ -101,7 +101,6 @@ export default function MapIndicator({
 
   // const isoA3List = tooltipData.map((item) => item.country_iso3); // Reemplaza con los códigos ISO_A3 que desees
 
-  // console.log(Object.values(data))
 
   // Layer styles for each level using tilesets
   const nivel0Layer = {
@@ -222,7 +221,6 @@ export default function MapIndicator({
   const onClick = (event) => {
     const feature = event.features && event.features[0];
     if (feature && feature.properties && feature.properties.codigo_uni) {
-      // console.log(feature);
       const map = mapRef.current && mapRef.current.getMap();
       const { x, y } = map.project([event.lngLat.lng, event.lngLat.lat]);
       if (

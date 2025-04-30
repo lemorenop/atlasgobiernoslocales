@@ -25,7 +25,6 @@ export async function GET(req) {
         const flatResults = searchResults.flatMap(
           (resultSet) => resultSet.result || []
         );
-        console.log(flatResults);
       // Remove duplicates (same document showing up in multiple search fields)
       const uniqueResults = [
         ...new Map(flatResults.map((item) => [item.id, item.doc])).values(),

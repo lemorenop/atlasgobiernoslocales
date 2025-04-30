@@ -9,8 +9,8 @@ import Loader from "../components/loader";
 const govColor = "#1774AD";
 const countryColor = "#55C7D5";
 
-export default function RadarChart({ indicators, government, copy }) {
-  const { data } = useContext(JurisdictionDataContext);
+export default function RadarChart({ indicators, government, copy ,data,country}) {
+  // const { data } = useContext(JurisdictionDataContext);
   const [tooltip, setTootip] = useState();
   const params = useParams();
   const lang = params.lang; // Obtenemos el idioma directamente de los parámetros de la URL
@@ -59,12 +59,9 @@ export default function RadarChart({ indicators, government, copy }) {
 
     fetchNationalAverages();
   }, [government]);
-  console.log(data,nationalData);
   useEffect(() => {
     const updateChartDimensions = () => {
-      console.log("UPDATE CHART");
       if (!svgRef.current) {
-        console.log("algo fue mal");
         return;
       }
       const container = svgRef.current.parentElement;
@@ -95,7 +92,6 @@ export default function RadarChart({ indicators, government, copy }) {
       width,
       height
     ) => {
-      console.log("DRAW CHART");
       // Clear previous chart
       d3.select(svgRef.current).selectAll("*").remove();
 
@@ -192,19 +188,18 @@ export default function RadarChart({ indicators, government, copy }) {
           }
         }
 
-        // console.log(indicatorInfo);
 
         const displayGovValue =
           govData.value != null
             ? `${parseFloat(govData.value).toFixed(0)} ${
-                indicatorInfo.unit_measure_id?.unit
+                indicatorInfo.unit?.unit
               }`
             : getTextById(copy, "no_data", lang);
 
         const displayNatValue =
           natData.value != null
             ? `${parseFloat(natData.value).toFixed(0)} ${
-                indicatorInfo.unit_measure_id?.unit
+                indicatorInfo.unit?.unit
               }`
             : getTextById(copy, "no_data", lang);
         // Draw the segment background
@@ -497,7 +492,7 @@ export default function RadarChart({ indicators, government, copy }) {
           )}
         </div>
       )}
-      <div className="flex justify-end gap-s pt-m">
+    {chartCreated&&  <div className="flex justify-end gap-s pt-m">
         <button
           style={{ marginRight: "25%" }}
           onClick={(event) => {
@@ -535,7 +530,7 @@ export default function RadarChart({ indicators, government, copy }) {
             className={"w-4 h-4 fill-black hover:fill-blue-CAF cursor-pointer"}
           />
         </button>
-      </div>
+      </div>}
       {chartCreated && (
         <div className="flex justify-center gap-s pt-m">
           <div className="flex gap-xs items-center">
@@ -549,7 +544,7 @@ export default function RadarChart({ indicators, government, copy }) {
             <div className="w-4 h-1 " style={{ backgroundColor: govColor }} />
             <p>
               {getTextById(copy, "average", lang)}{" "}
-              {/* {country[`name_${lang}`]} */}
+              {country[`name_${lang}`]}
             </p>
           </div>
         </div>

@@ -8,14 +8,14 @@ import {
   getCountries,
   getYearData,
   getUnitMeasures,
+  getJurisdictionData
 } from "@/app/utils/dataFetchers";
-import JurisdictionDataProvider from "@/app/[lang]/_singleJurisdiction/jurisdictionDataProvider";
 export default async function Jurisdiction2({ lang, slug }) {
-  const [jurisdictionsCopy, indicatorsAll, government,unitMeasures] = await Promise.all([
+  const [jurisdictionsCopy, indicatorsAll, government,unitMeasures,jurisdictionData] = await Promise.all([
     getJurisdictionsCopy(lang),
     getIndicators(lang),
     getGovernments(lang, slug).then((data) => data[0]),
-    getUnitMeasures(lang),
+    getUnitMeasures(lang),getJurisdictionData(slug)
   ]);
   const country = government
     ? await getCountries(lang, government.country_iso3).then((data) => data[0])
@@ -30,14 +30,13 @@ export default async function Jurisdiction2({ lang, slug }) {
       elm.unit=unit
       return {...elm}
     })
-    console.log(unitMeasures)
-    console.log(indicators)
   return (
     <main className="flex flex-col justify-start text-black bg-white min-h-screen">
-      <JurisdictionDataProvider slug={slug} lang={lang}>
+     
         {jurisdictionsCopy && government && indicators && (
           <>
             <Hero
+            data={jurisdictionData}
               jurisdictionsCopy={jurisdictionsCopy}
               indicators={indicators}
               lang={lang}
@@ -69,6 +68,8 @@ export default async function Jurisdiction2({ lang, slug }) {
 
               <div className="flex flex-col lg:col-span-8 min-h-[600px]">
                 <RadarChart
+                  country={country}
+                  data={jurisdictionData}
                   copy={jurisdictionsCopy}
                   government={government}
                   indicators={indicators}
@@ -77,7 +78,6 @@ export default async function Jurisdiction2({ lang, slug }) {
             </div>{" "}
           </>
         )}
-      </JurisdictionDataProvider>
     </main>
   );
 }

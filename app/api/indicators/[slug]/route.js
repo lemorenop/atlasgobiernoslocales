@@ -4,7 +4,7 @@ import { getFromCache, setInCache } from "@/app/utils/cache";
 
 export async function GET(request, { params }) {
   try {
-    const { slug } = params;
+    const { slug } = await params;
     // Verificar si los datos filtrados ya están en caché
     const cacheKey = `indicator_${slug}`;
     const cachedData = getFromCache(cacheKey);

@@ -18,8 +18,8 @@ export default function IndicatorDataProvider({
     async function loadData() {
       try {
         const [response, governments] = await Promise.all([
-          fetch(`/api/indicators/${indicatorCode}`).then((res) => res.data),
-          fetch(`/api/governments?lang=${lang}&responseType=json}`).then((res) => res.data),
+          fetch(`/api/indicators/${indicatorCode}`).then((res) => res.json()).then((res) => res.data),
+          fetch(`/api/governments?lang=${lang}&responseType=json`).then((res) => res.json()).then((res) => res.data),
         ]);
         setData({ data: response, governments });
       } catch (error) {

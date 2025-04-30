@@ -31,7 +31,6 @@ const VISIBLE_LAYERS = [
 
     map.getStyle().layers.forEach((layer) => {
       if (layer.type === 'symbol' && layer.layout?.['text-field']) {
-        // console.log(layer.id);
         if (VISIBLE_LAYERS.includes(layer.id)) {
           map.setLayoutProperty(layer.id, 'text-field', customLabelExpression);
           map.setLayoutProperty(layer.id, 'visibility', 'visible');

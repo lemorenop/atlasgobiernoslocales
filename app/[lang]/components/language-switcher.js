@@ -20,26 +20,14 @@ export default function LanguageSwitcher({ lang, slugs, indicators }) {
 
     const slugID = slugs.find((elm) => elm[`text_${lang}`] === firstSlug)?.id;
     slug = slugs.find((elm) => elm.id === slugID);
-    // if (slugID === "indicators_slug") {
-    //   const indicator = indicators.find(
-    //     (elm) => elm[`slug_${lang}`] === secondSlug[lang]
-    //   );
-    //   if (indicator)
-    //     secondSlug = {
-    //       es: indicator.slug_es,
-    //       en: indicator.slug_en,
-    //       pt: indicator.slug_pt,
-    //     };
-    // }
+
   }
   return (
     <div className="flex items-center space-x-2">
       {i18n.locales.map((locale) => (
         <a
           key={locale}
-          href={`/${locale}/${
-            slug ? `${slug[`text_${locale}`]}/${secondSlug[locale]}` : ""
-          }`}
+          href={`/${locale}${currentSlug[0]}`}
           locale={"false"} // Importante para evitar que Next.js añada el prefijo automáticamente
           className={`px-3 py-2 rounded-md text-sm font-medium ${
             lang === locale

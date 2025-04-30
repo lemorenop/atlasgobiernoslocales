@@ -68,12 +68,7 @@ export default function Hero({ lang, slug, copy, indicators, indicator }) {
            <SelectLink
           activeOption={indicator[`name_${lang}`]}
           title={getTextById(copy, "select", lang)}
-          path={
-            lang === "es"
-              ? "/indicadores"
-              : lang === "en"
-              ? "/indicators"
-              : "/indicadores"
+          path={"indicadores"
           }
           lang={lang}
           options={indicators}

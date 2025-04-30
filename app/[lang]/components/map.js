@@ -118,7 +118,6 @@ export default function MapView({ lang = "es", tooltipData }) {
 
   const onClick = (event) => {
     const feature = event.features && event.features[0];
-    // console.log(event.features);
     if (feature && feature.properties && feature.properties.GID_0) {
       // Show the tooltip for the new country
       setSelectedCountry(feature.properties.GID_0);

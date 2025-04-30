@@ -9,6 +9,8 @@ import MapContainer from "./mapContainer";
 
 import IndicatorDataProvider from "./indicatorDataProvider";
 import Custom404 from "../not-found";
+
+
 export default async function Indicator({ lang, slug }) {
   const [indicators, copy,countries,levelPerCountry ] = await Promise.all([
     getIndicators(lang),

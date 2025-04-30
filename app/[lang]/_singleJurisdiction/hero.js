@@ -11,9 +11,9 @@ export default function Hero({
   lang,
   government,
   jurisdictionsCopy,
-  yearPoblacion,
+  yearPoblacion,data
 }) {
-  const { data } = useContext(JurisdictionDataContext);
+  // const { data } = useContext(JurisdictionDataContext);
   const indicatorsHero = [1, 26, 2, 3];
   return (
     jurisdictionsCopy && (
@@ -70,7 +70,7 @@ export default function Hero({
                               lang === "es" || lang === "pt" ? "es" : "en"
                             )}
                             <sup className="text-[10px]">
-                              {ind.unit_measure_id?.unit}
+                              {ind.unit?.unit}
                             </sup>
                           </span>
                         </p>

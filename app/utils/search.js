@@ -42,11 +42,6 @@ export function search(query) {
   const completeNameResults = index.search(query, { index: "completeName", limit: 10, enrich: true });
   const fullNameResults = index.search(query, { index: "fullName", limit: 10, enrich: true });
 
-  // console.log(nameResults)
-  // console.log(parentResults)
-  // console.log(countryResults) 
-  // console.log(completeNameResults)
-  // console.log(fullNameResults)
 
   // Combine all results and remove duplicates based on id
   const allResults = [

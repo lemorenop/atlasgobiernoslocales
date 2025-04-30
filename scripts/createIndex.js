@@ -103,8 +103,7 @@ async function createIndexFiles() {
         path.join(outputDir, `governments_${config.lang}.json`), 
         JSON.stringify(resultArray, null, 2)
       );
-      
-      console.log(`${config.lang.toUpperCase()} governments JSON file created successfully!`);
+     
     }
     
   } catch (error) {
