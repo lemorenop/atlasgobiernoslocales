@@ -117,10 +117,15 @@ export default function MapView({ lang = "es", tooltipData }) {
   const mapRef = useRef();
 
   const onClick = (event) => {
+
+    // console.log(event)
+    // console.log(event.features)
+
     const feature = event.features && event.features[0];
-    if (feature && feature.properties && feature.properties.GID_0) {
+    if (feature && feature.properties && feature.properties.ISO_A3) {
+      // console.log(feature.properties.ISO_A3)
       // Show the tooltip for the new country
-      setSelectedCountry(feature.properties.GID_0);
+      setSelectedCountry(feature.properties.ISO_A3);
       setSelectedCoordinates([event.lngLat.lng, event.lngLat.lat]);
     } else {
       // If clicking on empty space, close the tooltip
@@ -160,23 +165,18 @@ export default function MapView({ lang = "es", tooltipData }) {
           minZoom={1}
           maxZoom={22}
           interactiveLayerIds={[
+            "nivel0-source",
+            "nivel1",
             "nivel1LayerTooltip",
-            "nivel1-layer",
-            "nivel2-layer",
-            "nivel3-layer",
+            // "nivel2-layer",
+            // "nivel3-layer",
           ]}
           {...basicSettings}
         >
           <NavigationControl position="top-right" />
 
           {/* Nivel 0 - Visible at low zoom levels */}
-          <Source
-            id="nivel0-source"
-            type="vector"
-            url="mapbox://dis-caf.4eo2m2u3"
-          >
-            <Layer {...nivel0Layer} source-layer="countries_sm-2an4y3" />
-          </Source>
+          
 
           {/* Nivel 1 - Visible at low zoom levels */}
           <Source
@@ -184,7 +184,6 @@ export default function MapView({ lang = "es", tooltipData }) {
             type="vector"
             url="mapbox://dis-caf.3i72hiat"
           >
-            <Layer {...nivel1LayerTooltip} source-layer="nivel_1-7n3yuu" />
             <Layer {...nivel1Layer} source-layer="nivel_1-7n3yuu" />
           </Source>
 
@@ -204,6 +203,15 @@ export default function MapView({ lang = "es", tooltipData }) {
             url="mapbox://dis-caf.1yjc4k9u"
           >
             <Layer {...nivel3Layer} source-layer="nivel_3-2264x6" />
+          </Source>
+
+          <Source
+            id="nivel0-source"
+            type="vector"
+            url="mapbox://dis-caf.4eo2m2u3"
+          >
+            <Layer {...nivel1LayerTooltip} source-layer="countries_sm-2an4y3" />
+            <Layer {...nivel0Layer} source-layer="countries_sm-2an4y3" />
           </Source>
 
           {/* Tooltip popup */}
