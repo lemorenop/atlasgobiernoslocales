@@ -13,7 +13,6 @@ import {
   getFooterCopy,
   getIndicators,
 } from "@/app/utils/dataFetchers";
-import SelectLink from "@/app/[lang]/components/selectLink";
 const socialMedia = {
   instagram: () => <Instagram className="w-6 h-6 fill-blue-CAF" />,
   x: () => <X className="w-6 h-6 fill-blue-CAF" />,
@@ -23,18 +22,16 @@ const socialMedia = {
   x: () => <X className="w-6 h-6 fill-blue-CAF" />,
 };
 export default async function Footer({ lang }) {
-  const [footerCopy, navbarCopy, homeCopyData, indicators] = await Promise.all([
+  const [footerCopy, navbarCopy, homeCopyData, ] = await Promise.all([
     getFooterCopy(lang),
     getNavbarCopy(lang),
     getHomeCopy(lang),
-    getIndicators(lang),
   ]);
   function findLink(id, lang) {
     return footerCopy.find((elm) => elm.id === id)?.[
       lang ? `link_${lang}` : `link`
     ];
   }
-  const defaultIndicator = indicators.find((elm) => elm.code == 3)?.slug;
   const year = new Date().getFullYear();
   return (
     footerCopy && (
@@ -169,7 +166,7 @@ export default async function Footer({ lang }) {
                   </NavbarDialogs>
                   <a
                     className={`flex items center gap-xs underline  description cursor-pointer`}
-                    href={`/${lang}/indicadores/${defaultIndicator?.slug}`}
+                    href={`/${lang}/indicadores/acceso-a-fuente-de-agua-mejorada`}
                   >
                     {getTextById(navbarCopy, "indicators", lang)}
                   </a>
