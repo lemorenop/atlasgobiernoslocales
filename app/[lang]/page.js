@@ -4,7 +4,15 @@ import SearchBox from "./components/searchBox";
 import Hero from "./hero";
 import SelectLink from "./components/selectLink";
 
+export async function generateStaticParams() {
+  
+const locales=[{lang:"es"},{lang:"en"},{lang:"pt"}]
+
+  return locales
+}
+
 export default async function Home({ params }) {
+
   const { lang } = await params;
   const [homeCopyData, indicators, homeMapTooltip] = await Promise.all([
     getHomeCopy(lang),

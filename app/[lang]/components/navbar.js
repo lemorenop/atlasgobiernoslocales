@@ -13,18 +13,15 @@ import {
 import NavbarLink from "./navbarLink";
 
 export default async function Navbar({ lang }) {
-  const [navbarCopy, homeCopyData, indicators] = await Promise.all([
+  const [navbarCopy, homeCopyData, ] = await Promise.all([
     getNavbarCopy(lang),
     getHomeCopy(lang),
-    getIndicators(lang),
   ]);
 
-  const defaultIndicator = indicators.find((indicator) => indicator.code === 10);
 
   return (
     navbarCopy &&
-    homeCopyData &&
-    indicators && (
+    homeCopyData && (
       <nav className="bg-white text-black py-s px-4 sm:px-6 lg:px-8 w-full">
         <div className="flex items-center justify-between w-full">
           <a href={`/${lang}`} className="">
@@ -56,7 +53,7 @@ export default async function Navbar({ lang }) {
               </NavbarLink>
               <NavbarLink path="indicadores">
               <a
-                href={`/${lang}/indicadores/${defaultIndicator?.slug}`}
+                href={`/${lang}/indicadores/acceso-a-fuente-de-agua-mejorada`}
                 className={`flex  items center gap-xs  description cursor-pointer`}
               >
                 {" "}
@@ -119,7 +116,6 @@ export default async function Navbar({ lang }) {
               <LanguageSwitcher
                 lang={lang}
                 slugs={navbarCopy}
-                // indicators={indicators}
               />{" "}
             </div>
           </div>{" "}
