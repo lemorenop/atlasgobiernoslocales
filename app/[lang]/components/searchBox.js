@@ -79,7 +79,7 @@ export default function SearchBox({
           anchor="bottom"
           transition
           className={
-            "z-20 bg-white border [--anchor-gap:var(--spacing-1)] empty:invisible transition duration-100 ease-in data-[leave]:data-[closed]:opacity-0  cursor-pointer p-s h-[300px] overflow-y-auto w-[400px]"
+            "z-40 bg-white border [--anchor-gap:var(--spacing-1)] empty:invisible transition duration-100 ease-in data-[leave]:data-[closed]:opacity-0  cursor-pointer p-s h-[300px] overflow-y-auto w-[400px]"
           }
         >
           {results.map((item) => (

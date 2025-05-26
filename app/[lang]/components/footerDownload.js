@@ -55,22 +55,26 @@ export default function FooterDownload({ lang, copy }) {
       lang={lang}
       options={[
         {
-          id: "download_data",
-          name_es: "Descargar datos",
-          name_en: "Download data",
-          name_pt: "Descarregar dados",
-        },
-        {
-          id: "regional",
-          name_es: "Descargar shapes regionales",
-          name_en: "Download regional shapes",
-          name_pt: "Descarregar shapes regionais",
-        },
-        {
-          id: "local",
-          name_es: "Descargar shapes locales",
-          name_en: "Download local shapes",
-          name_pt: "Descarregar shapes locais",
+          options: [
+            {
+              id: "download_data",
+              name_es: "Descargar datos",
+              name_en: "Download data",
+              name_pt: "Descarregar dados",
+            },
+            {
+              id: "regional",
+              name_es: "Descargar shapes regionales",
+              name_en: "Download regional shapes",
+              name_pt: "Descarregar shapes regionais",
+            },
+            {
+              id: "local",
+              name_es: "Descargar shapes locales",
+              name_en: "Download local shapes",
+              name_pt: "Descarregar shapes locais",
+            },
+          ],
         },
       ]}
       id="id"

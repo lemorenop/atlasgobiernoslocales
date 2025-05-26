@@ -90,7 +90,7 @@ export default function Download({ lang, copy }) {
 
       <Select
         lang={lang}
-        options={[
+        options={[{options:[
           {
             id: "regional",
             name_es: "Descargar shapes regionales",
@@ -103,7 +103,7 @@ export default function Download({ lang, copy }) {
             name_en: "Download local shapes",
             name_pt: "Descarregar shapes locais",
           },
-        ]}
+        ]}]}
         id="id"
         onChange={handleJSONDownload}
         value={selectedOption}

@@ -11,7 +11,6 @@ export default function Hero({ hero_title, hero_subtitle, hero_explore,lang,home
         </div>
         <div className="flex justify-between gap-m items-center">
           <p className="text-description">{hero_explore}</p>
-          {/* <Expand className="w-6 h-8 stroke-white stroke-2" /> */}
         </div>
       </div>
       <div className="col-span-6 lg:col-span-8 bg-background max-md:h-[50vh] flex-grow">

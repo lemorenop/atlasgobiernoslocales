@@ -9,11 +9,7 @@ import Loader from "@/app/[lang]/components/loader";
 const govColor = "#1774AD";
 const countryColor = "#55C7D5";
 
-export default function RadarChart({
- 
-  data,
-  country,
-}) {
+export default function RadarChart({ data, country }) {
   const { government, indicators, jurisdictionsCopy } = useContext(
     JurisdictionDataContext
   );
@@ -76,10 +72,11 @@ export default function RadarChart({
       const container = svgRef.current.parentElement;
       const width = container.clientWidth;
       const height = container.clientHeight;
+
       const margin = { top: 100, right: 60, bottom: 60, left: 60 }; // Add some margin for better spacing
       const innerWidth = width - margin.left - margin.right;
       const innerHeight = height - margin.top - margin.bottom;
-      console.log(innerWidth, innerHeight)
+      console.log(innerWidth, innerHeight);
       const radius = Math.min(innerWidth, innerHeight) / 2;
       const innerRadius = radius * 0.15; // 30% of the outer radius for the inner circle
 
@@ -114,7 +111,7 @@ export default function RadarChart({
     ) => {
       // Clear previous chart
       d3.select(svgRef.current).selectAll("*").remove();
-
+      const isMobile = innerWidth < 650;
       const svg = d3
         .select(svgRef.current)
         .append("g")
@@ -132,7 +129,7 @@ export default function RadarChart({
         .range([innerRadius, radius]);
 
       // Escala para el radio de los círculos
-      const circleRadiusScale = d3.scaleLinear().domain([0, 100]).range([3, 6]);
+      const circleRadiusScale = d3.scaleLinear().domain([0, 100]).range([3, isMobile ? 4 : 6]);
 
       // Create background circles
       svg
@@ -365,17 +362,28 @@ export default function RadarChart({
 
         // Split the indicator name into two lines
         const words = indicatorName.split(" ");
-        const midPoint = Math.ceil(words.length / 2);
+        const midPoint = indicator === 8 ? 1 : Math.ceil(words.length / 2);
         const firstLine = words.slice(0, midPoint).join(" ");
-        const longIndicators = [7,11,19]; // indicadores con nombres largos
-        const secondLine = longIndicators.includes(indicator) ?words.slice(midPoint,midPoint+1).join(" "): words.slice(midPoint).join(" ");
-        const thirdLine = longIndicators.includes(indicator)?words.slice(midPoint+1).join(" "): null;
+        const longIndicators = [7, 8, 11, 19]; // indicadores con nombres largos
+        const secondLine = longIndicators.includes(indicator)
+          ? words.slice(midPoint, midPoint + 1).join(" ")
+          : words.slice(midPoint).join(" ");
+        const thirdLine = longIndicators.includes(indicator)
+          ? words.slice(midPoint + 1).join(" ")
+          : null;
         // Add label for the indicator (two lines)
-        const labelDistance = radius + 50; // Reduced distance to bring text closer
+        const labelDistance = radius + (isMobile ? 47 : 50); // Reduced distance to bring text closer
+        console.log(isMobile);
         const labelX =
-          (midAngle < Math.PI / 2 || midAngle > (3 * Math.PI) / 2
-            ? labelDistance + 20 // Move right in top-right and bottom-right
-            : labelDistance) * Math.cos(midAngle - Math.PI / 2);
+          isMobile && indicator === 8
+            ? labelDistance - 30
+            : isMobile && indicator === 7
+            ? labelDistance - 16: isMobile && indicator === 12
+            ? -labelDistance+18 : isMobile && indicator === 11
+            ? -labelDistance+18 
+            : (midAngle < Math.PI / 2 || midAngle > (3 * Math.PI) / 2
+                ? labelDistance + (isMobile ? 0 : 20) // Move right in top-right and bottom-right
+                : labelDistance) * Math.cos(midAngle - Math.PI / 2);
         const labelY =
           (midAngle > Math.PI / 2 && midAngle < (3 * Math.PI) / 2
             ? labelDistance - 35
@@ -391,10 +399,12 @@ export default function RadarChart({
         textGroup
           .append("image")
           .attr("xlink:href", `/ods_${indicator}.png`)
-          .attr("x", -12) // Center the icon
-          .attr("y", -6) // Reverted to original y position
-          .attr("width", 24) // Set icon size
-          .attr("height", 24); // Set icon size
+          .attr("x",isMobile?-10: -12) // Center the icon: ;
+          .attr("y", isMobile ? -4 : -6) // Reverted to original y position
+          .attr("width", isMobile ? 20 : 24) // Set icon size: ;
+          .attr("height", isMobile ? 20 : 24); // Set icon size
+
+        const fontSize = isMobile ? "7px" : "8px";
         // Add first line
         textGroup
           .append("text")
@@ -402,7 +412,7 @@ export default function RadarChart({
           .attr("y", 28) // Reverted to original y position
           .attr("text-anchor", "middle")
           .attr("dominant-baseline", "middle")
-          .attr("font-size", "8px")
+          .attr("font-size", fontSize)
           .style("color", "#212529")
           .style("text-transform", "uppercase")
           .style("letter-spacing", "0.96px")
@@ -416,22 +426,22 @@ export default function RadarChart({
           .style("color", "#212529")
           .attr("text-anchor", "middle")
           .attr("dominant-baseline", "middle")
-          .attr("font-size", "8px")
+          .attr("font-size", fontSize)
           .style("text-transform", "uppercase")
           .style("letter-spacing", "0.96px")
           .text(secondLine);
-        if(thirdLine){
+        if (thirdLine) {
           textGroup
-          .append("text")
-          .attr("x", 0)
-          .attr("y", 52) // Reverted to original y position
-          .style("color", "#212529")
-          .attr("text-anchor", "middle")
-          .attr("dominant-baseline", "middle")
-          .attr("font-size", "8px")
-          .style("text-transform", "uppercase")
-          .style("letter-spacing", "0.96px")
-          .text(thirdLine);
+            .append("text")
+            .attr("x", 0)
+            .attr("y", 52) // Reverted to original y position
+            .style("color", "#212529")
+            .attr("text-anchor", "middle")
+            .attr("dominant-baseline", "middle")
+            .attr("font-size", fontSize)
+            .style("text-transform", "uppercase")
+            .style("letter-spacing", "0.96px")
+            .text(thirdLine);
         }
 
         // Add event listeners for showing/hiding the tooltip
@@ -483,7 +493,9 @@ export default function RadarChart({
   return (
     <>
       <div className="radar-chart-container h-full">
-        {!chartCreated && <Loader className="w-full h-full [&_span]:w-[48px] [&_span]:h-[48px]" />}
+        {!chartCreated && (
+          <Loader className="w-full h-full [&_span]:w-[48px] [&_span]:h-[48px]" />
+        )}
         <svg ref={svgRef}></svg>
       </div>
       {tooltip && (
@@ -543,7 +555,7 @@ export default function RadarChart({
           onMouseOver={(event) => {
             setTootip({
               title: getTextById(jurisdictionsCopy, "tooltip_info", lang),
-              x: event.pageX-50, // Adjust for scrolling
+              x: event.pageX - 50, // Adjust for scrolling
               y: event.pageY, // Adjust for scrolling
             });
             // }
@@ -580,7 +592,8 @@ export default function RadarChart({
         <div className="flex gap-xs items-center">
           <div className="w-4 h-1 " style={{ backgroundColor: govColor }} />
           <p>
-            {getTextById(jurisdictionsCopy, "average", lang)} {country[`name_${lang}`]}
+            {getTextById(jurisdictionsCopy, "average", lang)}{" "}
+            {country[`name_${lang}`]}
           </p>
         </div>
       </div>

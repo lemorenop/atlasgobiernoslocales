@@ -218,17 +218,28 @@ export default function MapContainer({
           <Select
             id="iso3"
             selected={selectedCountry}
-            options={[
-              {
-                name_es: "Todos",
-                name_en: "All",
-                name_pt: "Todos",
-                iso3: "all",
-              },
-              ...regionsOpt,
-              ...countries.sort((a, b) =>
-                a["name_" + lang].localeCompare(b["name_" + lang])
-              ),
+            options={[  
+                {
+                 
+                  options: [
+                    {
+                      name_es: "Todos",
+                      name_en: "All",
+                      name_pt: "Todos",
+                      iso3: "all",
+                    },
+                   
+                  ],
+                },{
+                  group_title:"regiones",
+                  options:regionsOpt
+                },
+                {
+                  group_title:"paises",
+                  options:countries.sort((a, b) =>
+                    a["name_" + lang].localeCompare(b["name_" + lang])
+                  ),
+                }
             ]}
             defaultAllLabel={getTextById(copy, "map_country_select", lang)}
             onChange={setSelectedCountry}

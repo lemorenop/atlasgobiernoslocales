@@ -79,7 +79,7 @@ export default async function Jurisdiction({ params }) {
                   </div>
                 </div>
 
-                <div className="flex flex-col lg:col-span-8 min-h-[600px] max-h-screen">
+                <div className="flex flex-col lg:col-span-8 min-h-[400px] md:min-h-[600px] max-h-screen">
                   <RadarChart
                     country={country}
                     data={jurisdictionData}

@@ -76,8 +76,8 @@ export default async function Footer({ lang }) {
         </div>
         <footer className="bg-background text-black px-l md:px-[80px]">
         
-            <div className="pb-[32px] flex flex-col md:flex-row  gap-[32px] md:gap-[80px] pt-[40px] justify-between flex-wrap">
-              <div className="w-full flex flex-col gap-s flex-grow max-md:gap-[32px]">
+            <div className="pb-[32px] flex flex-col md:flex-row  gap-[32px] md:gap-[80px] pt-[40px] justify-between max-md:flex-wrap">
+              <div className="w-full flex flex-col gap-s  max-md:gap-[32px]">
                 <Image
                   src={`/logo_${lang}.png`}
                   alt="CAF Network Visualizer"
@@ -116,8 +116,8 @@ export default async function Footer({ lang }) {
                 <FooterDownload lang={lang} copy={footerCopy} />
               </div>
 
-              <div className="flex gap-2xl ">
-                <div className="flex flex-col gap-s max-md:gap-m">
+              <div className="grid grid-cols-2  gap-2xl min-w-fit">
+                <div className="flex flex-col gap-s max-md:gap-m min-w-fit">
                   <a
                     href={findLink("caf_button", lang)}
                     className="text-paragraph-small underline"

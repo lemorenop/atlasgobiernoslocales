@@ -26,7 +26,11 @@ export default function MapIndicator({
   indicator,
   countries,maxPerLevel
 }) {
-  console.log(indicator.min, indicator.max);
+  let govs=[]
+Object.keys(governments).forEach(key => {
+ if(governments[key].countryName==="Guatemala") govs.push(governments[key]);
+});
+console.log(govs)
   const localType =
     selectedCountryIso3 === "PER" ||
     selectedCountryIso3 === "SLV" ||
@@ -326,10 +330,11 @@ export default function MapIndicator({
       governments[feature.properties.codigo_uni]
     ) {
       const map = mapRef.current && mapRef.current.getMap();
-      const { x, y } = map.project([event.lngLat.lng, event.lngLat.lat]);
+      const { x, y } = map.project([event.lngLat.lng, event.lngLat.lat]);    
       if (
-        governments[feature.properties.codigo_uni]?.value &&
-        !isNaN(governments[feature.properties.codigo_uni].value)
+        governments[feature.properties.codigo_uni].value !== undefined && 
+        governments[feature.properties.codigo_uni].value !== null && 
+        typeof governments[feature.properties.codigo_uni].value === "number"    
       ) {
         const originalValue = governments[feature.properties.codigo_uni].value;
         const displayValue = isPercentage
