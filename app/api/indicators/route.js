@@ -1,9 +1,9 @@
 import { NextResponse } from 'next/server';
-import { getIndicators } from '@/app/utils/dataFetchers';
+import { fetchData } from '@/app/utils/dataFetchers';
 
 export async function GET() {
   try {
-    const indicators = await getIndicators();
+    const indicators = await fetchData("indicators","es"); 
     return NextResponse.json(indicators);
   } catch (error) {
     console.error('Error fetching indicators data:', error);

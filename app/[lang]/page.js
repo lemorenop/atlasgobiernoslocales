@@ -1,26 +1,25 @@
-import { getHomeCopy, getIndicators , getHomeMapTooltip} from "@/app/utils/dataFetchers";
+import { fetchData } from "@/app/utils/dataFetchers";
 import { getTextById } from "@/app/utils/textUtils";
 import SearchBox from "./components/searchBox";
 import Hero from "./hero";
 import SelectLink from "./components/selectLink";
 
 export async function generateStaticParams() {
-  
-const locales=[{lang:"es"},{lang:"en"},{lang:"pt"}]
+  const locales = [{ lang: "es" }, { lang: "en" }, { lang: "pt" }];
 
-  return locales
+  return locales;
 }
 
 export default async function Home({ params }) {
-
   const { lang } = await params;
   const [homeCopyData, indicators, homeMapTooltip] = await Promise.all([
-    getHomeCopy(lang),
-    getIndicators(lang),
-    getHomeMapTooltip(lang),
+    fetchData("homeCopy", lang),
+    fetchData("indicators", lang),
+    fetchData("homeMapTooltip", lang),
   ]);
   return (
-    homeCopyData && indicators && (
+    homeCopyData &&
+    indicators && (
       <main className="flex flex-col justify-start text-black bg-white">
         <Hero
           hero_title={getTextById(homeCopyData, "hero_title", lang)}
@@ -29,8 +28,9 @@ export default async function Home({ params }) {
           lang={lang}
           homeMapTooltip={homeMapTooltip}
         />{" "}
-        <div className="px-[80px] grid grid-cols-2 gap-[64px] py-[112px] bg-white">
+        <div className="flex flex-col px-l md:px-4xl md:grid md:grid-cols-2 gap-[24px] md:gap-[64px] py-2xl md:py-[112px] bg-white relative">
           <div className="bg-background p-xl flex flex-col gap-[24px] justify-between">
+            <div className="md:hidden absolute bottom-[-40px] left-[-100px] bg-navy rounded-full w-[200px] h-[200px] z-0" />{" "}
             <div className="flex flex-col gap-[24px]">
               <h2 className="text-h3 font-bold text-navy">
                 {getTextById(homeCopyData, "explore_indicator_title", lang)}
@@ -41,7 +41,6 @@ export default async function Home({ params }) {
             </div>
             {indicators && (
               <SelectLink
-                title={""}
                 path={"indicadores"}
                 lang={lang}
                 options={indicators.filter((i) => i.slug)}
@@ -49,28 +48,28 @@ export default async function Home({ params }) {
               />
             )}
           </div>
-
-          <SearchBox
-            path={"jurisdicciones"
-            }
-            title={getTextById(
-              homeCopyData,
-              "explore_jurisdiction_title",
-              lang
-            )}
-            subtitle={getTextById(
-              homeCopyData,
-              "explore_jurisdiction_subtitle",
-              lang
-            )}
-            lang={lang}
-            intro={""}
-            label={getTextById(
-              homeCopyData,
-              "explore_jurisdiction_button",
-              lang
-            )}
-          />
+          <div className="relative z-10">
+            <SearchBox
+              path={"jurisdicciones"}
+              title={getTextById(
+                homeCopyData,
+                "explore_jurisdiction_title",
+                lang
+              )}
+              subtitle={getTextById(
+                homeCopyData,
+                "explore_jurisdiction_subtitle",
+                lang
+              )}
+              lang={lang}
+              intro={""}
+              label={getTextById(
+                homeCopyData,
+                "explore_jurisdiction_button",
+                lang
+              )}
+            />
+          </div>
         </div>{" "}
       </main>
     )

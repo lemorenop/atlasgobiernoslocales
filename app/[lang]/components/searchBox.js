@@ -58,7 +58,6 @@ export default function SearchBox({
         <h2 className="text-h3 font-bold text-navy">{title}</h2>
         <p className="text-description text-black">{subtitle}</p>
       </div>
-      <p className="paragraph-small text-black">{intro}</p>
       <Combobox value={""} >
         <div className="relative">
           <ComboboxInput

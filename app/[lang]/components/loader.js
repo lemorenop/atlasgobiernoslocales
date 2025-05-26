@@ -1,7 +1,9 @@
-export default function Loader({height='screen'}) {
+export default function Loader({ className }) {
   return (
-    <div className={`flex flex-col justify-center items-center text-black bg-white min-h-${height}`}>
-    <span className="loader" />
-  </div>
+    <div
+      className={`flex flex-col justify-center items-center text-black ${className}`}
+    >
+      <span className="loader" />
+    </div>
   );
 }

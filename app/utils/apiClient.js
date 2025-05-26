@@ -24,13 +24,4 @@ export async function fetchJurisdictionData(slug) {
   }
   return response.json();
 }
-export async function fetchIndicatorData(slug) {
-  const response = await fetch(`/api/indicators/${slug}`);
-  if (!response.ok) {
-    if (response.status === 404) {
-      throw new Error("Indicador no encontrado");
-    }
-    throw new Error("Error al obtener los datos del indicador");
-  }
-  return response.json();
-}
+

@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 
 export async function GET(request, { params }) {
-  const { slug } = params;
+  const { slug } = await params;
   const geojson = await import("@/public/maps/world-stc.json");
   const feature = geojson.features.find((f) => f.properties.REF_AREA === slug);
 

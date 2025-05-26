@@ -13,11 +13,11 @@ export default function SelectLink({
 }) {
   return (
     <>
-      <p
+    {title&&  <p
         className={` paragraph-small ${colorLabel === "white" ? "text-white":'text-black'}`}
       >
         {title}
-      </p>
+      </p>}
 
       <Menu>
         <MenuButton

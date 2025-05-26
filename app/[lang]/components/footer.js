@@ -7,36 +7,36 @@ import Youtube from "./icons/youtube";
 import { getTextById } from "@/app/utils/textUtils";
 import NavbarDialogs from "./navbarDialogs";
 import SearchBox from "./searchBox";
-import {
-  getHomeCopy,
-  getNavbarCopy,
-  getFooterCopy,
-  getIndicators,
-} from "@/app/utils/dataFetchers";
+import { fetchData } from "@/app/utils/dataFetchers";
+import FooterDownload from "./footerDownload";
+
 const socialMedia = {
   instagram: () => <Instagram className="w-6 h-6 fill-blue-CAF" />,
   x: () => <X className="w-6 h-6 fill-blue-CAF" />,
   facebook: () => <Facebook className="w-6 h-6 fill-blue-CAF" />,
   linkedin: () => <LinkedIn className="w-6 h-6 fill-blue-CAF" />,
   youtube: () => <Youtube className="w-6 h-auto fill-blue-CAF" />,
-  x: () => <X className="w-6 h-6 fill-blue-CAF" />,
 };
+
 export default async function Footer({ lang }) {
-  const [footerCopy, navbarCopy, homeCopyData, ] = await Promise.all([
-    getFooterCopy(lang),
-    getNavbarCopy(lang),
-    getHomeCopy(lang),
+  const [footerCopy, navbarCopy, homeCopyData] = await Promise.all([
+    fetchData("footerCopy", lang),
+    fetchData("navbarCopy", lang),
+    fetchData("homeCopy", lang),
   ]);
+
   function findLink(id, lang) {
     return footerCopy.find((elm) => elm.id === id)?.[
       lang ? `link_${lang}` : `link`
     ];
   }
+
   const year = new Date().getFullYear();
+
   return (
     footerCopy && (
       <>
-        <div className="bg-blue-CAF px-[80px] grid grid-cols-12 gap-[64px] text-white relative items-center">
+        <div className="bg-blue-CAF px-l md:px-[80px] flex flex-col md:grid md:grid-cols-12 gap-[32px]md:gap-[64px] text-white relative md:items-center">
           <Image
             src="/red-logo.png"
             alt="Reporte de Economía y Desarrollo"
@@ -44,10 +44,10 @@ export default async function Footer({ lang }) {
             height={49}
             className=" object-contain z-10  py-[48px] col-span-2"
           />
-          <p className="text-white z-10 py-[48px] col-span-4">
+          <p className="text-white z-10 md:py-[48px] col-span-4">
             {getTextById(footerCopy, "credits", lang)}
           </p>
-          <div className="py-[48px] relative col-span-5 col-start-8 h-full">
+          <div className="py-[32px] md:py-[48px] relative col-span-5 col-start-8 h-full">
             <div className="absolute top-0 right-0 z-0 h-full flex w-full gap-xl justify-end">
               <svg
                 xmlns="http://www.w3.org/2000/svg"
@@ -74,10 +74,10 @@ export default async function Footer({ lang }) {
             </p>
           </div>
         </div>
-        <footer className="bg-background text-black px-[80px]">
-          <>
-            <div className="pb-[32px] flex gap-[80px] pt-[40px] justify-between">
-              <div className="flex flex-col gap-s">
+        <footer className="bg-background text-black px-l md:px-[80px]">
+        
+            <div className="pb-[32px] flex flex-col md:flex-row  gap-[32px] md:gap-[80px] pt-[40px] justify-between flex-wrap">
+              <div className="w-full flex flex-col gap-s flex-grow max-md:gap-[32px]">
                 <Image
                   src={`/logo_${lang}.png`}
                   alt="CAF Network Visualizer"
@@ -91,7 +91,7 @@ export default async function Footer({ lang }) {
                 >
                   {findLink("email")}
                 </a>
-                <ul className="flex gap-s items-end">
+                <ul className="flex gap-s items-end max-sm:w-full max-sm:justify-between">
                   {["instagram", "x", "facebook", "linkedin", "youtube"].map(
                     (elm) => {
                       const link = findLink(elm);
@@ -112,8 +112,12 @@ export default async function Footer({ lang }) {
                   )}
                 </ul>
               </div>
-              <div className="flex gap-2xl">
-                <div className="flex flex-col gap-s">
+              <div className="w-fit max-md:w-full">
+                <FooterDownload lang={lang} copy={footerCopy} />
+              </div>
+
+              <div className="flex gap-2xl ">
+                <div className="flex flex-col gap-s max-md:gap-m">
                   <a
                     href={findLink("caf_button", lang)}
                     className="text-paragraph-small underline"
@@ -129,11 +133,11 @@ export default async function Footer({ lang }) {
                     {getTextById(footerCopy, "red_button", lang)}
                   </a>
                 </div>
-                <div className="flex flex-col gap-s">
+                <div className="flex flex-col gap-s max-md:gap-m">
                   <NavbarDialogs
                     button={
                       <div
-                        className={`flex items center gap-xs underline description cursor-pointer`}
+                        className={`flex items center gap-xs underline paragraph-small cursor-pointer`}
                       >
                         {getTextById(navbarCopy, "jurisdictions", lang)}
                       </div>
@@ -141,11 +145,6 @@ export default async function Footer({ lang }) {
                   >
                     <SearchBox
                       path={"jurisdicciones"}
-                      intro={getTextById(
-                        homeCopyData,
-                        "explore_jurisdiction_input",
-                        lang
-                      )}
                       subtitle={getTextById(
                         homeCopyData,
                         "explore_jurisdiction_subtitle",
@@ -165,10 +164,16 @@ export default async function Footer({ lang }) {
                     />
                   </NavbarDialogs>
                   <a
-                    className={`flex items center gap-xs underline  description cursor-pointer`}
+                    className={`flex items center gap-xs underline  paragraph-small cursor-pointer`}
                     href={`/${lang}/indicadores/acceso-a-fuente-de-agua-mejorada`}
                   >
                     {getTextById(navbarCopy, "indicators", lang)}
+                  </a>
+                  <a
+                    className={`flex items center gap-xs underline  paragraph-small cursor-pointer`}
+                    href={`/${lang}/acerca-de`}
+                  >
+                    {getTextById(navbarCopy, "about", lang)}
                   </a>
                 </div>
               </div>
@@ -178,7 +183,7 @@ export default async function Footer({ lang }) {
                 Copyright {year}. {getTextById(footerCopy, "copyright_1", lang)}
               </span>
             </div>
-          </>
+        
         </footer>
       </>
     )

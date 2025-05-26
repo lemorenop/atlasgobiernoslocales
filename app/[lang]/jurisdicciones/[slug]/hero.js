@@ -1,0 +1,111 @@
+"use client";
+import Image from "next/image";
+import { getTextById } from "@/app/utils/textUtils";
+import { useContext } from "react";
+import { JurisdictionDataContext } from "./jurisdictionDataProvider";
+import MapGoverment from "./mapGoverment";
+import Share from "./share";
+export default function Hero({ yearPoblacion, data }) {
+  const { indicators, jurisdictionsCopy, government, lang } = useContext(
+    JurisdictionDataContext
+  );
+  const toLocaleString = (value) => {
+    const divisor = lang === "es" || lang === "pt" ? "." : ",";
+
+    if (value < 10000 && value >= 1000)
+      // return value + "jej?";
+      return "" + parseInt(value / 1000) + divisor + parseInt(value % 1000);
+    return value.toLocaleString(lang === "es" || lang === "pt" ? "es" : "en");
+  };
+  const indicatorsHero = [1, 26, 2, 3];
+  return (
+    jurisdictionsCopy && (
+      <div className="flex flex-col md:grid md:grid-cols-12 bg-navy">
+        <div className="md:col-span-6 lg:col-span-4 px-l md:pl-xl lg:pl-[80px] text-white flex flex-col justify-between pt-xl  pb-m pr-xl gap-xl">
+          {government && (
+            <div className="flex flex-col gap-m ">
+              <h1 className="text-h1 font-bold uppercase">
+                {government.name}
+                <br />
+                <span className="paragraph-small font-medium">
+                  {government["description_" + lang]}
+                </span>
+              </h1>
+            </div>
+          )}
+          <div
+            style={{
+              borderColor: "rgba(255, 255, 255, 0.40)",
+            }}
+            className="grid grid-cols-2 gap-m py-m border-y-1"
+          >
+            {indicators &&
+              data &&
+              indicatorsHero
+                .map((elm) => {
+                  const indicator = indicators.find((ind) => elm === ind.code);
+                  return indicator;
+                })
+                .map((ind) => {
+                  const value = data.find(
+                    (item) => item.indicator_code === ind.code
+                  )?.value;
+
+                  const fullInd = indicators.find(
+                    (item) => item.code === ind.code
+                  );
+
+                  return (
+                    value &&
+                    value !== "" && (
+                      <div
+                        className="flex flex-col gap-s uppercase"
+                        key={ind.code}
+                      >
+                        <Image
+                          className="object-contain"
+                          src={`/${ind.code}.png`}
+                          alt={""}
+                          width={20}
+                          height={20}
+                        />
+                        <p className="caption">
+                          {ind[`name_${lang}`]}
+                          <br />
+                          <span className="font-bold description">
+                            {toLocaleString(value)}
+                            <sup className="text-[10px]">
+                              {fullInd.unit?.unit ? fullInd.unit?.unit : ""}
+                            </sup>
+                          </span>
+                        </p>
+                      </div>
+                    )
+                  );
+                })}{" "}
+            <p className="text-right caption uppercase col-span-2">
+              {yearPoblacion
+                ? `${getTextById(
+                    jurisdictionsCopy,
+                    "year_data",
+                    lang
+                  )}: ${yearPoblacion}`
+                : `${getTextById(jurisdictionsCopy, "no_pop_data", lang)}`}{" "}
+            </p>
+          </div>
+          <Share />
+        </div>{" "}
+        <div className="md:col-span-6 lg:col-span-8 bg-background max-md:h-[50vh]">
+          {government && (
+            <MapGoverment
+              jurisdictionsCopy={jurisdictionsCopy}
+              governmentID={government.id}
+              nivel={government.level_per_country_id.split("_")[0]}
+              lang={lang}
+            />
+          )}
+        </div>
+      </div>
+    )
+  );
+}

@@ -142,8 +142,6 @@
 }
 
 .loader {
-  width: 48px;
-  height: 48px;
   border: 5px solid #004A80;
   border-bottom-color: transparent;
   border-radius: 50%;
@@ -182,7 +180,7 @@ body {
     --spacing-l: 2rem; /*32px*/
     --spacing-xl: 3rem; /*48px*/
     --spacing-2xl: 4rem; /*64px*/
-    --spacing-3xl: 6rem; /*96px*/
+    --spacing-3xl: 5rem; /*80px*/
     --space-4xl: 7rem; /*112px*/
     --h2-size: 32px;
     --h2-line-height: 45px;

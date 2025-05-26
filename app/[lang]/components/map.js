@@ -3,9 +3,8 @@
 import { useState, useEffect, useRef } from "react";
 import { Map, Source, Layer, NavigationControl } from "react-map-gl/mapbox";
 import "mapbox-gl/dist/mapbox-gl.css";
-import { fetchHomeMapTooltip } from "@/app/utils/apiClient";
 import Loader from "./loader";
-import { basicSettings, handleMapLoad } from "@/app/utils/mapSettings";
+import { basicSettings, handleMapLoad ,latinAmericaBounds} from "@/app/utils/mapSettings";
 
 export default function MapView({ lang = "es", tooltipData }) {
   const [loading, setLoading] = useState(false);
@@ -13,17 +12,7 @@ export default function MapView({ lang = "es", tooltipData }) {
   const [selectedCountry, setSelectedCountry] = useState(null);
   const [selectedCoordinates, setSelectedCoordinates] = useState(null);
 
-  // Update the initial view state to focus on Brazil
-  const initialViewState = {
-    longitude: -51.9253,
-    latitude: -14.235,
-    zoom: 4, // Adjusted zoom level for Brazil
-    bounds: [
-      [-74, 5],
-      [-34, -34],
-    ], // Adjusted to fit Brazil
-    fitBoundsOptions: { padding: 20 },
-  };
+  // const initialViewState = latinAmericaView;
 
   // Get tooltip text based on country ISO3 and active language
   const getTooltipText = (countryIso3) => {
@@ -44,7 +33,17 @@ export default function MapView({ lang = "es", tooltipData }) {
     }
   };
   function handleLoad() {
-    return handleMapLoad(mapRef.current?.getMap(), lang);
+    const map = mapRef.current?.getMap();
+
+  
+      map.fitBounds(
+        latinAmericaBounds,
+        {
+          padding: 50,
+          duration: 1000,
+        }
+      );
+    return handleMapLoad(map, lang);
   }
 
   const isoA3List = tooltipData.map((item) => item.country_iso3); // Reemplaza con los códigos ISO_A3 que desees
@@ -116,22 +115,42 @@ export default function MapView({ lang = "es", tooltipData }) {
 
   const mapRef = useRef();
 
-  const onClick = (event) => {
-
-    // console.log(event)
-    // console.log(event.features)
-
+  const onMouseEnter = (event) => {
     const feature = event.features && event.features[0];
     if (feature && feature.properties && feature.properties.ISO_A3) {
-      // console.log(feature.properties.ISO_A3)
-      // Show the tooltip for the new country
-      setSelectedCountry(feature.properties.ISO_A3);
-      setSelectedCoordinates([event.lngLat.lng, event.lngLat.lat]);
-    } else {
-      // If clicking on empty space, close the tooltip
-      setSelectedCountry(null);
-      setSelectedCoordinates(null);
+      const countryData = tooltipData.find(
+        (item) => item.country_iso3 === feature.properties.ISO_A3
+      );
+      if (countryData) {
+        setSelectedCountry(feature.properties.ISO_A3);
+        setSelectedCoordinates([event.lngLat.lng, event.lngLat.lat]);
+      }
     }
+  };
+
+  const onMouseMove = (event) => {
+    const feature = event.features && event.features[0];
+    if (feature && feature.properties && feature.properties.ISO_A3) {
+      const countryData = tooltipData.find(
+        (item) => item.country_iso3 === feature.properties.ISO_A3
+      );
+      if (countryData) {
+        // Solo actualizamos si el país ha cambiado o si no hay país seleccionado
+        if (feature.properties.ISO_A3 !== selectedCountry) {
+          setSelectedCountry(feature.properties.ISO_A3);
+        }
+        setSelectedCoordinates([event.lngLat.lng, event.lngLat.lat]);
+      } else {
+        // Si no hay datos para el país, ocultamos el tooltip
+        setSelectedCountry(null);
+        setSelectedCoordinates(null);
+      }
+    }
+  };
+
+  const onMouseLeave = () => {
+    setSelectedCountry(null);
+    setSelectedCoordinates(null);
   };
 
   const onZoomOrPan = () => {
@@ -149,7 +168,7 @@ export default function MapView({ lang = "es", tooltipData }) {
   return (
     <div className="w-full h-full relative">
       {loading ? (
-        <Loader />
+        <Loader className="w-full h-full [&_span]:w-[48px] [&_span]:h-[48px]" />
       ) : error ? (
         <div className="absolute inset-0 flex items-center justify-center bg-gray-100">
           <p className="text-red-500">Error: {error}</p>
@@ -158,18 +177,17 @@ export default function MapView({ lang = "es", tooltipData }) {
         <Map
           ref={mapRef}
           onLoad={handleLoad}
-          initialViewState={initialViewState}
           onZoom={onZoomOrPan}
           onMove={onZoomOrPan}
-          onClick={onClick}
+          onMouseEnter={onMouseEnter}
+          onMouseMove={onMouseMove}
+          onMouseLeave={onMouseLeave}
           minZoom={1}
           maxZoom={22}
           interactiveLayerIds={[
             "nivel0-source",
             "nivel1",
             "nivel1LayerTooltip",
-            // "nivel2-layer",
-            // "nivel3-layer",
           ]}
           {...basicSettings}
         >

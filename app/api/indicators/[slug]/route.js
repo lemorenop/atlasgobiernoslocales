@@ -13,16 +13,13 @@ export async function GET(request, { params }) {
       return NextResponse.json(cachedData);
     }
 
-    // Obtener el gobierno específico
-
-    // Obtener todos los datos y filtrar por el ID del gobierno
     const allData = await getAllData();
 
     // Filtrar los datos por el ID del indicador  
     const filteredData = allData.filter((item) => item.indicator_code == slug);
     // Transform array to object with indicator_code as keys
     const dataObject = filteredData.reduce((acc, item) => {
-        acc[item.government_id] = item;
+        acc[item.government_id] = item.value;
         return acc;
     }, {});
     // Preparar la respuesta
