@@ -231,11 +231,11 @@ export default function MapContainer({
                    
                   ],
                 },{
-                  group_title:"regiones",
+                  group_title:getTextById(copy, "regions", lang),
                   options:regionsOpt
                 },
                 {
-                  group_title:"paises",
+                  group_title:getTextById(copy, "countries", lang),
                   options:countries.sort((a, b) =>
                     a["name_" + lang].localeCompare(b["name_" + lang])
                   ),

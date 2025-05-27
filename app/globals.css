@@ -193,3 +193,30 @@ body {
 .specific-underline-style a {
   text-decoration: underline;
 }
+
+.horizontal-loader {
+  display: block;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background-color: var(--color-navy);
+  box-shadow: 20px 0 var(--color-navy), -20px 0 var(--color-navy);
+  position: relative;
+  animation: flash 1s ease-out infinite alternate;
+}
+
+@keyframes flash {
+  0% {
+    background-color: #FFF2;
+    box-shadow: 20px 0 #FFF2, -20px 0 var(--color-navy);
+  }
+  50% {
+    background-color: var(--color-navy);
+    box-shadow: 20px 0 #FFF2, -20px 0 #FFF2;
+  }
+  100% {
+    background-color: #FFF2;
+    box-shadow: 20px 0 var(--color-navy), -20px 0 #FFF2;
+  }
+}
+      

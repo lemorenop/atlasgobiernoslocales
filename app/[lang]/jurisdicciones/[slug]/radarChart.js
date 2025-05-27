@@ -277,9 +277,9 @@ export default function RadarChart({ data, country }) {
         // Ángulo para el valor del gobierno (1/4 del segmento)
         const govAngle = startAngle + govAngleOffset;
         const govX =
-          radiusScale(govData.value) * Math.cos(govAngle - Math.PI / 2);
+          radiusScale(govData.value || 0) * Math.cos(govAngle - Math.PI / 2);
         const govY =
-          radiusScale(govData.value) * Math.sin(govAngle - Math.PI / 2);
+          radiusScale(govData.value || 0) * Math.sin(govAngle - Math.PI / 2);
 
         const valuesTooltip = {
           title: indicatorName,

@@ -19,7 +19,8 @@ export default function SearchBox({
   const [query, setQuery] = useState("");
   const [results, setResults] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
-
+  const [selectedItem, setSelectedItem] = useState(null);
+  const [isNavigating, setIsNavigating] = useState(false);
 
   // Open dropdown when query changes
   useEffect(() => {
@@ -53,27 +54,42 @@ export default function SearchBox({
   }, [query, lang]);
 
   return (
-    <div className="bg-background p-xl flex flex-col gap-[24px] justify-between">
+    <div className="relative bg-background p-xl flex flex-col gap-[24px] justify-between">
       <div className="flex flex-col gap-[24px]">
         <h2 className="text-h3 font-bold text-navy">{title}</h2>
         <p className="text-description text-black">{subtitle}</p>
       </div>
-      <Combobox value={""} >
+      <Combobox value={selectedItem} onChange={setSelectedItem}>
         <div className="relative">
           <ComboboxInput
+            disabled={isNavigating}
             className="border border1 py-1.5 px-3 w-full focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all bg-white description text-black"
             label={label}
             placeholder={label}
-            displayValue={query}
+            displayValue={(item) => {
+              if (item) {
+                return `${item.name}, ${item.parentName ? item.parentName + ", " : ""}${item.countryName}`;
+              }
+              return query;
+            }}
             onChange={(e) => setQuery(e.target.value)}
-           
           />
           {isLoading && (
             <div className="absolute right-3 top-1/2 transform -translate-y-1/2">
               <div className="animate-spin h-5 w-5 border-2 border-blue-500 rounded-full border-t-transparent"></div>
             </div>
           )}
-        </div>
+          {isNavigating && (
+            <div className="max-md:hidden absolute right-8 top-4 transform -translate-y-1/2">
+              <span className="horizontal-loader"></span>
+            </div>
+          )}
+         
+        </div>{isNavigating && <div 
+        style={{bottom:"4px",left:"0",right:"0",margin:"auto"}}
+        className="md:hidden absolute right-0 left-0 w-fit transform -translate-y-1/2">
+              <span className="horizontal-loader"></span>
+            </div>}
 
         <ComboboxOptions
           anchor="bottom"
@@ -91,6 +107,10 @@ export default function SearchBox({
               <a
                 className="flex flex-col w-full uppercase text-[14px] tracking-wide"
                 href={`/${lang}/${path}/${item.id}`}
+                onClick={(e) => {
+                  setSelectedItem(item);
+                  setIsNavigating(true);
+                }}
               >
                 {item.name}, {item.parentName ? item.parentName + ", " : ""}
                 {item.countryName}

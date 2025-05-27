@@ -461,8 +461,8 @@ console.log(govs)
       {/* Legend */}
       {colorScale && (
         <div className="top-m absolute right-m border-black border-1 px-s py-xs bg-white max-md:w-[95%]">
-          <div className="flex gap-s items-center">
-            <div className="flex gap-xxs flex-col w-[100px]">
+          <div className="flex gap-s ">
+            <div className="flex gap-xxs flex-col w-[120px]">
               <div
                 className="border-1 border-CA h-[10px] w-full"
                 style={{ background: noDataColor }}
