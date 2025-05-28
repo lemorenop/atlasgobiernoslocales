@@ -36,11 +36,11 @@ export default async function RootLayout({ children, params }) {
       </Head>
       <html lang={lang}>
         <body
-          className={`${raleway.className} antialiased min-h-screen flex flex-col justify-between bg-white font-normal font-[Raleway]`}
+          className={`${raleway.className} antialiased min-h-screen flex flex-col justify-between bg-white font-normal font-[Raleway] h-full`}
         >
         <GAnalytics/>
             <Navbar lang={lang} />
-            <div className="flex-grow">{children}</div>
+            <div className="flex-grow h-full flex flex-col">{children}</div>
             <Footer lang={lang} />
         </body>
       </html>

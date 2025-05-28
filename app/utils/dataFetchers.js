@@ -264,10 +264,7 @@ export async function getGovernmentsData(lang = "es") {
   }
 }
 
-export async function getPageError() {
-  const csvUrl = csv.pageError;
-  return fetchWithCache(`pageError`, () => fetchAndParseCSV(csvUrl), "es");
-}
+
 
 export async function getJurisdictionData(slug) {
   const csvUrl = csv.allData;
