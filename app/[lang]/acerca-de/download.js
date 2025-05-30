@@ -10,7 +10,7 @@ export default function Download({ lang, copy }) {
   const [isJSONLoading, setIsJSONLoading] = useState(false);
   const [selectedOption, setSelectedOption] = useState("");
   const SPREADSHEET_URL =
-    "https://docs.google.com/spreadsheets/d/e/2PACX-1vQnBxqpdtp1KKTVeBEVp4IXk5Esn8acT2Cb5pw0TBV50rSLaanbRmG7G9XZalJ_DQ/pub?output=csv";
+    "https://docs.google.com/spreadsheets/d/e/2PACX-1vRKwKAsoOMcUDMkZVh7AxfKGevtavC83xfz_Gnf0B9HFBAT4-3_7jcly1xXR5zVmxcJ7a3cKaMcNgFv/pub?output=csv";
 
   const handleCSVDownload = async (e) => {
     e.preventDefault();
@@ -70,7 +70,7 @@ export default function Download({ lang, copy }) {
       <button
         onClick={handleCSVDownload}
         disabled={isCSVLoading}
-        className={`w-full md:max-w-96 py-s font-bold justify-between gap-s bg-white border-1 border-black px-3 text-blue-CAF hover:bg-blue-CAF hover:text-white group transition-all flex items-center ${
+        className={`w-full md:max-w-96 py-s font-bold justify-between gap-s bg-white border-1 border-black px-3 text-blue-CAF hover:bg-blue-CAF hover:text-white group transition-all flex items-center description ${
           isCSVLoading ? "" : "cursor-pointer"
         }`}
       >
