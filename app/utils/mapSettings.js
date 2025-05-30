@@ -65,6 +65,11 @@ export const latinAmericaView = {
   fitBoundsOptions: { padding: 20 },
 };
 
+export const defaultView = {
+  0: [-82.0, -38.0],  // Oeste: -82° para mostrar todo el continente, Sur: -38° para cortar en la Pampa
+  1: [-34.0, 23.0]    // Este: -34° para mostrar toda la costa este, Norte: 23° para mostrar Cuba completa
+}
+
 export const southAmericaBounds = {
   0: [-82.0, -56.0],
   1: [-34.0, 13.0]

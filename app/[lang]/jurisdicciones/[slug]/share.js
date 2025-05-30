@@ -34,7 +34,10 @@ export default function Share() {
         </p>
         <div className="flex gap-xs items-center">
           <TwitterShareButton url={url} title={shareText}>
-            <TwitterIcon size={36} round bgStyle={{ fill: "transparent" }} />
+            <div className="md:w-12 w-8">
+            <TwitterIcon size={"100%"} round bgStyle={{ fill: "transparent" }} />
+            </div>
+            
           </TwitterShareButton>{" "}
           <FacebookShareButton url={url} quote={shareText}>
             <FacebookIcon size={36} round bgStyle={{ fill: "transparent" }} />

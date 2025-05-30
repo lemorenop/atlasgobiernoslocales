@@ -18,9 +18,10 @@ export default function Hero({ yearPoblacion, data }) {
     return value.toLocaleString(lang === "es" || lang === "pt" ? "es" : "en");
   };
   const indicatorsHero = [1, 26, 2, 3];
+  const pobData = data.find((item) => item.indicator_code === 1).value;
   return (
     jurisdictionsCopy && (
-      <div className="flex flex-col md:grid md:grid-cols-12 bg-navy">
+      <div className="flex flex-col md:grid md:grid-cols-12 bg-navy h-full flex-grow">
         <div className="md:col-span-6 lg:col-span-4 px-l md:pl-xl lg:pl-[80px] text-white flex flex-col justify-between pt-xl  pb-m pr-xl gap-xl">
           {government && (
             <div className="flex flex-col gap-m ">
@@ -84,7 +85,7 @@ export default function Hero({ yearPoblacion, data }) {
                   );
                 })}{" "}
             <p className="text-right caption uppercase col-span-2">
-              {yearPoblacion
+              {yearPoblacion &&pobData
                 ? `${getTextById(
                     jurisdictionsCopy,
                     "year_data",

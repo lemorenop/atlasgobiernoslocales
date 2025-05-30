@@ -4,7 +4,7 @@ import { useState, useEffect, useRef } from "react";
 import { Map, Source, Layer, NavigationControl } from "react-map-gl/mapbox";
 import "mapbox-gl/dist/mapbox-gl.css";
 import Loader from "./loader";
-import { basicSettings, handleMapLoad ,latinAmericaBounds} from "@/app/utils/mapSettings";
+import { basicSettings, handleMapLoad ,defaultView} from "@/app/utils/mapSettings";
 
 export default function MapView({ lang = "es", tooltipData }) {
   const [loading, setLoading] = useState(false);
@@ -37,7 +37,7 @@ export default function MapView({ lang = "es", tooltipData }) {
 
   
       map.fitBounds(
-        latinAmericaBounds,
+        defaultView,
         {
           padding: 50,
           duration: 1000,

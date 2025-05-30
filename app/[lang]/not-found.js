@@ -1,9 +1,9 @@
-import { fetchData, getPageError } from "@/app/utils/dataFetchers";
+import { fetchData, } from "@/app/utils/dataFetchers";
 import { getTextById } from "@/app/utils/textUtils";
 
-export default async function Custom404({ params }) {
-  const { lang } = await params;
-  const copy = await fetchData("pageError",lang);  
+export default async function Custom404({ params = {} }) {
+  const lang = params?.lang || 'es'; // Default to 'es' if lang is not provided
+  const copy = await fetchData("pageError", lang);  
   return (
     <main className="flex-1 flex flex-col justify-center items-center min-h-screen bg-white p-m">
       {" "}
@@ -12,4 +12,10 @@ export default async function Custom404({ params }) {
       </h1>
     </main>
   );
+}
+
+export async function generateStaticParams() {
+  const locales = [{ lang: "es" }, { lang: "en" }, { lang: "pt" }];
+
+  return locales;
 }

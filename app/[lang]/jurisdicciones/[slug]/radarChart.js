@@ -6,6 +6,7 @@ import { getTextById } from "@/app/utils/textUtils";
 import Info from "@/app/[lang]/components/icons/info";
 import { JurisdictionDataContext } from "./jurisdictionDataProvider";
 import Loader from "@/app/[lang]/components/loader";
+import { noDataColor } from "@/app/utils/mapSettings";
 const govColor = "#1774AD";
 const countryColor = "#55C7D5";
 
@@ -64,6 +65,7 @@ export default function RadarChart({ data, country }) {
 
     fetchNationalAverages();
   }, [government]);
+  console.log(nationalData)
   useEffect(() => {
     const updateChartDimensions = () => {
       if (!svgRef.current) {
@@ -169,10 +171,14 @@ export default function RadarChart({ data, country }) {
         const natPoint = nationalData.find((d) => d.indicador_code === id);
         // Los valores están entre 0 y 1, multiplicamos por 100 para la escala del gráfico
         const value = natPoint ? parseFloat(natPoint.value) * 100 : null;
+        const p10 = natPoint ? parseFloat(natPoint.p10) * 100 : null;
+        const p90 = natPoint ? parseFloat(natPoint.p90) * 100 : null;
 
         return {
           indicator_code: id,
-          value: isNaN(value) ? null : value, // Asegurarse de que sea un número válido, usar 0 como fallback
+          value: isNaN(value) ? null : value,
+          p10: isNaN(p10) ? null : p10,
+          p90: isNaN(p90) ? null : p90,
         };
       });
 
@@ -237,6 +243,15 @@ export default function RadarChart({ data, country }) {
                 indicatorInfo.unit?.unit ? indicatorInfo.unit?.unit : ""
               }`
             : getTextById(jurisdictionsCopy, "no_data", lang);
+
+       
+
+        const valuesTooltip = {
+          title: indicatorName,
+          valueNat: displayNatValue,
+          valueGov: displayGovValue,
+        };
+
         // Draw the segment background
         const arc = d3
           .arc()
@@ -281,20 +296,24 @@ export default function RadarChart({ data, country }) {
         const govY =
           radiusScale(govData.value || 0) * Math.sin(govAngle - Math.PI / 2);
 
-        const valuesTooltip = {
-          title: indicatorName,
-          valueNat: displayNatValue,
-          valueGov: displayGovValue,
-        };
-
         // Ángulo para el promedio nacional (3/4 del segmento)
         const natAngle = startAngle + natAngleOffset;
-        const natX =
-          radiusScale(natData.value ? natData.value : 0) *
-          Math.cos(natAngle - Math.PI / 2);
-        const natY =
-          radiusScale(natData.value ? natData.value : 0) *
-          Math.sin(natAngle - Math.PI / 2);
+        
+        // Calcular el máximo valor entre promedio, p10 y p90 para la línea
+        const maxValue = Math.max(
+          natData.value || 0,
+          natData.p10 || 0,
+          natData.p90 || 0
+        );
+        
+        const natX = radiusScale(maxValue) * Math.cos(natAngle - Math.PI / 2);
+        const natY = radiusScale(maxValue) * Math.sin(natAngle - Math.PI / 2);
+
+        // Calcular posiciones para p10 y p90
+        const p10X = radiusScale(natData.p10 || 0) * Math.cos(natAngle - Math.PI / 2);
+        const p10Y = radiusScale(natData.p10 || 0) * Math.sin(natAngle - Math.PI / 2);
+        const p90X = radiusScale(natData.p90 || 0) * Math.cos(natAngle - Math.PI / 2);
+        const p90Y = radiusScale(natData.p90 || 0) * Math.sin(natAngle - Math.PI / 2);
 
         // Calcular el punto de inicio para las líneas (perpendicular al círculo interior)
         const govStartX = innerRadius * Math.cos(govAngle - Math.PI / 2);
@@ -312,7 +331,7 @@ export default function RadarChart({ data, country }) {
           .attr("stroke", countryColor)
           .attr("stroke-width", 2);
 
-        // Línea para el valor nacional
+        // Línea para el valor nacional (ahora extendida al máximo valor)
         svg
           .append("line")
           .attr("x1", natStartX)
@@ -328,7 +347,7 @@ export default function RadarChart({ data, country }) {
           .attr("cx", govX)
           .attr("cy", govY)
           .attr("r", circleRadiusScale(govData.value || 0))
-          .attr("fill", countryColor)
+          .attr("fill", govData.value != null ? countryColor : noDataColor)
           .attr("tabindex", 0)
           .on("focus", function (event) {
             setTootip({
@@ -341,13 +360,53 @@ export default function RadarChart({ data, country }) {
             setTootip(null);
           });
 
-        // Punto para el valor nacional
+        // Punto para p10
         svg
           .append("circle")
-          .attr("cx", natX)
-          .attr("cy", natY)
+          .attr("cx", p10X)
+          .attr("cy", p10Y)
+          .attr("r", circleRadiusScale(natData.p10 || 0))
+          .attr("fill", natData.p10 != null ? govColor : noDataColor)
+          .attr("fill-opacity", 0.5)
+          .attr("tabindex", 0)
+          .on("focus", function (event) {
+            setTootip({
+              ...valuesTooltip,
+              x: event.pageX,
+              y: event.pageY,
+            });
+          })
+          .on("blur", function () {
+            setTootip(null);
+          });
+
+        // Punto para el promedio nacional
+        svg
+          .append("circle")
+          .attr("cx", radiusScale(natData.value || 0) * Math.cos(natAngle - Math.PI / 2))
+          .attr("cy", radiusScale(natData.value || 0) * Math.sin(natAngle - Math.PI / 2))
           .attr("r", circleRadiusScale(natData.value || 0))
-          .attr("fill", govColor)
+          .attr("fill", natData.value != null ? govColor : noDataColor)
+          .attr("tabindex", 0)
+          .on("focus", function (event) {
+            setTootip({
+              ...valuesTooltip,
+              x: event.pageX,
+              y: event.pageY,
+            });
+          })
+          .on("blur", function () {
+            setTootip(null);
+          });
+
+        // Punto para p90
+        svg
+          .append("circle")
+          .attr("cx", p90X)
+          .attr("cy", p90Y)
+          .attr("r", circleRadiusScale(natData.p90 || 0))
+          .attr("fill", natData.p90 != null ? govColor : noDataColor)
+          .attr("fill-opacity", 0.5)
           .attr("tabindex", 0)
           .on("focus", function (event) {
             setTootip({
@@ -580,8 +639,8 @@ export default function RadarChart({ data, country }) {
           />
         </button>
       </div>
-
-      <div className="flex justify-center gap-s py-m">
+<div className="flex flex-col gap-xxs items-center">
+   <div className="flex justify-center gap-s py-m">
         <div className="flex gap-xs items-center">
           <div
             className="w-4 h-1 bg-blue-CAF"
@@ -594,6 +653,14 @@ export default function RadarChart({ data, country }) {
           <p>
             {getTextById(jurisdictionsCopy, "average", lang)}{" "}
             {country[`name_${lang}`]}
+          </p>
+        </div>
+</div>
+     
+        <div className="flex gap-xs items-center">
+          <div className="w-4 h-1 " style={{ backgroundColor: govColor,opacity:0.5 }} />
+          <p>
+          Percentiles 10 y 90 para la media de cada indicador
           </p>
         </div>
       </div>

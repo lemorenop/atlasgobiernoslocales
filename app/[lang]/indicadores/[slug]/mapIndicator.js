@@ -30,7 +30,9 @@ export default function MapIndicator({
 Object.keys(governments).forEach(key => {
  if(governments[key].countryName==="Guatemala") govs.push(governments[key]);
 });
-console.log(govs)
+
+
+
   const localType =
     selectedCountryIso3 === "PER" ||
     selectedCountryIso3 === "SLV" ||
@@ -121,7 +123,6 @@ console.log(govs)
 
     // For non-percentage indicators, use logarithmic scale
     const minValue = 0; // Force minimum to be 0
-    console.log("maxPerLevel",maxPerLevel)
     const maxValue = maxPerLevel[`nivel${selectedNivel.value}`];
 
     // Create logarithmic scale
@@ -485,7 +486,7 @@ console.log(govs)
                     )})`,
                   }}
                 />
-              {!isPercentage && colorScale.isLogarithmic &&  <div className=" h-[8px]">
+              {((!isPercentage && colorScale.isLogarithmic) || isPercentage && indicator.max !== 100) &&  <div className=" h-[8px]">
                   <div
                     style={{ borderLeftColor: d3.interpolateBlues(1) }}
                     className={`w-0 h-0 border-[4px] border-transparent border-r-0 border-l-[8px] border-l-[${d3.interpolateBlues(
@@ -578,7 +579,7 @@ console.log(govs)
           <p className="description text-black font-bold">
             {tooltip.governmentCode}
           </p>
-          <p className="description text-black font-normal">{tooltip.value}</p>
+          <p className="description text-black font-normal">{indicator[`name_${lang}`]}: {tooltip.value}</p>
         </div>
       )}
     </div>

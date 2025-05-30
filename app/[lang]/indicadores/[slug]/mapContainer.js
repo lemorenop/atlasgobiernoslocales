@@ -6,6 +6,7 @@ import { getTextById } from "@/app/utils/textUtils";
 import { IndicatorDataContext } from "./indicatorDataProvider";
 import MapIndicator from "./mapIndicator";
 import Loader from "@/app/[lang]/components/loader";
+import { EmailIcon } from "next-share";
 
 export default function MapContainer({
   countries,
@@ -38,7 +39,6 @@ export default function MapContainer({
       maxPerLevel.nivel2 = Math.max(...nivel2);
       maxPerLevel.nivel3 = Math.max(...nivel3);
   }
-
   const [selectedCountry, setSelectedCountry] = useState({
     name_es: "Todos",
     name_en: "All",
@@ -63,13 +63,13 @@ export default function MapContainer({
       disabled: false,
     },
   ]);
+
   useEffect(() => {
     fetchCoordinates();
     async function fetchCoordinates() {
       if (selectedCountry.iso3 !== "all") {
         const response = await fetch(`/api/countries/${selectedCountry.iso3}`);
         const geojson = await response.json();
-        console.log(geojson);
         setCountryCoordinates(geojson);
       }
     }

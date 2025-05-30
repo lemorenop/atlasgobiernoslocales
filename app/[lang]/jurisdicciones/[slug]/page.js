@@ -43,7 +43,7 @@ export default async function Jurisdiction({ params }) {
     (elm) => indicatorsID.includes(elm.indicator_code) && elm.value !== null
   );
   return (
-    <main className="flex flex-col justify-start text-black bg-white ">
+    <main className="flex flex-col justify-start text-black bg-white flex-grow ">
       {jurisdictionsCopy && government && indicators && (
         <JurisdictionDataProvider
           slug={slug}
@@ -58,7 +58,7 @@ export default async function Jurisdiction({ params }) {
               <StickyBar />
               <div className="px-l md:p-[80px] grid lg:grid-cols-12 gap-xl max-md:py-[48px]">
                 <div className="lg:col-span-4 flex flex-col gap-[24px] justify-center">
-                  <h2 className="text-h1 font-bold mb-4 text-navy">
+                  <h2 className="max-md:text-[32px] text-h1 font-bold mb-4 text-navy">
                     {getTextById(jurisdictionsCopy, "indicators_title", lang)}
                   </h2>
                   <div className="bg-background p-xl ">

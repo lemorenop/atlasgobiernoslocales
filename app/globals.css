@@ -18,8 +18,9 @@
   --color-navy: var(--color-navy);
   --color-placeholder: var(--color-placeholder);
 }
+
 @layer base {
-  .text-black{
+  .text-black {
     color: var(--color-black);
   }
   .text-h1 {
@@ -70,7 +71,7 @@
   .caption {
     font-size: var(--caption-size);
     line-height: var(--caption-line-height);
-    letter-spacing: 0.96px
+    letter-spacing: 0.96px;
   }
 }
 
@@ -85,7 +86,7 @@
   --background: #ffffff;
   --foreground: #171717;
   --spacing-xxs: 0.25rem; /*4px*/
-  --spacing-xs: 0.5rem; /*8px*/  
+  --spacing-xs: 0.5rem; /*8px*/
   --spacing-s: 8px; /* Valor por defecto (mobile) */
   --spacing-m: 1rem; /*16px*/
   --spacing-l: 1.5rem; /*24px*/
@@ -123,8 +124,8 @@
   height: 100%;
   background-image: repeating-linear-gradient(
     45deg,
-    var(--color-navy), /* color de la franja */
-    var(--color-navy) 82px,
+    var(--color-navy),
+    /* color de la franja */ var(--color-navy) 82px,
     transparent 82px,
     transparent 164px
   );
@@ -134,29 +135,29 @@
   height: 100%;
   background-image: repeating-linear-gradient(
     -45deg,
-    #428DBA, /* color de la franja */
-    #428DBA 53px,
+    #428dba,
+    /* color de la franja */ #428dba 53px,
     transparent 53px,
     transparent 106px
   );
 }
 
 .loader {
-  border: 5px solid #004A80;
+  border: 5px solid #004a80;
   border-bottom-color: transparent;
   border-radius: 50%;
   display: inline-block;
   box-sizing: border-box;
   animation: rotation 1s linear infinite;
+}
+@keyframes rotation {
+  0% {
+    transform: rotate(0deg);
   }
-  @keyframes rotation {
-    0% {
-        transform: rotate(0deg);
-    }
-    100% {
-        transform: rotate(360deg);
-    }
-    } 
+  100% {
+    transform: rotate(360deg);
+  }
+}
 
 @media (prefers-color-scheme: dark) {
   :root {
@@ -189,7 +190,6 @@ body {
   }
 }
 
-
 .specific-underline-style a {
   text-decoration: underline;
 }
@@ -207,16 +207,15 @@ body {
 
 @keyframes flash {
   0% {
-    background-color: #FFF2;
-    box-shadow: 20px 0 #FFF2, -20px 0 var(--color-navy);
+    background-color: #fff2;
+    box-shadow: 20px 0 #fff2, -20px 0 var(--color-navy);
   }
   50% {
     background-color: var(--color-navy);
-    box-shadow: 20px 0 #FFF2, -20px 0 #FFF2;
+    box-shadow: 20px 0 #fff2, -20px 0 #fff2;
   }
   100% {
-    background-color: #FFF2;
-    box-shadow: 20px 0 var(--color-navy), -20px 0 #FFF2;
+    background-color: #fff2;
+    box-shadow: 20px 0 var(--color-navy), -20px 0 #fff2;
   }
 }
-      

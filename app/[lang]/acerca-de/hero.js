@@ -11,7 +11,7 @@ export default function Hero({ lang, copy }) {
           {getTextById(copy, "hero_title", lang)}
         </h1>
         <div className="border-t-[#FFFFFF66] w-full border-t-[1px]"/>
-        <p className="description text-white ">
+        <p className="paragraph-small text-white ">
           {getTextById(copy, "hero_subtitle", lang)}
         </p>
        

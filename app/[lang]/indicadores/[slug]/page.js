@@ -5,7 +5,6 @@ import { getCountries } from "@/app/utils/dataFetchers";
 import MapContainer from "./mapContainer";
 
 import IndicatorDataProvider from "./indicatorDataProvider";
-import Custom404 from "@/app/[lang]/not-found";
 
 export async function generateStaticParams() {
   const slugs = (await fetchData("indicators", "es")).filter((elm) => elm.slug);
@@ -27,16 +26,13 @@ export default async function Indicator({ params }) {
       fetchData("indicators", lang),
       fetchData("indicatorsCopy", lang),
       getCountries(lang),
-
       fetchData("levelPerCountry", lang),
       fetchData("regions", lang),
     ]);
   const currentIndicator = indicators.find(
     (indicator) => indicator.slug === slug
   );
-  if (!currentIndicator) {
-    return <Custom404 lang={lang} />;
-  }
+
   return (
     indicators &&
     copy &&

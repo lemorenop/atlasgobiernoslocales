@@ -87,7 +87,8 @@ export default function Download({ lang, copy }) {
           </>
         )}
       </button>
-
+      <div className="[&_button]:w-full [&_button]:md:max-w-96 [&_svg]:stroke-navy">
+        
       <Select
         lang={lang}
         options={[{options:[
@@ -119,6 +120,8 @@ export default function Download({ lang, copy }) {
         }
         disabled={isJSONLoading}
       />
+      </div>
+
     </div>
   );
 }

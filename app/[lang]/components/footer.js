@@ -76,7 +76,7 @@ export default async function Footer({ lang }) {
         </div>
         <footer className="bg-background text-black px-l md:px-[80px]">
         
-            <div className="pb-[32px] flex flex-col md:flex-row  gap-[32px] md:gap-[80px] pt-[40px] justify-between max-md:flex-wrap">
+            <div className="pb-[32px] flex flex-col md:flex-row  gap-[32px] md:gap-[80px] pt-[40px] justify-between max-lg:flex-wrap">
               <div className="w-full flex flex-col gap-s  max-md:gap-[32px]">
                 <Image
                   src={`/logo_${lang}.png`}
@@ -178,10 +178,14 @@ export default async function Footer({ lang }) {
                 </div>
               </div>
             </div>
-            <div className="pt-s pb-[24px]">
+            <div className="pt-s pb-[24px] flex gap-s items-center">
               <span className="description ">
                 Copyright {year}. {getTextById(footerCopy, "copyright_1", lang)}
               </span>
+              <div className="h-[8px] w-[1px] bg-black"/>
+              <a className="description underline" href={`/${lang}/politica-de-privacidad`}>
+                {getTextById(footerCopy, "copyright_2", lang)}
+              </a>
             </div>
         
         </footer>
