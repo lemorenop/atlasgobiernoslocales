@@ -78,7 +78,6 @@ export default function RadarChart({ data, country }) {
       const margin = { top: 100, right: 60, bottom: 60, left: 60 }; // Add some margin for better spacing
       const innerWidth = width - margin.left - margin.right;
       const innerHeight = height - margin.top - margin.bottom;
-      console.log(innerWidth, innerHeight);
       const radius = Math.min(innerWidth, innerHeight) / 2;
       const innerRadius = radius * 0.15; // 30% of the outer radius for the inner circle
 
@@ -211,7 +210,6 @@ export default function RadarChart({ data, country }) {
           ? indicators.find((ind) => ind.code === indicator)
           : null;
 
-        // console.log(indicatorInfo)
 
         let indicatorName = `Ind ${indicator}`;
         let indDescription = null;
@@ -456,7 +454,6 @@ export default function RadarChart({ data, country }) {
           : null;
         // Add label for the indicator (two lines)
         const labelDistance = radius + (isMobile ? 47 : 50); // Reduced distance to bring text closer
-        console.log(isMobile);
         const labelX =
           isMobile && indicator === 8
             ? labelDistance - 30
