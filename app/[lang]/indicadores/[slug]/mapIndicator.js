@@ -24,14 +24,9 @@ export default function MapIndicator({
   countryCoordinates,
   copy,
   indicator,
-  countries,maxPerLevel
+  countries,
+  maxPerLevel,
 }) {
-  let govs=[]
-Object.keys(governments).forEach(key => {
- if(governments[key].countryName==="Guatemala") govs.push(governments[key]);
-});
-
-
 
   const localType =
     selectedCountryIso3 === "PER" ||
@@ -101,7 +96,6 @@ Object.keys(governments).forEach(key => {
   }, [selectedCountryIso3, countryCoordinates, localType]);
   // Crear escala de colores usando d3
   const colorScale = useMemo(() => {
-
     // For percentage indicators with min/max defined
     if (
       isPercentage &&
@@ -118,8 +112,6 @@ Object.keys(governments).forEach(key => {
         isLogarithmic: false,
       };
     }
-
- 
 
     // For non-percentage indicators, use logarithmic scale
     const minValue = 0; // Force minimum to be 0
@@ -153,7 +145,7 @@ Object.keys(governments).forEach(key => {
     indicator.min,
     indicator.max,
     isPercentage,
-    maxPerLevel
+    maxPerLevel,
   ]);
 
   // Función para obtener el color basado en el valor
@@ -193,8 +185,6 @@ Object.keys(governments).forEach(key => {
     });
     return handleMapLoad(map, lang);
   }
-
-
 
   // Layer styles for each level using tilesets
   const nivel1Layer = {
@@ -331,11 +321,11 @@ Object.keys(governments).forEach(key => {
       governments[feature.properties.codigo_uni]
     ) {
       const map = mapRef.current && mapRef.current.getMap();
-      const { x, y } = map.project([event.lngLat.lng, event.lngLat.lat]);    
+      const { x, y } = map.project([event.lngLat.lng, event.lngLat.lat]);
       if (
-        governments[feature.properties.codigo_uni].value !== undefined && 
-        governments[feature.properties.codigo_uni].value !== null && 
-        typeof governments[feature.properties.codigo_uni].value === "number"    
+        governments[feature.properties.codigo_uni].value !== undefined &&
+        governments[feature.properties.codigo_uni].value !== null &&
+        typeof governments[feature.properties.codigo_uni].value === "number"
       ) {
         const originalValue = governments[feature.properties.codigo_uni].value;
         const displayValue = isPercentage
@@ -343,7 +333,20 @@ Object.keys(governments).forEach(key => {
           : `${originalValue.toLocaleString(
               lang === "es" || lang === "pt" ? "es" : "en"
             )}
-              ${indicator.unit_measure_id === "km2" ? "km2" : ""}`;
+              ${
+                indicator.unit_measure_id === "km2"
+                  ? "km2":indicator.unit_measure_id === "hab_km2"
+                  ?"hab/km2"
+                  : indicator.unit_measure_id === "hab"
+                  ? lang === "es"
+                    ? "habitantes"
+                    : lang === "pt"
+                    ? "habitantes"
+                    : lang === "en"
+                    ? "inhabitants"
+                    : ""
+                  : ""
+              }`;
 
         setTooltip({
           governmentCode: governments[feature.properties.codigo_uni].fullName,
@@ -486,14 +489,14 @@ Object.keys(governments).forEach(key => {
                     )})`,
                   }}
                 />
-              {((!isPercentage && colorScale.isLogarithmic) || isPercentage && indicator.max !== 100) &&  <div className=" h-[8px]">
+                {/* {((!isPercentage && colorScale.isLogarithmic) || isPercentage && indicator.max !== 100) &&  <div className=" h-[8px]">
                   <div
                     style={{ borderLeftColor: d3.interpolateBlues(1) }}
                     className={`w-0 h-0 border-[4px] border-transparent border-r-0 border-l-[8px] border-l-[${d3.interpolateBlues(
                       1
                     )}]`}
                   />
-                </div>}
+                </div>} */}
               </div>
               <div className="text-black flex gap-s justify-between w-full text-[10px]">
                 {!isPercentage && colorScale.isLogarithmic ? (
@@ -506,7 +509,6 @@ Object.keys(governments).forEach(key => {
                             lang === "es" || lang === "pt" ? "es" : "en"
                           )}
                           {indicator.unit_measure_id === "km2" ? " km2" : ""}
-                       
                         </>
                       ) : (
                         <>
@@ -579,7 +581,9 @@ Object.keys(governments).forEach(key => {
           <p className="description text-black font-bold">
             {tooltip.governmentCode}
           </p>
-          <p className="description text-black font-normal">{indicator[`name_${lang}`]}: {tooltip.value}</p>
+          <p className="description text-black font-normal">
+            {indicator[`name_${lang}`]}: {tooltip.value}
+          </p>
         </div>
       )}
     </div>

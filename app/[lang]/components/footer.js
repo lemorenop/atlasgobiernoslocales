@@ -77,7 +77,7 @@ export default async function Footer({ lang }) {
         <footer className="bg-background text-black px-l md:px-[80px]">
         
             <div className="pb-[32px] flex flex-col md:flex-row  gap-[32px] md:gap-[80px] pt-[40px] justify-between max-lg:flex-wrap">
-              <div className="w-full flex flex-col gap-s  max-md:gap-[32px]">
+              <div className="w-fit flex-1 flex flex-col gap-s  max-md:gap-[32px]">
                 <Image
                   src={`/logo_${lang}.png`}
                   alt="CAF Network Visualizer"

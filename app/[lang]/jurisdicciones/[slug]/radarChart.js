@@ -9,7 +9,7 @@ import Loader from "@/app/[lang]/components/loader";
 import { noDataColor } from "@/app/utils/mapSettings";
 const govColor = "#1774AD";
 const countryColor = "#55C7D5";
-const percentileColor="#024067"
+// const percentileColor = "#024067";
 
 export default function RadarChart({ data, country }) {
   const { government, indicators, jurisdictionsCopy } = useContext(
@@ -174,14 +174,14 @@ export default function RadarChart({ data, country }) {
         const natPoint = nationalData.find((d) => d.indicador_code === id);
         // Los valores están entre 0 y 1, multiplicamos por 100 para la escala del gráfico
         const value = natPoint ? parseFloat(natPoint.value) * 100 : null;
-        const p10 = natPoint ? parseFloat(natPoint.p10) * 100 : null;
-        const p90 = natPoint ? parseFloat(natPoint.p90) * 100 : null;
+        // const p10 = natPoint ? parseFloat(natPoint.p10) * 100 : null;
+        // const p90 = natPoint ? parseFloat(natPoint.p90) * 100 : null;
 
         return {
           indicator_code: id,
           value: isNaN(value) ? null : value,
-          p10: isNaN(p10) ? null : p10,
-          p90: isNaN(p90) ? null : p90,
+          // p10: isNaN(p10) ? null : p10,
+          // p90: isNaN(p90) ? null : p90,
         };
       });
 
@@ -247,26 +247,26 @@ export default function RadarChart({ data, country }) {
               }`
             : getTextById(jurisdictionsCopy, "no_data", lang);
 
-        const displayP10Value =
-          natData.p10 != null
-            ? `${parseFloat(natData.p10).toFixed(0)} ${
-                indicatorInfo.unit?.unit ? indicatorInfo.unit?.unit : ""
-              }`
-            : getTextById(jurisdictionsCopy, "no_data", lang);
+        // const displayP10Value =
+        //   natData.p10 != null
+        //     ? `${parseFloat(natData.p10).toFixed(0)} ${
+        //         indicatorInfo.unit?.unit ? indicatorInfo.unit?.unit : ""
+        //       }`
+        //     : getTextById(jurisdictionsCopy, "no_data", lang);
 
-        const displayP90Value =
-          natData.p90 != null
-            ? `${parseFloat(natData.p90).toFixed(0)} ${
-                indicatorInfo.unit?.unit ? indicatorInfo.unit?.unit : ""
-              }`
-            : getTextById(jurisdictionsCopy, "no_data", lang);
+        // const displayP90Value =
+        //   natData.p90 != null
+        //     ? `${parseFloat(natData.p90).toFixed(0)} ${
+        //         indicatorInfo.unit?.unit ? indicatorInfo.unit?.unit : ""
+        //       }`
+        //     : getTextById(jurisdictionsCopy, "no_data", lang);
 
         const valuesTooltip = {
           title: indicatorName,
           valueNat: displayNatValue,
           valueGov: displayGovValue,
-          valueP10: displayP10Value,
-          valueP90: displayP90Value,
+          // valueP10: displayP10Value,
+          // valueP90: displayP90Value,
         };
 
         // Draw the segment background
@@ -319,22 +319,22 @@ export default function RadarChart({ data, country }) {
         // Calcular el máximo valor entre promedio, p10 y p90 para la línea
         const maxValue = Math.max(
           natData.value || 0,
-          natData.p10 || 0,
-          natData.p90 || 0
+          // natData.p10 || 0,
+          // natData.p90 || 0
         );
 
         const natX = radiusScale(maxValue) * Math.cos(natAngle - Math.PI / 2);
         const natY = radiusScale(maxValue) * Math.sin(natAngle - Math.PI / 2);
 
         // Calcular posiciones para p10 y p90
-        const p10X =
-          radiusScale(natData.p10 || 0) * Math.cos(natAngle - Math.PI / 2);
-        const p10Y =
-          radiusScale(natData.p10 || 0) * Math.sin(natAngle - Math.PI / 2);
-        const p90X =
-          radiusScale(natData.p90 || 0) * Math.cos(natAngle - Math.PI / 2);
-        const p90Y =
-          radiusScale(natData.p90 || 0) * Math.sin(natAngle - Math.PI / 2);
+        // const p10X =
+        //   radiusScale(natData.p10 || 0) * Math.cos(natAngle - Math.PI / 2);
+        // const p10Y =
+        //   radiusScale(natData.p10 || 0) * Math.sin(natAngle - Math.PI / 2);
+        // const p90X =
+        //   radiusScale(natData.p90 || 0) * Math.cos(natAngle - Math.PI / 2);
+        // const p90Y =
+        //   radiusScale(natData.p90 || 0) * Math.sin(natAngle - Math.PI / 2);
 
         // Calcular el punto de inicio para las líneas (perpendicular al círculo interior)
         const govStartX = innerRadius * Math.cos(govAngle - Math.PI / 2);
@@ -382,42 +382,42 @@ export default function RadarChart({ data, country }) {
           });
 
         // Punto para p10
-        svg
-          .append("circle")
-          .attr("cx", p10X)
-          .attr("cy", p10Y)
-          .attr("r", circleRadiusScale(natData.p10 || 0))
-          .attr("fill", natData.p10 != null ? percentileColor : noDataColor)
-          .attr("tabindex", 0)
-          .on("focus", function (event) {
-            setTootip({
-              ...valuesTooltip,
-              x: event.pageX,
-              y: event.pageY,
-            });
-          })
-          .on("blur", function () {
-            setTootip(null);
-          });
+        // svg
+        //   .append("circle")
+        //   .attr("cx", p10X)
+        //   .attr("cy", p10Y)
+        //   .attr("r", circleRadiusScale(natData.p10 || 0))
+        //   .attr("fill", natData.p10 != null ? percentileColor : noDataColor)
+        //   .attr("tabindex", 0)
+        //   .on("focus", function (event) {
+        //     setTootip({
+        //       ...valuesTooltip,
+        //       x: event.pageX,
+        //       y: event.pageY,
+        //     });
+        //   })
+        //   .on("blur", function () {
+        //     setTootip(null);
+        //   });
 
         // Punto para p90
-        svg
-          .append("circle")
-          .attr("cx", p90X)
-          .attr("cy", p90Y)
-          .attr("r", circleRadiusScale(natData.p90 || 0))
-          .attr("fill", natData.p90 != null ? percentileColor : noDataColor)
-          .attr("tabindex", 0)
-          .on("focus", function (event) {
-            setTootip({
-              ...valuesTooltip,
-              x: event.pageX,
-              y: event.pageY,
-            });
-          })
-          .on("blur", function () {
-            setTootip(null);
-          });
+        // svg
+        //   .append("circle")
+        //   .attr("cx", p90X)
+        //   .attr("cy", p90Y)
+        //   .attr("r", circleRadiusScale(natData.p90 || 0))
+        //   .attr("fill", natData.p90 != null ? percentileColor : noDataColor)
+        //   .attr("tabindex", 0)
+        //   .on("focus", function (event) {
+        //     setTootip({
+        //       ...valuesTooltip,
+        //       x: event.pageX,
+        //       y: event.pageY,
+        //     });
+        //   })
+        //   .on("blur", function () {
+        //     setTootip(null);
+        //   });
         // Punto para el promedio nacional
         svg
           .append("circle")
@@ -442,7 +442,6 @@ export default function RadarChart({ data, country }) {
           .on("blur", function () {
             setTootip(null);
           });
-
 
         // Split the indicator name into two lines
         const words = indicatorName.split(" ");
@@ -611,7 +610,7 @@ export default function RadarChart({ data, country }) {
                     className="w-4 h-4 rounded-[100%] bg-blue-CAF"
                     style={{ backgroundColor: countryColor }}
                   />
-                  <p>{tooltip.valueGov}</p>
+                  <p>{government.name}: {tooltip.valueGov}</p>
                 </div>
               )}
               {(tooltip.valueNat || tooltip.valueNat === "0") && (
@@ -620,18 +619,20 @@ export default function RadarChart({ data, country }) {
                     className="w-4 h-4 rounded-[100%]"
                     style={{ backgroundColor: govColor }}
                   />
-                  <p>{tooltip.valueNat}</p>
+                  <p>{getTextById(jurisdictionsCopy, "average", lang)} {country[`name_${lang}`]}: {tooltip.valueNat}</p>
                 </div>
               )}
-              {(tooltip.valueP10 || tooltip.valueP90) && (
+              {/* {(tooltip.valueP10 || tooltip.valueP90) && (
                 <div className="flex items-center gap-xs">
                   <div
                     className="w-4 h-4 rounded-[100%]"
                     style={{ backgroundColor: percentileColor }}
                   />
-                  <p>{tooltip.valueP10} - {tooltip.valueP90}</p>
+                  <p>
+                    {tooltip.valueP10} - {tooltip.valueP90}
+                  </p>
                 </div>
-              )}
+              )} */}
             </>
           )}
         </div>
@@ -682,7 +683,9 @@ export default function RadarChart({ data, country }) {
               className="w-4 h-1 bg-blue-CAF"
               style={{ backgroundColor: countryColor }}
             />
-            <p>{getTextById(jurisdictionsCopy, "average", lang)}{" "}{government.name}</p>
+            <p>
+              {government.name}
+            </p>
           </div>
           <div className="flex gap-xs items-center">
             <div className="w-4 h-1 " style={{ backgroundColor: govColor }} />
@@ -693,15 +696,13 @@ export default function RadarChart({ data, country }) {
           </div>
         </div>
 
-        <div className="flex gap-xs items-center">
+        {/* <div className="flex gap-xs items-center">
           <div
             className="w-4 h-1 "
             style={{ backgroundColor: percentileColor }}
           />
-          <p>Promedios para los percentiles 10 y 90
-
-</p>
-        </div>
+          <p>Promedios para los percentiles 10 y 90</p>
+        </div> */}
       </div>
     </>
   );

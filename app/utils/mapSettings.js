@@ -66,7 +66,7 @@ export const latinAmericaView = {
 };
 
 export const defaultView = {
-  0: [-82.0, -38.0],  // Oeste: -82° para mostrar todo el continente, Sur: -38° para cortar en la Pampa
+  0: [-90.0, -38.0],  // Oeste: -82° para mostrar todo el continente, Sur: -38° para cortar en la Pampa
   1: [-34.0, 23.0]    // Este: -34° para mostrar toda la costa este, Norte: 23° para mostrar Cuba completa
 }
 
