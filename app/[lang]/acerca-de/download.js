@@ -9,28 +9,17 @@ export default function Download({ lang, copy }) {
   const [isCSVLoading, setIsCSVLoading] = useState(false);
   const [isJSONLoading, setIsJSONLoading] = useState(false);
   const [selectedOption, setSelectedOption] = useState("");
-  const SPREADSHEET_URL =
-    "https://docs.google.com/spreadsheets/d/e/2PACX-1vRKwKAsoOMcUDMkZVh7AxfKGevtavC83xfz_Gnf0B9HFBAT4-3_7jcly1xXR5zVmxcJ7a3cKaMcNgFv/pub?output=csv";
+  const SPREADSHEET_URL = "https://drive.google.com/uc?export=download&id=1FK8nvXUcEGYZVOL3AeHRmv_IfPcATVMm";
+
 
   const handleCSVDownload = async (e) => {
     e.preventDefault();
     setIsCSVLoading(true);
 
     try {
-      const response = await fetch(SPREADSHEET_URL);
-      if (!response.ok) throw new Error("Download failed");
-
-      const blob = await response.blob();
-      const url = window.URL.createObjectURL(blob);
-      const a = document.createElement("a");
-      a.href = url;
-      a.download = `data_${lang}.csv`;
-      document.body.appendChild(a);
-      a.click();
-      window.URL.revokeObjectURL(url);
-      document.body.removeChild(a);
+      window.open(SPREADSHEET_URL, '_blank');
     } catch (error) {
-      console.error("Error downloading file:", error);
+      console.error("Error opening download link:", error);
     } finally {
       setIsCSVLoading(false);
     }
@@ -87,8 +76,7 @@ export default function Download({ lang, copy }) {
           </>
         )}
       </button>
-      <div className="[&_button]:w-full [&_button]:md:max-w-96 [&_svg]:stroke-navy">
-        
+      <div className="[&_button]:w-full [&_button]:md:max-w-96 [&_svg]:stroke-navy">       
       <Select
         lang={lang}
         options={[{options:[
