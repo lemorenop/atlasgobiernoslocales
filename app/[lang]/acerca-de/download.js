@@ -9,7 +9,7 @@ export default function Download({ lang, copy }) {
   const [isCSVLoading, setIsCSVLoading] = useState(false);
   const [isJSONLoading, setIsJSONLoading] = useState(false);
   const [selectedOption, setSelectedOption] = useState("");
-  const SPREADSHEET_URL = "https://drive.google.com/uc?export=download&id=1FK8nvXUcEGYZVOL3AeHRmv_IfPcATVMm";
+  const SPREADSHEET_URL = "https://drive.google.com/uc?export=download&id=1bqe2sPoRfeCmsmvRL5M0Kfk2etzvwFI2";
 
 
   const handleCSVDownload = async (e) => {
