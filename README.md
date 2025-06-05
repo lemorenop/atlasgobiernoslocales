@@ -51,12 +51,27 @@ pnpm dev
 bun dev
 ```
 
-
 Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
 
 You can start editing the page by modifying `app/page.js`. The page auto-updates as you edit the file.
 
 This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+
+## Deployment
+
+This project is automatically deployed to Azure Web App using GitHub Actions. To trigger a deployment:
+
+1. Make your changes and commit them
+2. Include the word `#deploy` in your commit message
+3. Push to the main branch
+
+For example:
+```bash
+git commit -m "Update interface #deploy"
+git push origin main
+```
+
+The deployment will only be triggered when the commit message contains `#deploy`. This helps control when deployments occur and prevents unnecessary deployments.
 
 ## Learn More
 
