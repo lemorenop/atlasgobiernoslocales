@@ -94,7 +94,8 @@ async function createIndexFiles() {
           parentName: parentGov ? parentGov.name : '',
           countryName: country ? country[config.countryNameField] : '',
           completeName: gov[config.completeNameField] || '',
-          fullName: gov.name + ', ' + gov[config.completeNameField]
+          countryCode: country ? gov.country_iso3 : '',
+          // fullName: gov.name + ', ' + gov[config.completeNameField]
         };
       });
       

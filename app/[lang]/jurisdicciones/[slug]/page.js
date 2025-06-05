@@ -10,6 +10,7 @@ import {
 } from "@/app/utils/dataFetchers";
 import StickyBar from "./stickyBar";
 import JurisdictionDataProvider from "./jurisdictionDataProvider";
+import DotsChart from "./dotsChart";
 export default async function Jurisdiction({ params }) {
   const { lang, slug } = await params;
   const [
@@ -19,11 +20,12 @@ export default async function Jurisdiction({ params }) {
     unitMeasures,
     jurisdictionData,
   ] = await Promise.all([
-    fetchData("jurisdictionsCopy",lang),
-      fetchData("indicators",lang),
+    fetchData("jurisdictionsCopy", lang),
+    fetchData("indicators", lang),
     getGovernments(lang, slug).then((data) => data[0]),
-    fetchData("unitMeasures",lang),
+    fetchData("unitMeasures", lang),
     getJurisdictionData(slug),
+    getGovernments(lang, "ARG"),
   ]);
   const country = government
     ? await getCountries(lang, government.country_iso3).then((data) => data[0])
@@ -44,15 +46,16 @@ export default async function Jurisdiction({ params }) {
   );
   return (
     <main className="flex flex-col justify-start text-black bg-white flex-grow ">
-      {jurisdictionsCopy && government && indicators && (
+      {jurisdictionsCopy && government && indicators && country && (
         <JurisdictionDataProvider
+          country={country}
           slug={slug}
           lang={lang}
           indicators={indicators}
           jurisdictionsCopy={jurisdictionsCopy}
           government={government}
         >
-          <Hero data={jurisdictionData} yearPoblacion={yearPoblacion} />
+          {/* <Hero data={jurisdictionData} yearPoblacion={yearPoblacion} /> */}
           {existRadarData && (
             <div className="">
               <StickyBar />
@@ -80,11 +83,11 @@ export default async function Jurisdiction({ params }) {
                 </div>
 
                 <div className="flex flex-col lg:col-span-8 min-h-[400px] md:min-h-[600px] max-h-screen">
-                  <RadarChart
-                    country={country}
-                    data={jurisdictionData}
-                  
-                  />
+                  <RadarChart country={country} data={jurisdictionData} />
+                </div>
+                <div className="col-span-12 px-[80px]">
+                  {" "}
+                  <DotsChart />
                 </div>
               </div>
             </div>

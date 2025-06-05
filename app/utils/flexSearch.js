@@ -53,9 +53,11 @@ async function newSearchIndex() {
           "parentName",
           "countryName",
           "completeName",
-          "fullName",
+          // "fullName",
         ],
-        store: ["id", "name", "parentName", "countryName", "completeName", "fullName"]
+        store: ["id", "name", "parentName", "countryName", "completeName", 
+          // "fullName"
+        ]
 
       },
     });

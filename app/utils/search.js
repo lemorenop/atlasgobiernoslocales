@@ -40,7 +40,7 @@ export function search(query) {
   const parentResults = index.search(query, { index: "parentName", limit: 10, enrich: true });
   const countryResults = index.search(query, { index: "countryName", limit: 10, enrich: true });
   const completeNameResults = index.search(query, { index: "completeName", limit: 10, enrich: true });
-  const fullNameResults = index.search(query, { index: "fullName", limit: 10, enrich: true });
+  // const fullNameResults = index.search(query, { index: "fullName", limit: 10, enrich: true });
 
 
   // Combine all results and remove duplicates based on id
@@ -49,7 +49,7 @@ export function search(query) {
     ...parentResults, 
     ...countryResults,
     ...completeNameResults,
-    ...fullNameResults
+    // ...fullNameResults
   ];
   
   // Extract documents from results

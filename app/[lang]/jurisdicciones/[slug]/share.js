@@ -12,7 +12,7 @@ import {
 } from "next-share";
 import { useState, useEffect, useContext } from "react";
 import { JurisdictionDataContext } from "./jurisdictionDataProvider";
-export default function Share() {
+export default function Share({color="#fff"}) {
   const { government, lang, jurisdictionsCopy } = useContext(
     JurisdictionDataContext
   );
@@ -35,18 +35,18 @@ export default function Share() {
         <div className="flex gap-xs items-center">
           <TwitterShareButton url={url} title={shareText}>
             <div className="md:w-12 w-8">
-            <TwitterIcon size={"100%"} round bgStyle={{ fill: "transparent" }} />
+            <TwitterIcon iconFillColor={color} size={"100%"} round bgStyle={{ fill: "transparent" }} />
             </div>
             
           </TwitterShareButton>{" "}
           <FacebookShareButton url={url} quote={shareText}>
-            <FacebookIcon size={36} round bgStyle={{ fill: "transparent" }} />
+            <FacebookIcon iconFillColor={color} size={36} round bgStyle={{ fill: "transparent" }} />
           </FacebookShareButton>
           <LinkedinShareButton url={url}>
-            <LinkedinIcon size={36} round bgStyle={{ fill: "transparent" }} />
+            <LinkedinIcon iconFillColor={color} size={36} round bgStyle={{ fill: "transparent" }} />
           </LinkedinShareButton>
           <EmailShareButton url={url} subject={shareText} body="body">
-            <EmailIcon size={36} round bgStyle={{ fill: "#004A80" }} />
+            <EmailIcon iconFillColor={color} size={36} round bgStyle={{ fill:color==="#fff" ? "#004A80" : "#fff" }} />
           </EmailShareButton>
         </div>
       </div>

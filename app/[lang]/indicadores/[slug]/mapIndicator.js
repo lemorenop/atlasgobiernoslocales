@@ -349,14 +349,14 @@ export default function MapIndicator({
               }`;
 
         setTooltip({
-          governmentCode: governments[feature.properties.codigo_uni].fullName,
+          governmentCode: `${governments[feature.properties.codigo_uni].name} ${governments[feature.properties.codigo_uni].completeName}`,
           value: displayValue,
           x: x,
           y: y,
         });
       } else {
         setTooltip({
-          governmentCode: governments[feature.properties.codigo_uni].fullName,
+          governmentCode: `${governments[feature.properties.codigo_uni].name} ${governments[feature.properties.codigo_uni].completeName}`,
           value: getTextById(copy, "no_data", lang),
           x: x,
           y: y,
