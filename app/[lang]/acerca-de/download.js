@@ -30,7 +30,7 @@ export default function Download({ lang, copy }) {
     setSelectedOption(value);
 
     try {
-      const fileName = value.id === "regional" ? "nivel_1_low.json" : "nivel_2_3_low.json";
+      const fileName = value.id === "regional" ? "nivel_1_low.json" : "nivel_2_3_low.gpkg";
       const response = await fetch(`/maps/${fileName}`);
       if (!response.ok) throw new Error("Download failed");
 
@@ -40,7 +40,7 @@ export default function Download({ lang, copy }) {
       a.href = url;
       const downloadName = value.id === "regional" 
         ? `nivel_1.json`
-        : `nivel_2_3.json`;
+        : `nivel_2_3.gpkg`;
       a.download = downloadName;
       document.body.appendChild(a);
       a.click();

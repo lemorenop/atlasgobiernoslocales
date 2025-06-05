@@ -28,11 +28,12 @@ export default async function Jurisdiction({ params }) {
   const country = government
     ? await getCountries(lang, government.country_iso3).then((data) => data[0])
     : null;
-  const yearPoblacion = government
+    const years=government
     ? await getYearData(lang, government.country_iso3).then(
-        (data) => data[0].year_population
-      )
-    : null;
+        (data) => data[0]
+      ): null;
+  const yearPoblacion = years? years.year_population : null
+    const yearIndicators=years? years.year_indicators : null
   const indicators = indicatorsAll.map((elm) => {
     const unit = unitMeasures.find((unit) => unit.id === elm.unit_measure_id);
     elm.unit = unit;
@@ -81,7 +82,7 @@ export default async function Jurisdiction({ params }) {
 
                 <div className="flex flex-col lg:col-span-8 min-h-[400px] md:min-h-[600px] max-h-screen">
                   <RadarChart
-                  yearPoblacion={yearPoblacion}
+                  yearIndicators={yearIndicators}
                     country={country}
                     data={jurisdictionData}
                   

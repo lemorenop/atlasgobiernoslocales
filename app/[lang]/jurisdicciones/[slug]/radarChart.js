@@ -11,7 +11,7 @@ const govColor = "#1774AD";
 const countryColor = "#55C7D5";
 // const percentileColor = "#024067";
 
-export default function RadarChart({ data, country, yearPoblacion }) {
+export default function RadarChart({ data, country, yearIndicators }) {
   const { government, indicators, jurisdictionsCopy } = useContext(
     JurisdictionDataContext
   );
@@ -170,7 +170,7 @@ export default function RadarChart({ data, country, yearPoblacion }) {
       // Process national average data
       const processedNationalData = indicatorsID.map((id) => {
         // Buscar usando el campo correcto del CSV (indicador_code)
-        const natPoint = nationalData.find((d) => d.indicador_code === id);
+        const natPoint = nationalData.find((d) => d.indicator_code === id);
         // Los valores están entre 0 y 1, multiplicamos por 100 para la escala del gráfico
         const value = natPoint ? parseFloat(natPoint.value) * 100 : null;
         // const p10 = natPoint ? parseFloat(natPoint.p10) * 100 : null;
@@ -647,7 +647,7 @@ export default function RadarChart({ data, country, yearPoblacion }) {
           }}
           onMouseOver={(event) => {
             setTootip({
-              title: getTextById(jurisdictionsCopy, "tooltip_info", lang,[{id:"year",replace:yearPoblacion}]),
+              title: getTextById(jurisdictionsCopy, "tooltip_info", lang,[{id:"year",replace:yearIndicators}]),
               x: event.pageX - 50, // Adjust for scrolling
               y: event.pageY, // Adjust for scrolling
             });
