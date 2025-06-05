@@ -14,7 +14,7 @@ import { useState, useEffect, useMemo, useRef } from "react";
 import { Map, Source, Layer, NavigationControl } from "react-map-gl/mapbox";
 import "mapbox-gl/dist/mapbox-gl.css";
 import * as d3 from "d3";
-import { getTextById } from "@/app/utils/textUtils";
+import { getTextById, formatValue } from "@/app/utils/textUtils";
 
 export default function MapIndicator({
   selectedNivel,
@@ -27,7 +27,6 @@ export default function MapIndicator({
   countries,
   maxPerLevel,
 }) {
-
   const localType =
     selectedCountryIso3 === "PER" ||
     selectedCountryIso3 === "SLV" ||
@@ -329,14 +328,23 @@ export default function MapIndicator({
       ) {
         const originalValue = governments[feature.properties.codigo_uni].value;
         const displayValue = isPercentage
-          ? parseFloat((originalValue * 100).toFixed(2)) + " %"
-          : `${originalValue.toLocaleString(
-              lang === "es" || lang === "pt" ? "es" : "en"
+          ? formatValue(
+              originalValue * 100,
+              indicator.unit_measure_id,
+              lang,
+              true
+            )
+          : `${formatValue(
+              originalValue,
+              indicator.unit_measure_id,
+              lang,
+              false
             )}
               ${
                 indicator.unit_measure_id === "km2"
-                  ? "km2":indicator.unit_measure_id === "hab_km2"
-                  ?"hab/km2"
+                  ? "km2"
+                  : indicator.unit_measure_id === "hab_km2"
+                  ? "hab/km2"
                   : indicator.unit_measure_id === "hab"
                   ? lang === "es"
                     ? "habitantes"
@@ -500,26 +508,41 @@ export default function MapIndicator({
               </div>
               <div className="text-black flex gap-s justify-between w-full text-[10px]">
                 {!isPercentage && colorScale.isLogarithmic ? (
-                  // Show intermediate values for logarithmic scale
-                  colorScale.ticks.map((tick, i) => (
-                    <span key={i}>
-                      {i === colorScale.ticks.length - 1 ? (
-                        <>
-                          {tick.toLocaleString(
-                            lang === "es" || lang === "pt" ? "es" : "en"
+                  <>
+                    {
+                      // Show intermediate values for logarithmic scale
+                      colorScale.ticks.map((tick, i) => (
+                        <span key={i}>
+                          {i === colorScale.ticks.length - 1 ? (
+                            <>
+                              {formatValue(
+                                tick,
+                                indicator.unit_measure_id,
+                                lang,
+                                false
+                              )}
+                              +
+                              {indicator.unit_measure_id === "km2"
+                                ? " km2"
+                                : ""}
+                              {indicator.unit_measure_id === "hab_km2"
+                                ? " hab/km2"
+                                : ""}
+                            </>
+                          ) : (
+                            <>
+                              {formatValue(
+                                tick,
+                                indicator.unit_measure_id,
+                                lang,
+                                false
+                              )}
+                            </>
                           )}
-                          {indicator.unit_measure_id === "km2" ? " km2" : ""}
-                        </>
-                      ) : (
-                        <>
-                          {tick.toLocaleString(
-                            lang === "es" || lang === "pt" ? "es" : "en"
-                          )}
-                          {indicator.unit_measure_id === "km2" ? " km2" : ""}
-                        </>
-                      )}
-                    </span>
-                  ))
+                        </span>
+                      ))
+                    }
+                  </>
                 ) : (
                   // Original percentage scale
                   <>
@@ -529,12 +552,18 @@ export default function MapIndicator({
                             (colorScale.scale.domain()[0] * 100).toFixed(2)
                           ) + " %"
                         : colorScale.scale.domain()[0] > 100
-                        ? colorScale.scale
-                            .domain()[0]
-                            .toLocaleString(
-                              lang === "es" || lang === "pt" ? "es" : "en"
-                            )
-                        : colorScale.scale.domain()[0].toFixed(2)}{" "}
+                        ? formatValue(
+                            colorScale.scale.domain()[0],
+                            indicator.unit_measure_id,
+                            lang,
+                            false
+                          )
+                        : formatValue(
+                            colorScale.scale.domain()[0],
+                            indicator.unit_measure_id,
+                            lang,
+                            false
+                          )}{" "}
                       {indicator.unit_measure_id === "km2" ? "km2" : ""}
                     </span>
                     <span>
@@ -543,12 +572,18 @@ export default function MapIndicator({
                             (colorScale.scale.domain()[1] * 100).toFixed(2)
                           ) + " %"
                         : colorScale.scale.domain()[1] > 100
-                        ? colorScale.scale
-                            .domain()[1]
-                            .toLocaleString(
-                              lang === "es" || lang === "pt" ? "es" : "en"
-                            )
-                        : colorScale.scale.domain()[1].toFixed(2)}{" "}
+                        ? formatValue(
+                            colorScale.scale.domain()[1],
+                            indicator.unit_measure_id,
+                            lang,
+                            false
+                          )
+                        : formatValue(
+                            colorScale.scale.domain()[1],
+                            indicator.unit_measure_id,
+                            lang,
+                            false
+                          )}{" "}
                       {indicator.unit_measure_id === "km2" ? "km2" : ""}
                       {isPercentage &&
                       indicator.max !== undefined &&

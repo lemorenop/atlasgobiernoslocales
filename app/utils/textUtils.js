@@ -29,8 +29,8 @@ export function getTextById(data, id, lang, replacements) {
   }
   return parse(text);
 }
-export function formatValue(value, unit_measure_id, lang) {
+export function formatValue(value, unit_measure_id, lang,showUnit=true) {
   return unit_measure_id === "perc"
-    ? value.toFixed(2) + "%"
-    : value.toLocaleString(lang === "es" || lang === "pt" ? "es" : "en");
+    ? value.toFixed(2) + (showUnit ? "%" : "")
+    : value.toLocaleString(lang === "es" || lang === "pt" ? "pt" : "en");
 }
