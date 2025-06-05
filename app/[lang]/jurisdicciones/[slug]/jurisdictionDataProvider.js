@@ -20,6 +20,7 @@ export default function JurisdictionDataProvider({
   government,
   country,
   tooltipInfo,
+  jurisdictionData,
 }) {
   const [data, setData] = useState(null);
   
@@ -70,6 +71,7 @@ export default function JurisdictionDataProvider({
         country,
         slug,
         tooltipInfo,
+        jurisdictionData,
       }}
     >
       {children}

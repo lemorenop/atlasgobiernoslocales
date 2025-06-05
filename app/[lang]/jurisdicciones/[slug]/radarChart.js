@@ -11,18 +11,25 @@ const govColor = "#1774AD";
 const countryColor = "#55C7D5";
 // const percentileColor = "#024067";
 
-export default function RadarChart({ data, country, }) {
-  const { government, indicators, jurisdictionsCopy, tooltipInfo } = useContext(
-    JurisdictionDataContext
-  );
+export default function RadarChart({ country, compareData = null, id }) {
+  const {
+    government,
+    indicators,
+    jurisdictionsCopy,
+    tooltipInfo,
+    jurisdictionData,
+  } = useContext(JurisdictionDataContext);
+
+  const data = jurisdictionData;
   const [tooltip, setTootip] = useState();
   const params = useParams();
   const lang = params.lang; // Obtenemos el idioma directamente de los parámetros de la URL
   const svgRef = useRef(null);
   const indicatorsID = [21, 5, 7, 8, 13, 19, 10, 11, 12, 17, 20];
-
+  const [nationalPosition, setNationalPosition] = useState(null);
   const [nationalData, setNationalData] = useState(null);
   const [chartCreated, setChartCreated] = useState(false);
+  console.log(nationalData);
   // Fetch national averages
   useEffect(() => {
     if (!government || !government.country_iso3) return;
@@ -63,11 +70,19 @@ export default function RadarChart({ data, country, }) {
         );
       }
     };
-
-    fetchNationalAverages();
-  }, [government]);
+    if (!compareData) fetchNationalAverages();
+    else setNationalData(compareData);
+  }, [government, compareData]);
+  const [chartDimensions, setChartDimensions] = useState({
+    innerWidth: 0,
+    innerHeight: 0,
+    radius: 0,
+    innerRadius: 0,
+    margin: 0,
+  });
   useEffect(() => {
     const updateChartDimensions = () => {
+      console.log("updatedddddddddd");
       if (!svgRef.current) {
         return;
       }
@@ -89,7 +104,14 @@ export default function RadarChart({ data, country, }) {
         .attr("transform", `translate(${width / 2}, ${height / 2})`);
 
       // Redraw the chart with new dimensions
-      if (data && nationalData)
+      if (data && nationalData && !chartCreated) {
+        setChartDimensions({
+          innerWidth: innerWidth,
+          innerHeight: innerHeight,
+          radius: radius,
+          innerRadius: innerRadius,
+          margin: margin,
+        });
         drawChart(
           innerWidth,
           innerHeight,
@@ -99,6 +121,7 @@ export default function RadarChart({ data, country, }) {
           width,
           height
         );
+      }
     };
 
     const drawChart = (
@@ -170,33 +193,22 @@ export default function RadarChart({ data, country, }) {
       // Process national average data
       const processedNationalData = indicatorsID.map((id) => {
         // Buscar usando el campo correcto del CSV (indicador_code)
-        const natPoint = nationalData.find((d) => d.indicador_code === id);
+        const natPoint = nationalData.find((d) => d.indicator_code == id);
         // Los valores están entre 0 y 1, multiplicamos por 100 para la escala del gráfico
         const value = natPoint ? parseFloat(natPoint.value) * 100 : null;
-        // const p10 = natPoint ? parseFloat(natPoint.p10) * 100 : null;
-        // const p90 = natPoint ? parseFloat(natPoint.p90) * 100 : null;
-
         return {
           indicator_code: id,
           value: isNaN(value) ? null : value,
-          // p10: isNaN(p10) ? null : p10,
-          // p90: isNaN(p90) ? null : p90,
         };
       });
-
       // Calculate the angle for each indicator
       const angleStep = (2 * Math.PI) / indicatorsID.length;
-
+      const natPositions = {};
       // Draw segments for each indicator
       indicatorsID.forEach((indicator, i) => {
         const startAngle = i * angleStep;
         const endAngle = (i + 1) * angleStep;
         const midAngle = startAngle + (endAngle - startAngle) / 2;
-
-        // // Calculate the position for the icon
-        // const iconDistance = radius + 70; // Adjust distance as needed
-        // const iconX = iconDistance * Math.cos(midAngle - Math.PI / 2);
-        // const iconY = iconDistance * Math.sin(midAngle - Math.PI / 2);
 
         // Find the corresponding data points
         const govData = governmentData.find(
@@ -209,7 +221,6 @@ export default function RadarChart({ data, country, }) {
         const indicatorInfo = indicators
           ? indicators.find((ind) => ind.code === indicator)
           : null;
-
 
         let indicatorName = `Ind ${indicator}`;
         let indDescription = null;
@@ -244,20 +255,6 @@ export default function RadarChart({ data, country, }) {
                 indicatorInfo.unit?.unit ? indicatorInfo.unit?.unit : ""
               }`
             : getTextById(jurisdictionsCopy, "no_data", lang);
-
-        // const displayP10Value =
-        //   natData.p10 != null
-        //     ? `${parseFloat(natData.p10).toFixed(0)} ${
-        //         indicatorInfo.unit?.unit ? indicatorInfo.unit?.unit : ""
-        //       }`
-        //     : getTextById(jurisdictionsCopy, "no_data", lang);
-
-        // const displayP90Value =
-        //   natData.p90 != null
-        //     ? `${parseFloat(natData.p90).toFixed(0)} ${
-        //         indicatorInfo.unit?.unit ? indicatorInfo.unit?.unit : ""
-        //       }`
-        //     : getTextById(jurisdictionsCopy, "no_data", lang);
 
         const valuesTooltip = {
           title: indicatorName,
@@ -314,32 +311,18 @@ export default function RadarChart({ data, country, }) {
         // Ángulo para el promedio nacional (3/4 del segmento)
         const natAngle = startAngle + natAngleOffset;
 
-        // Calcular el máximo valor entre promedio, p10 y p90 para la línea
-        const maxValue = Math.max(
-          natData.value || 0,
-          // natData.p10 || 0,
-          // natData.p90 || 0
-        );
+        const maxValue = Math.max(natData.value || 0);
 
         const natX = radiusScale(maxValue) * Math.cos(natAngle - Math.PI / 2);
         const natY = radiusScale(maxValue) * Math.sin(natAngle - Math.PI / 2);
-
-        // Calcular posiciones para p10 y p90
-        // const p10X =
-        //   radiusScale(natData.p10 || 0) * Math.cos(natAngle - Math.PI / 2);
-        // const p10Y =
-        //   radiusScale(natData.p10 || 0) * Math.sin(natAngle - Math.PI / 2);
-        // const p90X =
-        //   radiusScale(natData.p90 || 0) * Math.cos(natAngle - Math.PI / 2);
-        // const p90Y =
-        //   radiusScale(natData.p90 || 0) * Math.sin(natAngle - Math.PI / 2);
+        natPositions[indicator] = { angle: natAngle };
 
         // Calcular el punto de inicio para las líneas (perpendicular al círculo interior)
         const govStartX = innerRadius * Math.cos(govAngle - Math.PI / 2);
         const govStartY = innerRadius * Math.sin(govAngle - Math.PI / 2);
         const natStartX = innerRadius * Math.cos(natAngle - Math.PI / 2);
         const natStartY = innerRadius * Math.sin(natAngle - Math.PI / 2);
-
+        if (indicator == 11) console.log("nat", maxValue, natAngle);
         // Línea para el valor del gobierno
         svg
           .append("line")
@@ -353,6 +336,7 @@ export default function RadarChart({ data, country, }) {
         // Línea para el valor nacional (ahora extendida al máximo valor)
         svg
           .append("line")
+          .attr("id", `line-${indicator}-national`)
           .attr("x1", natStartX)
           .attr("y1", natStartY)
           .attr("x2", natX)
@@ -379,46 +363,9 @@ export default function RadarChart({ data, country, }) {
             setTootip(null);
           });
 
-        // Punto para p10
-        // svg
-        //   .append("circle")
-        //   .attr("cx", p10X)
-        //   .attr("cy", p10Y)
-        //   .attr("r", circleRadiusScale(natData.p10 || 0))
-        //   .attr("fill", natData.p10 != null ? percentileColor : noDataColor)
-        //   .attr("tabindex", 0)
-        //   .on("focus", function (event) {
-        //     setTootip({
-        //       ...valuesTooltip,
-        //       x: event.pageX,
-        //       y: event.pageY,
-        //     });
-        //   })
-        //   .on("blur", function () {
-        //     setTootip(null);
-        //   });
-
-        // Punto para p90
-        // svg
-        //   .append("circle")
-        //   .attr("cx", p90X)
-        //   .attr("cy", p90Y)
-        //   .attr("r", circleRadiusScale(natData.p90 || 0))
-        //   .attr("fill", natData.p90 != null ? percentileColor : noDataColor)
-        //   .attr("tabindex", 0)
-        //   .on("focus", function (event) {
-        //     setTootip({
-        //       ...valuesTooltip,
-        //       x: event.pageX,
-        //       y: event.pageY,
-        //     });
-        //   })
-        //   .on("blur", function () {
-        //     setTootip(null);
-        //   });
-        // Punto para el promedio nacional
         svg
           .append("circle")
+          .attr("id", `circle-${indicator}-national`)
           .attr(
             "cx",
             radiusScale(natData.value || 0) * Math.cos(natAngle - Math.PI / 2)
@@ -561,6 +508,7 @@ export default function RadarChart({ data, country, }) {
             setTootip(null);
           });
       });
+      setNationalPosition(natPositions);
       setChartCreated(true);
     };
 
@@ -571,6 +519,44 @@ export default function RadarChart({ data, country, }) {
       window.removeEventListener("resize", updateChartDimensions);
     };
   }, [data, indicators, lang, nationalData]);
+  useEffect(() => {
+    console.log("redibujamos segmentos");
+    if (chartCreated) drawSegments();
+    function drawSegments() {
+      const { innerWidth, innerHeight, radius, innerRadius, margin } =
+        chartDimensions;
+      indicatorsID.map((indicator, i) => {
+        const svg = d3.select(svgRef.current);
+        const line = svg.select(`#line-${indicator}-national`);
+        const value =
+          nationalData.find((d) => d.indicator_code == indicator).value * 100 ||
+          0;
+
+        const radiusScale = d3
+          .scaleLinear()
+          .domain([0, 100])
+          .range([innerRadius, radius]);
+
+        const circle = svg.select(`#circle-${indicator}-national`);
+
+        [line, circle].map((el,i) =>
+          el
+            .transition()
+            .duration(500)
+            .attr(
+             i===0 ? "x2" : "cx",
+              radiusScale(value) *
+                Math.cos(nationalPosition[indicator].angle - Math.PI / 2)
+            )
+            .attr(
+              i===0 ? "y2" : "cy",
+              radiusScale(value) *
+                Math.sin(nationalPosition[indicator].angle - Math.PI / 2)
+            )
+        );
+      });
+    }
+  }, [nationalData, chartDimensions, chartCreated]);
   return (
     <>
       <div className="radar-chart-container h-full">
@@ -606,7 +592,9 @@ export default function RadarChart({ data, country, }) {
                     className="w-4 h-4 rounded-[100%] bg-blue-CAF"
                     style={{ backgroundColor: countryColor }}
                   />
-                  <p>{government.name}: {tooltip.valueGov}</p>
+                  <p>
+                    {government.name}: {tooltip.valueGov}
+                  </p>
                 </div>
               )}
               {(tooltip.valueNat || tooltip.valueNat === "0") && (
@@ -615,10 +603,12 @@ export default function RadarChart({ data, country, }) {
                     className="w-4 h-4 rounded-[100%]"
                     style={{ backgroundColor: govColor }}
                   />
-                  <p>{getTextById(jurisdictionsCopy, "average", lang)} {country[`name_${lang}`]}: {tooltip.valueNat}</p>
+                  <p>
+                    {getTextById(jurisdictionsCopy, "average", lang)}{" "}
+                    {country[`name_${lang}`]}: {tooltip.valueNat}
+                  </p>
                 </div>
               )}
-             
             </>
           )}
         </div>
@@ -669,9 +659,7 @@ export default function RadarChart({ data, country, }) {
               className="w-4 h-1 bg-blue-CAF"
               style={{ backgroundColor: countryColor }}
             />
-            <p>
-              {government.name}
-            </p>
+            <p>{government.name}</p>
           </div>
           <div className="flex gap-xs items-center">
             <div className="w-4 h-1 " style={{ backgroundColor: govColor }} />

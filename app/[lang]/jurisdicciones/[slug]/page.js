@@ -59,13 +59,14 @@ export default async function Jurisdiction({ params }) {
           jurisdictionsCopy={jurisdictionsCopy}
           government={government}
           tooltipInfo={tooltipInfo}
+          jurisdictionData={jurisdictionData}
         >
           {/* <Hero data={jurisdictionData} yearPoblacion={yearPoblacion} /> */}
 
           <div className="">
             <StickyBar />
             <div className="px-l md:p-[80px] grid lg:grid-cols-12 gap-xl max-md:py-[48px]">
-              {/* {existRadarData &&  
+              {/* {existRadarData &&  <>
                 <div className="lg:col-span-4 flex flex-col gap-[24px] justify-center">
                   <h2 className="max-md:text-[32px] text-h1 font-bold mb-4 text-navy">
                     {getTextById(jurisdictionsCopy, "indicators_title", lang)}
@@ -99,7 +100,7 @@ export default async function Jurisdiction({ params }) {
                   {" "}
                   <DotsChart />
                 </div>
-              } */}
+              </>} */}
 
               <div className="col-span-12">
                 <Comparative />
