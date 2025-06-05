@@ -11,7 +11,7 @@ const govColor = "#1774AD";
 const countryColor = "#55C7D5";
 // const percentileColor = "#024067";
 
-export default function RadarChart({ data, country }) {
+export default function RadarChart({ data, country, yearPoblacion }) {
   const { government, indicators, jurisdictionsCopy } = useContext(
     JurisdictionDataContext
   );
@@ -647,7 +647,7 @@ export default function RadarChart({ data, country }) {
           }}
           onMouseOver={(event) => {
             setTootip({
-              title: getTextById(jurisdictionsCopy, "tooltip_info", lang),
+              title: getTextById(jurisdictionsCopy, "tooltip_info", lang,[{id:"year",replace:yearPoblacion}]),
               x: event.pageX - 50, // Adjust for scrolling
               y: event.pageY, // Adjust for scrolling
             });
