@@ -2,7 +2,7 @@
 import Select from "../../components/select";
 import { JurisdictionDataContext } from "./jurisdictionDataProvider";
 import { useContext, useState, useEffect, useRef } from "react";
-import { getTextById ,formatValue} from "@/app/utils/textUtils";
+import { getTextById, formatValue } from "@/app/utils/textUtils";
 import * as d3 from "d3";
 import Loader from "../../components/loader";
 import Share from "./share";
@@ -16,6 +16,7 @@ export default function DotsChart() {
     government,
     governmentsData,
     country,
+    tooltipInfo,
   } = useContext(JurisdictionDataContext);
   const [tooltip, setTooltip] = useState(null);
   const [selectedIndicator, setSelectedIndicator] = useState(indicators[0]);
@@ -124,7 +125,7 @@ export default function DotsChart() {
         const formatNumber = (d) => {
           if (isPercentage) return d + "%";
           if (d >= 1000000) return (d / 1000000).toFixed(1) + "M";
-          if (d >= 1000) return (d / 1000).toFixed(1) + "k";
+          if (d >= 1000) return (d / 1000).toFixed(1) + "K";
           return d;
         };
 
@@ -153,14 +154,25 @@ export default function DotsChart() {
             xScale(group.bin) + (xScale(group.nextBin) - xScale(group.bin)) / 2;
           const binWidth = xScale(group.nextBin) - xScale(group.bin);
 
-          group.governments.forEach((gov, j) => {
+          // Sort governments by value within each group
+          const sortedGovernments = [...group.governments].sort((a, b) => a.value - b.value);
+
+          sortedGovernments.forEach((gov, j) => {
             const y = yScale(j + 1);
             const jurisdiction = data.governments.find(
               (g) => g.id === gov.government_id
             );
             if (jurisdiction) {
               const jurisdictionName = jurisdiction.name;
-const value=formatValue(gov.value,selectedIndicator.unit_measure_id,lang)
+              const value = formatValue(
+                gov.value,
+                selectedIndicator.unit_measure_id,
+                lang,true
+              );
+              const tooltipContent = {
+                title: jurisdictionName,
+                valueGov: value,
+              };
               svg
                 .append("circle")
                 .attr("cx", x)
@@ -175,21 +187,14 @@ const value=formatValue(gov.value,selectedIndicator.unit_measure_id,lang)
                 .attr("cursor", "pointer")
                 .on("mouseover", function (event) {
                   setTooltip({
-                    title: jurisdictionName,
-                    valueGov: `${value}${
-                      isPercentage ? "%" : ""
-                    }`,
+                    ...tooltipContent,
                     x: event.pageX,
                     y: event.pageY,
                   });
                 })
                 .on("mousemove", function (event) {
                   setTooltip({
-                    government_id: gov.government_id,
-                    title: jurisdictionName,
-                      valueGov: `${value}${
-                      isPercentage ? "%" : ""
-                    }`,
+                    ...tooltipContent,
                     x: event.pageX,
                     y: event.pageY,
                   });
@@ -200,11 +205,7 @@ const value=formatValue(gov.value,selectedIndicator.unit_measure_id,lang)
                 .attr("tabindex", 0)
                 .on("focus", function (event) {
                   setTooltip({
-                    government_id: gov.government_id,
-                    title: jurisdictionName,
-                    valueGov: `${value}${
-                      isPercentage ? "%" : ""
-                    }`,
+                    ...tooltipContent,
                     x: event.pageX,
                     y: event.pageY,
                   });
@@ -251,9 +252,30 @@ const value=formatValue(gov.value,selectedIndicator.unit_measure_id,lang)
         { id: "jurisdiction_name", replace: government.name },
         { id: "level_name", replace: government["description_" + lang] },
         { id: "indicator_name", replace: selectedIndicator[`name_${lang}`] },
-        { id: "value", replace: formatValue(values.value,selectedIndicator.unit_measure_id,lang) },
-        { id: "max_value", replace: formatValue(values.maxValue,selectedIndicator.unit_measure_id,lang) },
-        { id: "min_value", replace: formatValue(values.minValue,selectedIndicator.unit_measure_id,lang) },
+        {
+          id: "value",
+          replace: formatValue(
+            values.value,
+            selectedIndicator.unit_measure_id,
+            lang
+          ),
+        },
+        {
+          id: "max_value",
+          replace: formatValue(
+            values.maxValue,
+            selectedIndicator.unit_measure_id,
+            lang
+          ),
+        },
+        {
+          id: "min_value",
+          replace: formatValue(
+            values.minValue,
+            selectedIndicator.unit_measure_id,
+            lang
+          ),
+        },
         { id: "country_name", replace: country[`name_${lang}`] },
       ])
     : "";
@@ -269,18 +291,59 @@ const value=formatValue(gov.value,selectedIndicator.unit_measure_id,lang)
       </div>
 
       <div className="flex gap-m flex-col pt-[32px]">
-        <div className="flex flex-col gap-xs">
-          <p>{getTextById(jurisdictionsCopy, "select_indicator", lang)}</p>
-          <Select
-            id="code"
-            selected={selectedIndicator}
-            lang={lang}
-            options={[{ options: indicators }]}
-            onChange={setSelectedIndicator}
-          />
+        <div className="flex justify-between">
+          <div className="flex flex-col gap-xs">
+            <p>{getTextById(jurisdictionsCopy, "select_indicator", lang)}</p>
+            <Select
+              id="code"
+              selected={selectedIndicator}
+              lang={lang}
+              options={[{ options: indicators }]}
+              onChange={setSelectedIndicator}
+            />
+          </div>
+          <div className="flex justify-end gap-s pt-m">
+            <button
+              onClick={(event) => {
+                setTooltip({
+                  title: tooltipInfo,
+                  x: event.pageX, // Adjust for scrolling
+                  y: event.pageY, // Adjust for scrolling
+                });
+                // }
+              }}
+              onMouseOver={(event) => {
+                setTooltip({
+                  title: tooltipInfo,
+                  x: event.pageX - 50, // Adjust for scrolling
+                  y: event.pageY, // Adjust for scrolling
+                });
+                // }
+              }}
+              onMouseOut={() => {
+                setTooltip(null);
+              }}
+              onBlur={() => {
+                setTooltip(null);
+              }}
+              onFocus={(event) => {
+                setTooltip({
+                  title: tooltipInfo,
+                  x: event.pageX, // Adjust for scrolling
+                  y: event.pageY, // Adjust for scrolling
+                });
+                // }
+              }}
+            >
+              <Info
+                className={
+                  "w-4 h-4 fill-black hover:fill-blue-CAF cursor-pointer"
+                }
+              />
+            </button>
+          </div>{" "}
         </div>
-
-        <div className="overflow-x-auto bg-[#55C7D51A] border-1 border-[#55C7D5] p-[48px]">
+        <div className="overflow-x-auto bg-[#55C7D51A] border-1 border-[#55C7D5] p-m">
           {isLoading ? (
             <div className="flex justify-center items-center h-[400px]">
               <Loader className="w-10 h-10  min-w-10 min-h-10 [&_span]:w-full [&_span]:h-full" />
@@ -297,44 +360,6 @@ const value=formatValue(gov.value,selectedIndicator.unit_measure_id,lang)
         </div>
       </div>
 
-      <div className="flex justify-end gap-s pt-m">
-        <button
-          onClick={(event) => {
-            setTooltip({
-              title: getTextById(jurisdictionsCopy, "tooltip_info", lang),
-              x: event.pageX, // Adjust for scrolling
-              y: event.pageY, // Adjust for scrolling
-            });
-            // }
-          }}
-          onMouseOver={(event) => {
-            setTooltip({
-              title: getTextById(jurisdictionsCopy, "tooltip_info", lang),
-              x: event.pageX - 50, // Adjust for scrolling
-              y: event.pageY, // Adjust for scrolling
-            });
-            // }
-          }}
-          onMouseOut={() => {
-            setTooltip(null);
-          }}
-          onBlur={() => {
-            setTooltip(null);
-          }}
-          onFocus={(event) => {
-            setTooltip({
-              title: getTextById(jurisdictionsCopy, "tooltip_info", lang),
-              x: event.pageX, // Adjust for scrolling
-              y: event.pageY, // Adjust for scrolling
-            });
-            // }
-          }}
-        >
-          <Info
-            className={"w-4 h-4 fill-black hover:fill-blue-CAF cursor-pointer"}
-          />
-        </button>
-      </div>
       {tooltip && (
         <div
           className="tooltip w-fit inline-block z-20 absolute bg-white pointer-events-none"
@@ -350,7 +375,9 @@ const value=formatValue(gov.value,selectedIndicator.unit_measure_id,lang)
             wordBreak: "break-word",
           }}
         >
-          <p className="font-bold">{tooltip.title}</p>
+          <p className={`${tooltip.subtitle && "font-bold"}  `}>
+            {tooltip.title}
+          </p>
           {tooltip.valueGov && (
             <div className="flex items-center gap-xs">
               <div

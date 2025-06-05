@@ -11,8 +11,8 @@ const govColor = "#1774AD";
 const countryColor = "#55C7D5";
 // const percentileColor = "#024067";
 
-export default function RadarChart({ data, country, yearPoblacion }) {
-  const { government, indicators, jurisdictionsCopy } = useContext(
+export default function RadarChart({ data, country, }) {
+  const { government, indicators, jurisdictionsCopy, tooltipInfo } = useContext(
     JurisdictionDataContext
   );
   const [tooltip, setTootip] = useState();
@@ -571,7 +571,6 @@ export default function RadarChart({ data, country, yearPoblacion }) {
       window.removeEventListener("resize", updateChartDimensions);
     };
   }, [data, indicators, lang, nationalData]);
-
   return (
     <>
       <div className="radar-chart-container h-full">
@@ -619,17 +618,7 @@ export default function RadarChart({ data, country, yearPoblacion }) {
                   <p>{getTextById(jurisdictionsCopy, "average", lang)} {country[`name_${lang}`]}: {tooltip.valueNat}</p>
                 </div>
               )}
-              {/* {(tooltip.valueP10 || tooltip.valueP90) && (
-                <div className="flex items-center gap-xs">
-                  <div
-                    className="w-4 h-4 rounded-[100%]"
-                    style={{ backgroundColor: percentileColor }}
-                  />
-                  <p>
-                    {tooltip.valueP10} - {tooltip.valueP90}
-                  </p>
-                </div>
-              )} */}
+             
             </>
           )}
         </div>
@@ -639,7 +628,7 @@ export default function RadarChart({ data, country, yearPoblacion }) {
           style={{ marginRight: "25%" }}
           onClick={(event) => {
             setTootip({
-              title: getTextById(jurisdictionsCopy, "tooltip_info", lang),
+              title: tooltipInfo,
               x: event.pageX, // Adjust for scrolling
               y: event.pageY, // Adjust for scrolling
             });
@@ -647,7 +636,7 @@ export default function RadarChart({ data, country, yearPoblacion }) {
           }}
           onMouseOver={(event) => {
             setTootip({
-              title: getTextById(jurisdictionsCopy, "tooltip_info", lang,[{id:"year",replace:yearPoblacion}]),
+              title: tooltipInfo,
               x: event.pageX - 50, // Adjust for scrolling
               y: event.pageY, // Adjust for scrolling
             });
@@ -661,7 +650,7 @@ export default function RadarChart({ data, country, yearPoblacion }) {
           }}
           onFocus={(event) => {
             setTootip({
-              title: getTextById(jurisdictionsCopy, "tooltip_info", lang),
+              title: tooltipInfo,
               x: event.pageX, // Adjust for scrolling
               y: event.pageY, // Adjust for scrolling
             });

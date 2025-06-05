@@ -55,7 +55,7 @@ async function newSearchIndex() {
           "completeName",
           // "fullName",
         ],
-        store: ["id", "name", "parentName", "countryName", "completeName", 
+        store: ["id", "name", "parentName", "countryName", "completeName", "countryCode", "nivel"
           // "fullName"
         ]
 

@@ -51,7 +51,7 @@ export default function SearchBox({
     }, 300);
 
     return () => clearTimeout(timeoutId);
-  }, [query, lang]);
+  }, [query, lang, ]);
 
   return (
     <div className="relative bg-background p-xl flex flex-col gap-[24px] justify-between">

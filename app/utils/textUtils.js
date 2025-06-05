@@ -30,7 +30,20 @@ export function getTextById(data, id, lang, replacements) {
   return parse(text);
 }
 export function formatValue(value, unit_measure_id, lang,showUnit=true) {
+  const unitLabel=()=>{ switch(unit_measure_id){
+    case "perc":
+      return "%";
+    case "km2":
+      return "km2";
+    case "hab_km2":
+      return "hab/km2";
+   
+    default:
+      return "";
+  }
+}
+ 
   return unit_measure_id === "perc"
     ? value.toFixed(2) + (showUnit ? "%" : "")
-    : value.toLocaleString(lang === "es" || lang === "pt" ? "pt" : "en");
+    : value.toLocaleString(lang === "es" || lang === "pt" ? "pt" : "en") + (showUnit ? unitLabel() : "");
 }

@@ -11,6 +11,7 @@ import {
 import StickyBar from "./stickyBar";
 import JurisdictionDataProvider from "./jurisdictionDataProvider";
 import DotsChart from "./dotsChart";
+import Comparative from "./comparative";
 export default async function Jurisdiction({ params }) {
   const { lang, slug } = await params;
   const [
@@ -44,6 +45,9 @@ export default async function Jurisdiction({ params }) {
   const existRadarData = jurisdictionData.some(
     (elm) => indicatorsID.includes(elm.indicator_code) && elm.value !== null
   );
+  const tooltipInfo = getTextById(jurisdictionsCopy, "tooltip_info", lang, [
+    { id: "year", replace: yearPoblacion },
+  ]);
   return (
     <main className="flex flex-col justify-start text-black bg-white flex-grow ">
       {jurisdictionsCopy && government && indicators && country && (
@@ -54,12 +58,14 @@ export default async function Jurisdiction({ params }) {
           indicators={indicators}
           jurisdictionsCopy={jurisdictionsCopy}
           government={government}
+          tooltipInfo={tooltipInfo}
         >
           {/* <Hero data={jurisdictionData} yearPoblacion={yearPoblacion} /> */}
-          {existRadarData && (
-            <div className="">
-              <StickyBar />
-              <div className="px-l md:p-[80px] grid lg:grid-cols-12 gap-xl max-md:py-[48px]">
+
+          <div className="">
+            <StickyBar />
+            <div className="px-l md:p-[80px] grid lg:grid-cols-12 gap-xl max-md:py-[48px]">
+              {/* {existRadarData &&  
                 <div className="lg:col-span-4 flex flex-col gap-[24px] justify-center">
                   <h2 className="max-md:text-[32px] text-h1 font-bold mb-4 text-navy">
                     {getTextById(jurisdictionsCopy, "indicators_title", lang)}
@@ -84,15 +90,22 @@ export default async function Jurisdiction({ params }) {
 
                 <div className="flex flex-col lg:col-span-8 min-h-[400px] md:min-h-[600px] max-h-screen">
                   <RadarChart
-                  yearPoblacion={yearPoblacion}
                     country={country}
                     data={jurisdictionData}
                   
                   />
                 </div>
+                <div className="col-span-12 px-[80px]">
+                  {" "}
+                  <DotsChart />
+                </div>
+              } */}
+
+              <div className="col-span-12">
+                <Comparative />
               </div>
             </div>
-          )}
+          </div>
         </JurisdictionDataProvider>
       )}
     </main>

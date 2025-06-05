@@ -19,6 +19,7 @@ export default function JurisdictionDataProvider({
   jurisdictionsCopy,
   government,
   country,
+  tooltipInfo,
 }) {
   const [data, setData] = useState(null);
   
@@ -49,7 +50,6 @@ export default function JurisdictionDataProvider({
           governments: governmentsModule,
           governmentsData: govsByCountry,
         });
-        console.log(governmentsModule)
       } catch (error) {
         setData({ data: null, governments: null, governmentsData: null });
         console.error(`Error loading government ${slug} data:`, error);
@@ -68,7 +68,8 @@ export default function JurisdictionDataProvider({
         lang, 
         government, 
         country,
-        slug 
+        slug,
+        tooltipInfo,
       }}
     >
       {children}

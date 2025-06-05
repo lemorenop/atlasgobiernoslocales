@@ -5,6 +5,9 @@ export async function GET(req) {
   const { searchParams } = new URL(req.url);
   const lang = searchParams.get("lang") || "es";
   const query = searchParams.get("query") || "";
+  const countryCode = searchParams.get("countryCode") || "BRA";
+  const nivel = searchParams.get("nivel") || "";
+  console.log(countryCode)
 
   try {
     const searchIndexByLocale = await getSearchIndexByLocale();
@@ -20,16 +23,22 @@ export async function GET(req) {
         query,
         indexParams
       ); 
-
       // const flatResults = searchResults.result;
         const flatResults = searchResults.flatMap(
           (resultSet) => resultSet.result || []
         );
+        let filteredResults = flatResults;
+      if (countryCode) {
+        filteredResults = filteredResults.filter(item => item.doc.countryCode === countryCode);
+      }
+      if (nivel) {
+        filteredResults = filteredResults.filter(item => item.doc.nivel === nivel);
+      }
+
       // Remove duplicates (same document showing up in multiple search fields)
       const uniqueResults = [
-        ...new Map(flatResults.map((item) => [item.id, item.doc])).values(),
+        ...new Map(filteredResults.map((item) => [item.id, item.doc])).values(),
       ];
-
       return NextResponse.json(uniqueResults);
     }
   } catch (error) {
