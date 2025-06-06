@@ -11,7 +11,7 @@ const govColor = "#1774AD";
 const countryColor = "#55C7D5";
 // const percentileColor = "#024067";
 
-export default function RadarChart({ country, compareData = null, id }) {
+export default function RadarChart({ country, compareData = null, id,yearIndicators }) {
   const {
     government,
     indicators,
