@@ -101,7 +101,7 @@ export default function Hero({ yearPoblacion, data }) {
             <MapGoverment
               jurisdictionsCopy={jurisdictionsCopy}
               governmentID={government.id}
-              nivel={government.level_per_country_id.split("_")[0]}
+              nivel={government.level}
               lang={lang}
             />
           )}

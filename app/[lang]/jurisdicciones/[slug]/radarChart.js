@@ -11,41 +11,41 @@ const govColor = "#1774AD";
 const countryColor = "#55C7D5";
 // const percentileColor = "#024067";
 
-export default function RadarChart({ country, compareData = null, id,yearIndicators }) {
-  const {
-    government,
-    indicators,
-    jurisdictionsCopy,
-    tooltipInfo,
-    jurisdictionData,
-  } = useContext(JurisdictionDataContext);
+export default function RadarChart({
+  country,
+  compareData = null,
+  id,
+  yearIndicators,
+}) {
+  const { government, indicators, jurisdictionsCopy, jurisdictionData, lang } =
+    useContext(JurisdictionDataContext);
 
   const data = jurisdictionData;
   const [tooltip, setTootip] = useState();
-  const params = useParams();
-  const lang = params.lang; // Obtenemos el idioma directamente de los parámetros de la URL
-  const svgRef = useRef(null);
-  const indicatorsID = [21, 5, 7, 8, 13, 19, 10, 11, 12, 17, 20];
   const [nationalPosition, setNationalPosition] = useState(null);
   const [nationalData, setNationalData] = useState(null);
   const [chartCreated, setChartCreated] = useState(false);
-  console.log(nationalData);
+  const [clientWidth, setClientWidth] = useState(0); // solo voy a volver a construit el svg si el ancho del contenedor cambia
+  const [chartDimensions, setChartDimensions] = useState({
+    innerWidth: 0,
+    innerHeight: 0,
+  });
+  const [chartDimensions2, setChartDimensions2] = useState({
+    innerWidth: 0,
+    innerHeight: 0,
+    radius: 0,
+    innerRadius: 0,
+    margin: 0,
+  });
+  const svgRef = useRef(null);
+  const indicatorsID = [21, 5, 7, 8, 13, 19, 10, 11, 12, 17, 20];
   // Fetch national averages
   useEffect(() => {
     if (!government || !government.country_iso3) return;
 
     const fetchNationalAverages = async () => {
       try {
-        // setUnitMeasures(um);
-        // Extraer el nivel del gobierno del level_per_country_id (el número antes del guión bajo)
-        let nivel = null;
-        if (government.level_per_country_id) {
-          const levelParts = government.level_per_country_id.split("_");
-          if (levelParts.length > 0) {
-            nivel = levelParts[0];
-          }
-        }
-
+        let nivel = government.level;
         // Construir la URL con los parámetros de filtro
         let url = `/api/national-averages?country_iso3=${government.country_iso3}`;
         if (nivel) {
@@ -73,63 +73,51 @@ export default function RadarChart({ country, compareData = null, id,yearIndicat
     if (!compareData) fetchNationalAverages();
     else setNationalData(compareData);
   }, [government, compareData]);
-  const [chartDimensions, setChartDimensions] = useState({
-    innerWidth: 0,
-    innerHeight: 0,
-    radius: 0,
-    innerRadius: 0,
-    margin: 0,
-  });
+  const margin = { top: 100, right: 60, bottom: 60, left: 60 }; // Add some margin for better spacing
   useEffect(() => {
     const updateChartDimensions = () => {
-      console.log("updatedddddddddd");
       if (!svgRef.current) {
         return;
       }
       const container = svgRef.current.parentElement;
       const width = container.clientWidth;
+      setClientWidth(width);
       const height = container.clientHeight;
-
-      const margin = { top: 100, right: 60, bottom: 60, left: 60 }; // Add some margin for better spacing
       const innerWidth = width - margin.left - margin.right;
       const innerHeight = height - margin.top - margin.bottom;
       const radius = Math.min(innerWidth, innerHeight) / 2;
       const innerRadius = radius * 0.15; // 30% of the outer radius for the inner circle
-
+      setChartDimensions({
+        width: width,
+        height: height,
+        innerWidth: innerWidth,
+        innerHeight: innerHeight,
+      });
       // Update SVG dimensions
-      d3.select(svgRef.current)
-        .attr("width", width)
-        .attr("height", height)
-        .select("g")
-        .attr("transform", `translate(${width / 2}, ${height / 2})`);
+      d3.select(svgRef.current).attr("width", width).attr("height", height);
 
-      // Redraw the chart with new dimensions
-      if (data && nationalData && !chartCreated) {
-        setChartDimensions({
-          innerWidth: innerWidth,
-          innerHeight: innerHeight,
-          radius: radius,
-          innerRadius: innerRadius,
-          margin: margin,
-        });
-        drawChart(
-          innerWidth,
-          innerHeight,
-          radius,
-          innerRadius,
-          margin,
-          width,
-          height
-        );
-      }
+      setChartDimensions2({
+        innerWidth: innerWidth,
+        innerHeight: innerHeight,
+        radius: radius,
+        innerRadius: innerRadius,
+        margin: margin,
+      });
     };
 
+    updateChartDimensions();
+    window.addEventListener("resize", updateChartDimensions);
+    return () => {
+      window.removeEventListener("resize", updateChartDimensions);
+    };
+  }, [data]);
+
+  useEffect(() => {
     const drawChart = (
       innerWidth,
       innerHeight,
       radius,
       innerRadius,
-      margin,
       width,
       height
     ) => {
@@ -140,12 +128,6 @@ export default function RadarChart({ country, compareData = null, id,yearIndicat
         .select(svgRef.current)
         .append("g")
         .attr("transform", `translate(${width / 2}, ${height / 2})`);
-
-      // Create scales
-      const angleScale = d3
-        .scalePoint()
-        .domain(indicatorsID)
-        .range([0, 2 * Math.PI]);
 
       const radiusScale = d3
         .scaleLinear()
@@ -177,81 +159,42 @@ export default function RadarChart({ country, compareData = null, id,yearIndicat
         .attr("fill", "none")
         .attr("stroke", "#ddd")
         .attr("stroke-width", 1);
-
-      // Create data points for government values
-      const governmentData = indicatorsID.map((id) => {
-        const dataPoint = data.find((d) => d.indicator_code === id);
-        // Los valores del gobierno también están entre 0 y 1, multiplicamos por 100
-        const value = dataPoint ? parseFloat(dataPoint.value) * 100 : null;
-
-        return {
-          indicator_code: id,
-          value: isNaN(value) ? null : value, // Asegurarse de que sea un número válido
-        };
-      });
-
-      // Process national average data
-      const processedNationalData = indicatorsID.map((id) => {
-        // Buscar usando el campo correcto del CSV (indicador_code)
-        const natPoint = nationalData.find((d) => d.indicator_code == id);
-        // Los valores están entre 0 y 1, multiplicamos por 100 para la escala del gráfico
-        const value = natPoint ? parseFloat(natPoint.value) * 100 : null;
-        return {
-          indicator_code: id,
-          value: isNaN(value) ? null : value,
-        };
-      });
       // Calculate the angle for each indicator
       const angleStep = (2 * Math.PI) / indicatorsID.length;
       const natPositions = {};
-      // Draw segments for each indicator
-      indicatorsID.forEach((indicator, i) => {
+      // Create data points for government values
+      indicatorsID.forEach((ind, i) => {
+        const dataPoint = data.find((d) => d.indicator_code === ind);
+        const natPoint = nationalData.find((d) => d.indicator_code == ind);
+        // Los valores están entre 0 y 1, multiplicamos por 100 para la escala del gráfico
+        const valueGov = isNaN(dataPoint.value)
+          ? null
+          : parseFloat(dataPoint.value) * 100;
+        const valueNat = isNaN(natPoint.value)
+          ? null
+          : parseFloat(natPoint.value) * 100;
+
         const startAngle = i * angleStep;
         const endAngle = (i + 1) * angleStep;
         const midAngle = startAngle + (endAngle - startAngle) / 2;
-
-        // Find the corresponding data points
-        const govData = governmentData.find(
-          (d) => d.indicator_code === indicator
-        );
-        const natData = processedNationalData.find(
-          (d) => d.indicator_code === indicator
-        );
+       
         // Find the indicator name from the indicators prop based on the current language
         const indicatorInfo = indicators
-          ? indicators.find((ind) => ind.code === indicator)
+          ? indicators.find((indicator) => indicator.code === ind)
           : null;
-
-        let indicatorName = `Ind ${indicator}`;
-        let indDescription = null;
-        if (indicatorInfo) {
-          // Use the appropriate name based on the language
-          if (lang === "es" && indicatorInfo.name_es) {
-            indicatorName = indicatorInfo.name_es;
-            indDescription = indicatorInfo.description_es;
-          } else if (lang === "en" && indicatorInfo.name_en) {
-            indicatorName = indicatorInfo.name_en;
-            indDescription = indicatorInfo.description_en;
-          } else if (lang === "pt" && indicatorInfo.name_pt) {
-            indicatorName = indicatorInfo.name_pt;
-            indDescription = indicatorInfo.description_pt;
-          } else if (indicatorInfo.name) {
-            // Fallback to the default name if available
-            indicatorName = indicatorInfo.name;
-            indDescription = indicatorInfo.description;
-          }
-        }
-
+        let indicatorName = indicatorInfo[`name_${lang}`];
+        let indDescription = indicatorInfo[`description_${lang}`];        
+        
         const displayGovValue =
-          govData.value != null
-            ? `${parseFloat(govData.value).toFixed(0)} ${
+          valueGov != null
+            ? `${parseFloat(valueGov).toFixed(0)} ${
                 indicatorInfo.unit?.unit ? indicatorInfo.unit?.unit : ""
               }`
             : getTextById(jurisdictionsCopy, "no_data", lang);
 
         const displayNatValue =
-          natData.value != null
-            ? `${parseFloat(natData.value).toFixed(0)} ${
+          valueNat != null
+            ? `${parseFloat(valueNat).toFixed(0)} ${
                 indicatorInfo.unit?.unit ? indicatorInfo.unit?.unit : ""
               }`
             : getTextById(jurisdictionsCopy, "no_data", lang);
@@ -260,8 +203,6 @@ export default function RadarChart({ country, compareData = null, id,yearIndicat
           title: indicatorName,
           valueNat: displayNatValue,
           valueGov: displayGovValue,
-          // valueP10: displayP10Value,
-          // valueP90: displayP90Value,
         };
 
         // Draw the segment background
@@ -271,7 +212,6 @@ export default function RadarChart({ country, compareData = null, id,yearIndicat
           .outerRadius(radius)
           .startAngle(startAngle)
           .endAngle(endAngle);
-
         svg
           .append("path")
           .attr("d", arc)
@@ -304,53 +244,61 @@ export default function RadarChart({ country, compareData = null, id,yearIndicat
         // Ángulo para el valor del gobierno (1/4 del segmento)
         const govAngle = startAngle + govAngleOffset;
         const govX =
-          radiusScale(govData.value || 0) * Math.cos(govAngle - Math.PI / 2);
+          radiusScale(valueGov || 0) * Math.cos(govAngle - Math.PI / 2);
         const govY =
-          radiusScale(govData.value || 0) * Math.sin(govAngle - Math.PI / 2);
+          radiusScale(valueGov || 0) * Math.sin(govAngle - Math.PI / 2);
 
         // Ángulo para el promedio nacional (3/4 del segmento)
         const natAngle = startAngle + natAngleOffset;
 
-        const maxValue = Math.max(natData.value || 0);
+        const maxValue = Math.max(valueNat || 0);
 
         const natX = radiusScale(maxValue) * Math.cos(natAngle - Math.PI / 2);
         const natY = radiusScale(maxValue) * Math.sin(natAngle - Math.PI / 2);
-        natPositions[indicator] = { angle: natAngle };
+        natPositions[ind] = { angle: natAngle };
 
         // Calcular el punto de inicio para las líneas (perpendicular al círculo interior)
         const govStartX = innerRadius * Math.cos(govAngle - Math.PI / 2);
         const govStartY = innerRadius * Math.sin(govAngle - Math.PI / 2);
         const natStartX = innerRadius * Math.cos(natAngle - Math.PI / 2);
         const natStartY = innerRadius * Math.sin(natAngle - Math.PI / 2);
-        if (indicator == 11) console.log("nat", maxValue, natAngle);
+        if (ind == 11) console.log("nat", maxValue, natAngle);
         // Línea para el valor del gobierno
         svg
           .append("line")
           .attr("x1", govStartX)
           .attr("y1", govStartY)
-          .attr("x2", govX)
-          .attr("y2", govY)
+          .attr("x2", govStartX)
+          .attr("y2", govStartY)
           .attr("stroke", countryColor)
-          .attr("stroke-width", 2);
+          .attr("stroke-width", 2)
+          .transition()
+          .duration(1000)
+          .attr("x2", govX)
+          .attr("y2", govY);
 
         // Línea para el valor nacional (ahora extendida al máximo valor)
         svg
           .append("line")
-          .attr("id", `line-${indicator}-national`)
+          .attr("id", `line-${ind}-national`)
           .attr("x1", natStartX)
           .attr("y1", natStartY)
-          .attr("x2", natX)
-          .attr("y2", natY)
+          .attr("x2", natStartX)
+          .attr("y2", natStartY)
           .attr("stroke", govColor)
-          .attr("stroke-width", 2);
+          .attr("stroke-width", 2)
+          .transition()
+          .duration(1000)
+          .attr("x2", natX)
+          .attr("y2", natY);
 
         // Punto para el valor del gobierno
         svg
           .append("circle")
-          .attr("cx", govX)
-          .attr("cy", govY)
-          .attr("r", circleRadiusScale(govData.value || 0))
-          .attr("fill", govData.value != null ? countryColor : noDataColor)
+          .attr("cx", govStartX)
+          .attr("cy", govStartY)
+          .attr("r", circleRadiusScale(valueGov || 0))
+          .attr("fill", valueGov != null ? countryColor : noDataColor)
           .attr("tabindex", 0)
           .on("focus", function (event) {
             setTootip({
@@ -361,21 +309,24 @@ export default function RadarChart({ country, compareData = null, id,yearIndicat
           })
           .on("blur", function () {
             setTootip(null);
-          });
-
+          })
+          .transition()
+          .duration(1000)
+          .attr("cx", govX)
+          .attr("cy", govY)
         svg
           .append("circle")
-          .attr("id", `circle-${indicator}-national`)
+          .attr("id", `circle-${ind}-national`)
           .attr(
             "cx",
-            radiusScale(natData.value || 0) * Math.cos(natAngle - Math.PI / 2)
+            natStartX
           )
           .attr(
             "cy",
-            radiusScale(natData.value || 0) * Math.sin(natAngle - Math.PI / 2)
+            natStartY
           )
-          .attr("r", circleRadiusScale(natData.value || 0))
-          .attr("fill", natData.value != null ? govColor : noDataColor)
+          .attr("r", circleRadiusScale(valueNat || 0))
+          .attr("fill", valueNat != null ? govColor : noDataColor)
           .attr("tabindex", 0)
           .on("focus", function (event) {
             setTootip({
@@ -386,29 +337,33 @@ export default function RadarChart({ country, compareData = null, id,yearIndicat
           })
           .on("blur", function () {
             setTootip(null);
-          });
+          })
+          .transition()
+          .duration(1000)
+          .attr("cx", natX)
+          .attr("cy", natY)
 
         // Split the indicator name into two lines
         const words = indicatorName.split(" ");
-        const midPoint = indicator === 8 ? 1 : Math.ceil(words.length / 2);
+        const midPoint = ind === 8 ? 1 : Math.ceil(words.length / 2);
         const firstLine = words.slice(0, midPoint).join(" ");
         const longIndicators = [7, 8, 11, 19]; // indicadores con nombres largos
-        const secondLine = longIndicators.includes(indicator)
+        const secondLine = longIndicators.includes(ind)
           ? words.slice(midPoint, midPoint + 1).join(" ")
           : words.slice(midPoint).join(" ");
-        const thirdLine = longIndicators.includes(indicator)
+        const thirdLine = longIndicators.includes(ind)
           ? words.slice(midPoint + 1).join(" ")
           : null;
-        // Add label for the indicator (two lines)
+        // Add label for the ind (two lines)
         const labelDistance = radius + (isMobile ? 47 : 50); // Reduced distance to bring text closer
         const labelX =
-          isMobile && indicator === 8
+          isMobile && ind === 8
             ? labelDistance - 30
-            : isMobile && indicator === 7
+            : isMobile && ind === 7
             ? labelDistance - 16
-            : isMobile && indicator === 12
+            : isMobile && ind === 12
             ? -labelDistance + 18
-            : isMobile && indicator === 11
+            : isMobile && ind === 11
             ? -labelDistance + 18
             : (midAngle < Math.PI / 2 || midAngle > (3 * Math.PI) / 2
                 ? labelDistance + (isMobile ? 0 : 20) // Move right in top-right and bottom-right
@@ -427,7 +382,7 @@ export default function RadarChart({ country, compareData = null, id,yearIndicat
         // Add the icon
         textGroup
           .append("image")
-          .attr("xlink:href", `/ods_${indicator}.png`)
+          .attr("xlink:href", `/ods_${ind}.png`)
           .attr("x", isMobile ? -10 : -12) // Center the icon: ;
           .attr("y", isMobile ? -4 : -6) // Reverted to original y position
           .attr("width", isMobile ? 20 : 24) // Set icon size: ;
@@ -508,23 +463,26 @@ export default function RadarChart({ country, compareData = null, id,yearIndicat
             setTootip(null);
           });
       });
+
       setNationalPosition(natPositions);
       setChartCreated(true);
     };
+    // Redraw the chart with new dimensions
+    if (data && nationalData && !chartCreated) {
+      console.log(nationalData);
+      const { innerWidth, innerHeight, width, height } = chartDimensions;
+      const radius = Math.min(innerWidth, innerHeight) / 2;
+      const innerRadius = radius * 0.15; // 30% of the outer radius for the inner circle
+      drawChart(innerWidth, innerHeight, radius, innerRadius, width, height);
+    }
+  }, [clientWidth, data, nationalData]);
 
-    updateChartDimensions();
-    window.addEventListener("resize", updateChartDimensions);
-
-    return () => {
-      window.removeEventListener("resize", updateChartDimensions);
-    };
-  }, [data, indicators, lang, nationalData]);
   useEffect(() => {
     console.log("redibujamos segmentos");
     if (chartCreated) drawSegments();
     function drawSegments() {
       const { innerWidth, innerHeight, radius, innerRadius, margin } =
-        chartDimensions;
+        chartDimensions2;
       indicatorsID.map((indicator, i) => {
         const svg = d3.select(svgRef.current);
         const line = svg.select(`#line-${indicator}-national`);
@@ -539,24 +497,24 @@ export default function RadarChart({ country, compareData = null, id,yearIndicat
 
         const circle = svg.select(`#circle-${indicator}-national`);
 
-        [line, circle].map((el,i) =>
+        [line, circle].map((el, i) =>
           el
             .transition()
-            .duration(500)
+            .duration(1000)
             .attr(
-             i===0 ? "x2" : "cx",
+              i === 0 ? "x2" : "cx",
               radiusScale(value) *
                 Math.cos(nationalPosition[indicator].angle - Math.PI / 2)
             )
             .attr(
-              i===0 ? "y2" : "cy",
+              i === 0 ? "y2" : "cy",
               radiusScale(value) *
                 Math.sin(nationalPosition[indicator].angle - Math.PI / 2)
             )
         );
       });
     }
-  }, [nationalData, chartDimensions, chartCreated]);
+  }, [nationalData, chartDimensions2, chartCreated]);
   return (
     <>
       <div className="radar-chart-container h-full">
@@ -618,7 +576,9 @@ export default function RadarChart({ country, compareData = null, id,yearIndicat
           style={{ marginRight: "25%" }}
           onClick={(event) => {
             setTootip({
-              title: tooltipInfo,
+              title: getTextById(jurisdictionsCopy, "tooltip_info", lang, [
+                { id: "year", replace: yearIndicators },
+              ]),
               x: event.pageX, // Adjust for scrolling
               y: event.pageY, // Adjust for scrolling
             });
@@ -626,7 +586,9 @@ export default function RadarChart({ country, compareData = null, id,yearIndicat
           }}
           onMouseOver={(event) => {
             setTootip({
-              title: tooltipInfo,
+              title: getTextById(jurisdictionsCopy, "tooltip_info", lang, [
+                { id: "year", replace: yearIndicators },
+              ]),
               x: event.pageX - 50, // Adjust for scrolling
               y: event.pageY, // Adjust for scrolling
             });
@@ -640,7 +602,9 @@ export default function RadarChart({ country, compareData = null, id,yearIndicat
           }}
           onFocus={(event) => {
             setTootip({
-              title: tooltipInfo,
+              title: getTextById(jurisdictionsCopy, "tooltip_info", lang, [
+                { id: "year", replace: yearIndicators },
+              ]),
               x: event.pageX, // Adjust for scrolling
               y: event.pageY, // Adjust for scrolling
             });
@@ -667,16 +631,8 @@ export default function RadarChart({ country, compareData = null, id,yearIndicat
               {getTextById(jurisdictionsCopy, "average", lang)}{" "}
               {country[`name_${lang}`]}
             </p>
-          </div>
+          </div>{" "}
         </div>
-
-        {/* <div className="flex gap-xs items-center">
-          <div
-            className="w-4 h-1 "
-            style={{ backgroundColor: percentileColor }}
-          />
-          <p>Promedios para los percentiles 10 y 90</p>
-        </div> */}
       </div>
     </>
   );

@@ -6,7 +6,7 @@ import { getTextById } from "@/app/utils/textUtils";
 import SearchComparative from "./searchComparative";
 import { getJurisdictionData } from "@/app/utils/dataFetchers";
 import RadarChart from "./radarChart";
-export default function Comparative() {
+export default function Comparative({yearIndicators}) {
   const {
     data,
     indicators,
@@ -61,6 +61,7 @@ console.log('me ejecuto')
         <div className=" grid lg:grid-cols-12 gap-xl">
           <div className="lg:col-span-8">
             <RadarChart
+            yearIndicators={yearIndicators}
               compareData={comparativeData}
               indicators={indicators}
               lang={lang}
