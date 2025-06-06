@@ -211,7 +211,7 @@ export async function getAllData() {
 export async function getYearData(lang, id) {
   const csvUrl = csv.yearData;
   return fetchWithCache(
-    "yearData",
+    `yearData_${lang}_${id}`,
     () => fetchAndParseCSV(csvUrl, lang, id, "country_iso3"),
     lang
   );
