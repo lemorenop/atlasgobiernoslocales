@@ -24,7 +24,9 @@ export default async function Indicator({ params }) {
   const { lang, slug } = await params;
   const [indicators, copy, countries, levelPerCountry, regions] =
     await Promise.all([
-      fetchData("indicators", lang),
+      fetchData("indicators", lang).then((res) =>
+        res.sort((a, b) => (a.code < 4 ? 1 : -1))
+      ),
       fetchData("indicatorsCopy", lang),
       getCountries(lang),
       fetchData("levelPerCountry", lang),
@@ -40,13 +42,13 @@ export default async function Indicator({ params }) {
     countries &&
     levelPerCountry && (
       <main className="flex flex-col justify-start text-black bg-white flex-grow ">
-        {/* <Hero
+        <Hero
           lang={lang}
           slug={slug}
           copy={copy}
           indicators={indicators}
           indicator={currentIndicator}
-        /> */}
+        />
         <IndicatorDataProvider
           copy={copy}
           indicators={indicators}
@@ -56,11 +58,11 @@ export default async function Indicator({ params }) {
           indicatorCode={currentIndicator.code}
           lang={lang}
         >
-          {/* <MapContainer
+          <MapContainer
             regions={regions}
             countries={countries}
             levelPerCountry={levelPerCountry}
-          /> */}
+          />
           <div className="px-l md:p-[80px] flex flex-col gap-xl max-md:py-[48px]">
             <div className=" px-[80px]">
               <ScatterPlot />

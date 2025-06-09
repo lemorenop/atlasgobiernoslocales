@@ -6,16 +6,11 @@ import { getTextById } from "@/app/utils/textUtils";
 import SearchComparative from "./searchComparative";
 import { getJurisdictionData } from "@/app/utils/dataFetchers";
 import RadarChart from "./radarChart";
+import Loader from "@/app/[lang]/components/loader";
 export default function Comparative({ yearIndicators }) {
-  const {
-    data,
-    indicators,
-    jurisdictionsCopy,
-    lang,
-    government,
-    governmentsData,
-    country,
-  } = useContext(JurisdictionDataContext);
+  const { jurisdictionsCopy, lang, government, country } = useContext(
+    JurisdictionDataContext
+  );
   const [compareJurisdiction, setCompareJurisdiction] = useState(null);
   const [comparativeData, setComparativeData] = useState(null);
   const [loadingData, setLoadingData] = useState(false);
@@ -58,6 +53,11 @@ export default function Comparative({ yearIndicators }) {
           />
         </div>
       </div>
+      {!comparativeData && loadingData && (
+        <div className="flex justify-center items-center h-[400px]">
+          <Loader className="w-10 h-10  min-w-10 min-h-10 [&_span]:w-full [&_span]:h-full" />
+        </div>
+      )}
       {compareJurisdiction && comparativeData && (
         <div className=" grid lg:grid-cols-12 gap-xl">
           <div className="lg:col-span-8">

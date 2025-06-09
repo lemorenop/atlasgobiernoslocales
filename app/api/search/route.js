@@ -5,7 +5,7 @@ export async function GET(req) {
   const { searchParams } = new URL(req.url);
   const lang = searchParams.get("lang") || "es";
   const query = searchParams.get("query") || "";
-  const countryCode = searchParams.get("countryCode") || "BRA";
+  const countryCode = searchParams.get("countryCode") ;
   const nivel = searchParams.get("nivel") || "";
   console.log(countryCode)
 

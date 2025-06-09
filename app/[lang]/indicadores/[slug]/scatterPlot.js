@@ -11,11 +11,13 @@ import { IndicatorDataContext } from "./indicatorDataProvider";
 import { getTextById, formatValue } from "@/app/utils/textUtils";
 import SelectCountrySwitch from "./selectCountrySwitch";
 import * as d3 from "d3";
-
+import Share from "@/app/[lang]/components/share";
+import Loader from "../../components/loader";
+const textColor = "#212529";
 export default function ScatterPlot() {
   const { governments, lang, indicators, indicator, copy, countries } =
     useContext(IndicatorDataContext);
-  const [selectedIndicator, setSelectedIndicator] = useState(indicators[0]);
+  const [selectedIndicator, setSelectedIndicator] = useState(indicators[0].code!==indicator.code ? indicators[0] : indicators[1]);
   const [scatterData, setSatterData] = useState(null);
   const [selectedCountry, setSelectedCountry] = useState({
     name_es: "Todos",
@@ -23,15 +25,19 @@ export default function ScatterPlot() {
     name_pt: "Todos",
     iso3: "all",
   });
+  const [noData, setNoData] = useState(false);
   const [selectedNivel, setSelectedNivel] = useState({
     name: getTextById(copy, "switch_local", lang),
     value: "2",
   });
+  const [tooltip, setTooltip] = useState(null);
+  const [isLoading, setIsLoading] = useState(true);
   const svgRef = useRef(null);
 
   useEffect(() => {
     async function loadData() {
       try {
+        setIsLoading(true);
         const response = await fetch(
           `/api/indicators/${selectedIndicator.code}`
         )
@@ -50,14 +56,17 @@ export default function ScatterPlot() {
 
         setSatterData(result);
       } catch (error) {
+        setNoData(true);
         setSatterData();
         console.error("Error loading government data:", error);
+      } finally {
+        setIsLoading(false);
       }
     }
 
     if (governments) loadData();
   }, [selectedIndicator, governments]);
-  console.log(selectedIndicator);
+  //   console.log(governments.ARG10);
   useEffect(() => {
     if (!scatterData || !svgRef.current) return;
 
@@ -71,7 +80,7 @@ export default function ScatterPlot() {
           selectedCountry.iso3 === "all" ||
           data.countryCode === selectedCountry.iso3;
         const levelMatch = data.nivel === selectedNivel.value;
-        return countryMatch && levelMatch;
+        return countryMatch && levelMatch && data.value && data.value_2;
       })
       .map(([id, data]) => {
         // Convert percentage values to 0-100 range
@@ -89,7 +98,11 @@ export default function ScatterPlot() {
         };
       });
 
-    if (filteredData.length === 0) return;
+    if (filteredData.length === 0) {
+      setNoData(true);
+      return;
+    }
+    setNoData(false);
 
     // Set up dimensions
     const margin = { top: 40, right: 40, bottom: 60, left: 60 };
@@ -122,12 +135,14 @@ export default function ScatterPlot() {
 
       // Abbreviate large numbers
       if (d >= 1000000) {
-        return (d / 1000000).toFixed(1) + "M";
+        const value = d / 1000000;
+        return Number.isInteger(value) ? value + "M" : value.toFixed(1) + "M";
       }
       if (d >= 1000) {
-        return (d / 1000).toFixed(1) + "K";
+        const value = d / 1000;
+        return Number.isInteger(value) ? value + "K" : value.toFixed(1) + "K";
       }
-      return d;
+      return Number.isInteger(d) ? d : d.toFixed(1);
     };
 
     // Add X axis
@@ -142,6 +157,7 @@ export default function ScatterPlot() {
       .selectAll("text")
       .style("text-anchor", "end")
       .style("font-family", "Raleway")
+      .style("color", textColor)
       .attr("dx", "-.8em")
       .attr("dy", ".5em");
 
@@ -155,13 +171,45 @@ export default function ScatterPlot() {
         d3
           .axisLeft(yScale)
           .tickFormat(formatAxisLabel, selectedIndicator.unit_measure_id)
-      );
+      )
+      .selectAll("text")
+      .style("text-anchor", "end")
+      .style("font-family", "Raleway")
+      .style("color", textColor)
+      .attr("dx", "-.8em")
+      .attr("dy", ".5em");
 
     // Remove Y axis lines
     svg.selectAll(".domain, .tick line").remove();
 
+    // Add center lines
+    // Vertical line
+    const lineColor = "#55C7D54D";
+
+    svg
+      .append("line")
+      .attr("x1", width / 2)
+      .attr("y1", 0)
+      .attr("x2", width / 2)
+      .attr("y2", height)
+      .attr("stroke", lineColor)
+      .attr("stroke-width", 1)
+      .attr("stroke-dasharray", "4,4");
+
+    // Horizontal line
+    svg
+      .append("line")
+      .attr("x1", 0)
+      .attr("y1", height / 2)
+      .attr("x2", width)
+      .attr("y2", height / 2)
+      .attr("stroke", lineColor)
+      .attr("stroke-width", 1)
+      .attr("stroke-dasharray", "4,4");
+
     // Add dots
-    svg.append("g")
+    svg
+      .append("g")
       .selectAll("circle")
       .data(filteredData)
       .enter()
@@ -174,10 +222,67 @@ export default function ScatterPlot() {
       .attr("stroke-width", 1)
       .attr("cursor", "pointer")
       .on("mouseover", function (event, d) {
+        const tooltipContent = {
+          title: `${d.name}, ${d.completeName}`,
+          valueInd1: formatValue(d.x, indicator.unit_measure_id, lang, true),
+          valueInd2: formatValue(
+            d.y,
+            selectedIndicator.unit_measure_id,
+            lang,
+            true
+          ),
+          government_id: d.id,
+        };
+        setTooltip({
+          ...tooltipContent,
+          x: event.pageX,
+          y: event.pageY,
+        });
         d3.select(this).attr("r", 7).attr("stroke-width", 2);
       })
+      .on("mousemove", function (event, d) {
+        const tooltipContent = {
+          title: `${d.name}, ${d.completeName}`,
+          valueInd1: formatValue(d.x, indicator.unit_measure_id, lang, true),
+          valueInd2: formatValue(
+            d.y,
+            selectedIndicator.unit_measure_id,
+            lang,
+            true
+          ),
+          government_id: d.id,
+        };
+        setTooltip({
+          ...tooltipContent,
+          x: event.pageX,
+          y: event.pageY,
+        });
+      })
       .on("mouseout", function () {
+        setTooltip(null);
         d3.select(this).attr("r", 5).attr("stroke-width", 1);
+      })
+      .attr("tabindex", 0)
+      .on("focus", function (event, d) {
+        const tooltipContent = {
+          title: `${d.name}, ${d.completeName}`,
+          valueInd1: formatValue(d.x, indicator.unit_measure_id, lang, true),
+          valueInd2: formatValue(
+            d.y,
+            selectedIndicator.unit_measure_id,
+            lang,
+            true
+          ),
+          government_id: d.id,
+        };
+        setTooltip({
+          ...tooltipContent,
+          x: event.pageX,
+          y: event.pageY,
+        });
+      })
+      .on("blur", function () {
+        setTooltip(null);
       });
 
     // Add X axis label at the top
@@ -186,11 +291,12 @@ export default function ScatterPlot() {
       .attr("text-anchor", "middle")
       .style("font-family", "Raleway")
       .style("font-size", "14px")
+      .style("color", textColor)
       .attr("x", width / 2)
       .attr("y", -margin.top / 2)
       .text(
         `${indicator[`name_${lang}`]} ${
-          indicator.unit_measure_id !== "hab"
+          indicator.unit_measure_id !== "hab" && indicator.unit_measure_id !== "num"
             ? `(${formatValue(null, indicator.unit_measure_id, lang)})`
             : ""
         }`
@@ -202,10 +308,14 @@ export default function ScatterPlot() {
       .attr("text-anchor", "middle")
       .style("font-family", "Raleway")
       .style("font-size", "14px")
-      .attr("transform", `translate(${width + margin.right - 20}, ${height/2}) rotate(90)`)
+      .style("color", textColor)
+      .attr(
+        "transform",
+        `translate(${width + margin.right - 20}, ${height / 2}) rotate(90)`
+      )
       .text(
         `${selectedIndicator[`name_${lang}`]} ${
-          selectedIndicator.unit_measure_id !== "hab"
+          selectedIndicator.unit_measure_id !== "hab" && selectedIndicator.unit_measure_id !== "num"
             ? `(${formatValue(null, selectedIndicator.unit_measure_id, lang)})`
             : ""
         }`
@@ -220,7 +330,7 @@ export default function ScatterPlot() {
   ]);
 
   return (
-    <div className="flex flex-col gap-[24px] ">
+    <div className="flex flex-col gap-xl ">
       <div className="flex flex-col gap-[24px] md:max-w-[80%] mx-auto">
         <h2 className="text-navy text-h2 text-center font-bold [&_span]:text-cyan">
           {getTextById(copy, "correlation_title", lang, [
@@ -260,11 +370,63 @@ export default function ScatterPlot() {
           ]}
         />
       </div>
-      <div className="overflow-x-auto bg-[#55C7D51A] border-1 border-[#55C7D5] p-m relative">
-        <div className="w-full h-[400px]">
-          <svg ref={svgRef}></svg>
-        </div>
+      <div className="overflow-x-auto bg-[#55C7D51A] border-1 border-[#55C7D54D] p-m relative">
+        {isLoading ? (
+          <div className="flex justify-center items-center h-[400px]">
+            <Loader className="w-10 h-10  min-w-10 min-h-10 [&_span]:w-full [&_span]:h-full" />
+          </div>
+        ) : (
+          <div className="w-full h-[400px]">
+            <svg ref={svgRef}></svg>
+          </div>
+        )}
+        {noData && (
+          <p
+            style={{ top: "40%" }}
+            className="text-center text-black right-0 left-0 absolute h-fit m-auto"
+          >
+            {getTextById(copy, "no_data", lang)}
+          </p>
+        )}
       </div>
+      <div className="max-w-[300px]">
+        <Share
+          color="#004a80"
+          shareText={`${indicator[`name_${lang}`]} `}
+          shareTitle={getTextById(copy, "share", lang)}
+        />
+      </div>
+
+      {tooltip && (
+        <div
+          className="tooltip w-fit inline-block z-20 absolute bg-white pointer-events-none"
+          style={{
+            top: tooltip.y,
+            left: tooltip.x,
+            border: "1px solid #212529",
+            padding: "16px",
+            maxWidth: "350px",
+            boxShadow: "0 2px 4px rgba(0, 0, 0, 0.1)",
+            opacity: 1,
+            whiteSpace: "pre-wrap",
+            wordBreak: "break-word",
+          }}
+        >
+          <p className="font-bold pb-xs">{tooltip.title}</p>
+          <div className="flex flex-col gap-xs">
+            <div className="flex items-center gap-xs">
+              <p>
+                {indicator[`name_${lang}`]}: {tooltip.valueInd1}
+              </p>
+            </div>
+            <div className="flex items-center gap-xs">
+              <p>
+                {selectedIndicator[`name_${lang}`]}: {tooltip.valueInd2}
+              </p>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
@@ -273,7 +435,7 @@ function SelectIndicator({ selected, onChange, lang, options }) {
   return (
     <Listbox value={selected} onChange={onChange}>
       <ListboxButton
-        className={` w-fit inline-flex items-center gap-2  text-cyan focus:outline-none  data-[focus]:outline-1 data-[focus]:outline-white cursor-pointer  justify-between data-[open]:rotate-0 pb-xxs border-b-2 border-cyan`}
+        className={` w-fit inline-flex items-center gap-2  text-cyan focus:outline-none  data-[focus]:outline-1 data-[focus]:outline-white cursor-pointer  justify-between data-[open]:rotate-0 pb-1 border-b-2 border-cyan`}
       >
         {selected[`name_${lang}`]}
         <Expand className="w-4 h-4 stroke-2 rotate-90 stroke-blue" />

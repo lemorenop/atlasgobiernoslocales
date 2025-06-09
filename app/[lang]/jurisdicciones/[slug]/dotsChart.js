@@ -7,6 +7,8 @@ import * as d3 from "d3";
 import Loader from "../../components/loader";
 import Share from "./share";
 import Info from "../../components/icons/info";
+const textColor = "#212529";
+
 export default function DotsChart() {
   const {
     data,
@@ -125,9 +127,15 @@ export default function DotsChart() {
         // Format number for axis labels
         const formatNumber = (d) => {
           if (isPercentage) return d + "%";
-          if (d >= 1000000) return (d / 1000000).toFixed(1) + "M";
-          if (d >= 1000) return (d / 1000).toFixed(1) + "K";
-          return d;
+          if (d >= 1000000) {
+            const value = d / 1000000;
+            return Number.isInteger(value) ? value + "M" : value.toFixed(1) + "M";
+          }
+          if (d >= 1000) {
+            const value = d / 1000;
+            return Number.isInteger(value) ? value + "K" : value.toFixed(1) + "K";
+          }
+          return Number.isInteger(d) ? d : d.toFixed(1);
         };
 
         // Add X axis
@@ -137,8 +145,9 @@ export default function DotsChart() {
           .call(d3.axisBottom(xScale).tickFormat(formatNumber))
           .selectAll("text")
           .style("text-anchor", "end")
-          .style("font-size", "12px");
-
+          .style("font-size", "12px")
+          .style("color",textColor)
+          .style("font-family","Raleway")
         // Remove the line and ticks from X axis
         svg.selectAll(".domain, .tick line").remove();
 
@@ -223,7 +232,9 @@ export default function DotsChart() {
           .append("text")
           .attr("text-anchor", "middle")
           .attr("x", width / 2)
-          .attr("y", height + margin.bottom - 10)
+          .attr("y", height + margin.bottom - 10) 
+          .style("color",textColor)
+          .style("font-family","Raleway")
           .text(selectedIndicator.name);
       }
       setIsLoading(false);
@@ -234,17 +245,25 @@ export default function DotsChart() {
   }, [selectedIndicator, data, svgRef]);
 
   useEffect(() => {
+    let timeoutId;
     const handleResize = () => {
-      if (svgRef.current) {
-        // Trigger chart redraw
-        const event = new Event("resize");
-        window.dispatchEvent(event);
-      }
+      // Clear the previous timeout
+      clearTimeout(timeoutId);
+      // Set a new timeout
+      timeoutId = setTimeout(() => {
+        if (svgRef.current) {
+          // Force a re-render by updating the selected indicator
+          setSelectedIndicator(prev => ({...prev}));
+        }
+      }, 250); // Wait 250ms after the last resize event
     };
 
     window.addEventListener("resize", handleResize);
-    return () => window.removeEventListener("resize", handleResize);
-  }, [selectedIndicator]);
+    return () => {
+      window.removeEventListener("resize", handleResize);
+      clearTimeout(timeoutId);
+    };
+  }, []);
   const title = getTextById(jurisdictionsCopy, "dots_chart_title", lang, [
     { id: "jurisdiction_name", replace: government.name },
   ]);
@@ -344,7 +363,7 @@ export default function DotsChart() {
             </button>
           </div>{" "}
         </div>
-        <div className="overflow-x-auto bg-[#55C7D51A] border-1 border-[#55C7D5] p-m relative">
+        <div className="overflow-x-auto bg-[#55C7D51A] border-1 border-[#55C7D54D] p-m relative">
           {isLoading ? (
             <div className="flex justify-center items-center h-[400px]">
               <Loader className="w-10 h-10  min-w-10 min-h-10 [&_span]:w-full [&_span]:h-full" />

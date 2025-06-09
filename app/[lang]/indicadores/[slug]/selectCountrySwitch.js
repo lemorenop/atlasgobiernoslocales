@@ -152,11 +152,7 @@ export default function SelectCountrySwitch({
         },
       ];
       setNiveles(options);
-      if (selectedNivel.value === "1") {
-        setSelectedNivel(options[0]);
-      } else {
-        setSelectedNivel(options[1]);
-      }
+      setSelectedNivel(options[1]);
     }
   }, [selectedCountry]);
   return (
