@@ -10,6 +10,9 @@ export default function IndicatorDataProvider({
   lang,
   children,
   indicatorCode,
+  indicator,
+  copy,
+  indicators,countries,levelPerCountry
 }) {
   const [data, setData] = useState({ data: null, governments: null });
 
@@ -43,7 +46,7 @@ export default function IndicatorDataProvider({
         setData({ governments: result });
         console.timeEnd("Total API calls in IndicatorDataProvider");
       } catch (error) {
-        setData({ data: null, governments: null });
+        setData({ governments: null });
         console.error("Error loading government data:", error);
       }
     }
@@ -52,7 +55,7 @@ export default function IndicatorDataProvider({
   }, [lang]);
 
   return (
-    <IndicatorDataContext.Provider value={data}>
+    <IndicatorDataContext.Provider value={{ ...data, indicator, copy, lang, indicators,countries,levelPerCountry }}>
       {children}
     </IndicatorDataContext.Provider>
   );

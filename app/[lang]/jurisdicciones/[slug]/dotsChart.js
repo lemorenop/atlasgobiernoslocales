@@ -46,6 +46,7 @@ export default function DotsChart() {
         (elm) =>
           elm.indicator_code === selectedIndicator.code && elm.value !== null
       );
+      d3.select(svgRef.current).selectAll("*").remove();
       if (!currentData.length || !svgRef.current || !selectedIndicator) {
         setIsLoading(false);
         setValues(null);
@@ -53,7 +54,7 @@ export default function DotsChart() {
       }
 
       // Clear previous chart
-      d3.select(svgRef.current).selectAll("*").remove();
+     
 
       if (currentData.length > 0) {
         const container = svgRef.current.parentElement;
@@ -343,13 +344,15 @@ export default function DotsChart() {
             </button>
           </div>{" "}
         </div>
-        <div className="overflow-x-auto bg-[#55C7D51A] border-1 border-[#55C7D5] p-m">
+        <div className="overflow-x-auto bg-[#55C7D51A] border-1 border-[#55C7D5] p-m relative">
           {isLoading ? (
             <div className="flex justify-center items-center h-[400px]">
               <Loader className="w-10 h-10  min-w-10 min-h-10 [&_span]:w-full [&_span]:h-full" />
             </div>
           ) : !values ? (
-            <p className="text-center text-black">
+            <p
+            style={{top:'40%'}}
+            className="text-center text-black right-0 left-0 absolute h-fit m-auto">
               {getTextById(jurisdictionsCopy, "no_data", lang)}
             </p>
           ) : (

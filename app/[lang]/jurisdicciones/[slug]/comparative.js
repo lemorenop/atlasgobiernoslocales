@@ -6,7 +6,7 @@ import { getTextById } from "@/app/utils/textUtils";
 import SearchComparative from "./searchComparative";
 import { getJurisdictionData } from "@/app/utils/dataFetchers";
 import RadarChart from "./radarChart";
-export default function Comparative({yearIndicators}) {
+export default function Comparative({ yearIndicators }) {
   const {
     data,
     indicators,
@@ -18,15 +18,16 @@ export default function Comparative({yearIndicators}) {
   } = useContext(JurisdictionDataContext);
   const [compareJurisdiction, setCompareJurisdiction] = useState(null);
   const [comparativeData, setComparativeData] = useState(null);
+  const [loadingData, setLoadingData] = useState(false);
   useEffect(() => {
     if (compareJurisdiction) getData();
     async function getData() {
-      const data = await getJurisdictionData(compareJurisdiction.id); 
-      
+      setLoadingData(true);
+      const data = await getJurisdictionData(compareJurisdiction.id);
+      setLoadingData(false);
       setComparativeData(data);
     }
   }, [compareJurisdiction]);
-console.log('me ejecuto')
   return (
     <>
       <div className="flex flex-col py-[48px]  md:max-w-[60%] mx-auto gap-[24px]">
@@ -57,15 +58,14 @@ console.log('me ejecuto')
           />
         </div>
       </div>
-      {(compareJurisdiction && comparativeData) && (
+      {compareJurisdiction && comparativeData && (
         <div className=" grid lg:grid-cols-12 gap-xl">
           <div className="lg:col-span-8">
             <RadarChart
-            yearIndicators={yearIndicators}
+              compareGov={compareJurisdiction.name}
+              loadingData={loadingData}
+              yearIndicators={yearIndicators}
               compareData={comparativeData}
-              indicators={indicators}
-              lang={lang}
-              government={government}
               country={country}
             />
           </div>

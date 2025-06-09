@@ -43,7 +43,8 @@ export function formatValue(value, unit_measure_id, lang,showUnit=true) {
   }
 }
  
-  return unit_measure_id === "perc"
+ return value?  unit_measure_id === "perc"
     ? value.toFixed(2) + (showUnit ? "%" : "")
-    : value.toLocaleString(lang === "es" || lang === "pt" ? "pt" : "en") + (showUnit ? unitLabel() : "");
+    : value.toLocaleString(lang === "es" || lang === "pt" ? "pt" : "en") + (showUnit ? unitLabel() : "")
+    : unitLabel()
 }

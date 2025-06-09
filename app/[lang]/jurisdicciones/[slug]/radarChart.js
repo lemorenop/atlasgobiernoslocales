@@ -1,7 +1,6 @@
 "use client";
 import { useEffect, useRef, useState, useContext } from "react";
 import * as d3 from "d3";
-import { useParams } from "next/navigation";
 import { getTextById } from "@/app/utils/textUtils";
 import Info from "@/app/[lang]/components/icons/info";
 import { JurisdictionDataContext } from "./jurisdictionDataProvider";
@@ -9,13 +8,12 @@ import Loader from "@/app/[lang]/components/loader";
 import { noDataColor } from "@/app/utils/mapSettings";
 const govColor = "#1774AD";
 const countryColor = "#55C7D5";
-// const percentileColor = "#024067";
 
 export default function RadarChart({
-  country,
   compareData = null,
-  id,
   yearIndicators,
+  loadingData = false,
+  compareGov,
 }) {
   const { government, indicators, jurisdictionsCopy, jurisdictionData, lang } =
     useContext(JurisdictionDataContext);
@@ -29,13 +27,6 @@ export default function RadarChart({
   const [chartDimensions, setChartDimensions] = useState({
     innerWidth: 0,
     innerHeight: 0,
-  });
-  const [chartDimensions2, setChartDimensions2] = useState({
-    innerWidth: 0,
-    innerHeight: 0,
-    radius: 0,
-    innerRadius: 0,
-    margin: 0,
   });
   const svgRef = useRef(null);
   const indicatorsID = [21, 5, 7, 8, 13, 19, 10, 11, 12, 17, 20];
@@ -71,7 +62,9 @@ export default function RadarChart({
       }
     };
     if (!compareData) fetchNationalAverages();
-    else setNationalData(compareData);
+    else {
+      setNationalData(compareData);
+    }
   }, [government, compareData]);
   const margin = { top: 100, right: 60, bottom: 60, left: 60 }; // Add some margin for better spacing
   useEffect(() => {
@@ -85,8 +78,7 @@ export default function RadarChart({
       const height = container.clientHeight;
       const innerWidth = width - margin.left - margin.right;
       const innerHeight = height - margin.top - margin.bottom;
-      const radius = Math.min(innerWidth, innerHeight) / 2;
-      const innerRadius = radius * 0.15; // 30% of the outer radius for the inner circle
+      const minSize = Math.min(width, height);
       setChartDimensions({
         width: width,
         height: height,
@@ -95,32 +87,17 @@ export default function RadarChart({
       });
       // Update SVG dimensions
       d3.select(svgRef.current).attr("width", width).attr("height", height);
-
-      setChartDimensions2({
-        innerWidth: innerWidth,
-        innerHeight: innerHeight,
-        radius: radius,
-        innerRadius: innerRadius,
-        margin: margin,
-      });
     };
 
-    updateChartDimensions();
+   if(data && nationalData) updateChartDimensions();
     window.addEventListener("resize", updateChartDimensions);
     return () => {
       window.removeEventListener("resize", updateChartDimensions);
     };
-  }, [data]);
+  }, [data,nationalData]);
 
   useEffect(() => {
-    const drawChart = (
-      innerWidth,
-      innerHeight,
-      radius,
-      innerRadius,
-      width,
-      height
-    ) => {
+    const drawChart = (innerWidth, radius, innerRadius, width, height) => {
       // Clear previous chart
       d3.select(svgRef.current).selectAll("*").remove();
       const isMobile = innerWidth < 650;
@@ -177,14 +154,14 @@ export default function RadarChart({
         const startAngle = i * angleStep;
         const endAngle = (i + 1) * angleStep;
         const midAngle = startAngle + (endAngle - startAngle) / 2;
-       
+
         // Find the indicator name from the indicators prop based on the current language
         const indicatorInfo = indicators
           ? indicators.find((indicator) => indicator.code === ind)
           : null;
         let indicatorName = indicatorInfo[`name_${lang}`];
-        let indDescription = indicatorInfo[`description_${lang}`];        
-        
+        let indDescription = indicatorInfo[`description_${lang}`];
+
         const displayGovValue =
           valueGov != null
             ? `${parseFloat(valueGov).toFixed(0)} ${
@@ -262,7 +239,6 @@ export default function RadarChart({
         const govStartY = innerRadius * Math.sin(govAngle - Math.PI / 2);
         const natStartX = innerRadius * Math.cos(natAngle - Math.PI / 2);
         const natStartY = innerRadius * Math.sin(natAngle - Math.PI / 2);
-        if (ind == 11) console.log("nat", maxValue, natAngle);
         // Línea para el valor del gobierno
         svg
           .append("line")
@@ -273,6 +249,7 @@ export default function RadarChart({
           .attr("stroke", countryColor)
           .attr("stroke-width", 2)
           .transition()
+          .delay(300)
           .duration(1000)
           .attr("x2", govX)
           .attr("y2", govY);
@@ -288,6 +265,7 @@ export default function RadarChart({
           .attr("stroke", govColor)
           .attr("stroke-width", 2)
           .transition()
+          .delay(300)
           .duration(1000)
           .attr("x2", natX)
           .attr("y2", natY);
@@ -311,20 +289,15 @@ export default function RadarChart({
             setTootip(null);
           })
           .transition()
+          .delay(300)
           .duration(1000)
           .attr("cx", govX)
-          .attr("cy", govY)
+          .attr("cy", govY);
         svg
           .append("circle")
           .attr("id", `circle-${ind}-national`)
-          .attr(
-            "cx",
-            natStartX
-          )
-          .attr(
-            "cy",
-            natStartY
-          )
+          .attr("cx", natStartX)
+          .attr("cy", natStartY)
           .attr("r", circleRadiusScale(valueNat || 0))
           .attr("fill", valueNat != null ? govColor : noDataColor)
           .attr("tabindex", 0)
@@ -339,9 +312,10 @@ export default function RadarChart({
             setTootip(null);
           })
           .transition()
+          .delay(300)
           .duration(1000)
           .attr("cx", natX)
-          .attr("cy", natY)
+          .attr("cy", natY);
 
         // Split the indicator name into two lines
         const words = indicatorName.split(" ");
@@ -468,21 +442,21 @@ export default function RadarChart({
       setChartCreated(true);
     };
     // Redraw the chart with new dimensions
-    if (data && nationalData && !chartCreated) {
-      console.log(nationalData);
+    if (data && nationalData) {
       const { innerWidth, innerHeight, width, height } = chartDimensions;
       const radius = Math.min(innerWidth, innerHeight) / 2;
       const innerRadius = radius * 0.15; // 30% of the outer radius for the inner circle
-      drawChart(innerWidth, innerHeight, radius, innerRadius, width, height);
+      drawChart(innerWidth, radius, innerRadius, width, height);
     }
-  }, [clientWidth, data, nationalData]);
+  }, [clientWidth, data]);
+
 
   useEffect(() => {
-    console.log("redibujamos segmentos");
     if (chartCreated) drawSegments();
     function drawSegments() {
-      const { innerWidth, innerHeight, radius, innerRadius, margin } =
-        chartDimensions2;
+      const { innerWidth, innerHeight, width, height } = chartDimensions;
+      const radius = Math.min(innerWidth, innerHeight) / 2;
+      const innerRadius = radius * 0.15; // 30% of the outer radius for the inner circle
       indicatorsID.map((indicator, i) => {
         const svg = d3.select(svgRef.current);
         const line = svg.select(`#line-${indicator}-national`);
@@ -500,6 +474,7 @@ export default function RadarChart({
         [line, circle].map((el, i) =>
           el
             .transition()
+            .delay(300)
             .duration(1000)
             .attr(
               i === 0 ? "x2" : "cx",
@@ -514,14 +489,19 @@ export default function RadarChart({
         );
       });
     }
-  }, [nationalData, chartDimensions2, chartCreated]);
+  }, [nationalData, chartCreated]);
   return (
-    <>
-      <div className="radar-chart-container h-full">
+    <div className="flex flex-col lg:col-span-8 min-h-[400px] md:min-h-[600px] max-h-screen">
+      <div className="radar-chart-container h-full relative grow">
+        {chartCreated && loadingData && (
+          <div className="absolute top-0 left-0 w-full h-full opacity-50 z-10 bg-white">
+            <Loader className="w-full h-full [&_span]:w-[48px] [&_span]:h-[48px]" />
+          </div>
+        )}
         {!chartCreated && (
           <Loader className="w-full h-full [&_span]:w-[48px] [&_span]:h-[48px]" />
         )}
-        <svg ref={svgRef}></svg>
+        <svg className="mx-auto" ref={svgRef}></svg>
       </div>
       {tooltip && (
         <div
@@ -531,7 +511,7 @@ export default function RadarChart({
             left: tooltip.x,
             border: "1px solid #212529",
             padding: "16px",
-            maxWidth: "300px",
+            maxWidth: tooltip.subtitle ? "300px" : "100%",
             boxShadow: "0 2px 4px rgba(0, 0, 0, 0.1)",
             opacity: 1,
             whiteSpace: "pre-wrap", // clave
@@ -562,8 +542,7 @@ export default function RadarChart({
                     style={{ backgroundColor: govColor }}
                   />
                   <p>
-                    {getTextById(jurisdictionsCopy, "average", lang)}{" "}
-                    {country[`name_${lang}`]}: {tooltip.valueNat}
+                    {compareGov}: {tooltip.valueNat}
                   </p>
                 </div>
               )}
@@ -627,13 +606,10 @@ export default function RadarChart({
           </div>
           <div className="flex gap-xs items-center">
             <div className="w-4 h-1 " style={{ backgroundColor: govColor }} />
-            <p>
-              {getTextById(jurisdictionsCopy, "average", lang)}{" "}
-              {country[`name_${lang}`]}
-            </p>
+            <p>{compareGov}</p>
           </div>{" "}
         </div>
       </div>
-    </>
+    </div>
   );
 }

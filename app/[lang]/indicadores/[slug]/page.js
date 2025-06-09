@@ -5,6 +5,7 @@ import { getCountries } from "@/app/utils/dataFetchers";
 import MapContainer from "./mapContainer";
 
 import IndicatorDataProvider from "./indicatorDataProvider";
+import ScatterPlot from "./scatterPlot";
 
 export async function generateStaticParams() {
   const slugs = (await fetchData("indicators", "es")).filter((elm) => elm.slug);
@@ -38,27 +39,33 @@ export default async function Indicator({ params }) {
     copy &&
     countries &&
     levelPerCountry && (
-      <main>
-        <Hero
+      <main className="flex flex-col justify-start text-black bg-white flex-grow ">
+        {/* <Hero
           lang={lang}
           slug={slug}
           copy={copy}
           indicators={indicators}
           indicator={currentIndicator}
-        />
+        /> */}
         <IndicatorDataProvider
+          copy={copy}
+          indicators={indicators}
+          indicator={currentIndicator}
           countries={countries}
+          levelPerCountry={levelPerCountry}
           indicatorCode={currentIndicator.code}
           lang={lang}
         >
-          <MapContainer
+          {/* <MapContainer
             regions={regions}
             countries={countries}
-            lang={lang}
             levelPerCountry={levelPerCountry}
-            copy={copy}
-            indicator={currentIndicator}
-          />
+          /> */}
+          <div className="px-l md:p-[80px] flex flex-col gap-xl max-md:py-[48px]">
+            <div className=" px-[80px]">
+              <ScatterPlot />
+            </div>
+          </div>
         </IndicatorDataProvider>
       </main>
     )
