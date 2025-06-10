@@ -15,50 +15,21 @@ export default function Select({
   id,
   defaultAllLabel,
   label,
-  multiple = false,
 }) {
   return (
     <div className="w-full">
-      <Listbox
-        value={selected}
-        onChange={(e) => {
-          if (multiple) {
-            // Check if "all" is in the new selection
-            const hasAll = e.some((item) => item[id] === "all");
-            if (hasAll && e.length > 0) {
-              if (e[e.length - 1][id] === "all") {
-                onChange([e[e.length - 1]]);
-                return;
-              } else {
-                // If "all" is selected, only keep the "all" option
-                const allOption = e.filter((item) => item[id] !== "all");
-                onChange(allOption);
-                return;
-              }
-            } else {
-              onChange(e);
-              return;
-            }
-
-            // If "all" is not selected, just use the new selection
-            // onChange(e);
-            // return;
-          } else onChange(e);
-        }}
-        multiple={multiple}
-      >
+      <Listbox value={selected} onChange={onChange} multiple>
         <ListboxButton
           className={`${
             label ? "font-bold text-blue-CAF" : "text-placeholder"
           } w-full md:w-80 inline-flex items-center gap-2  bg-white border-1 border-black px-3  shadow-inner shadow-white/10 focus:outline-none  data-[focus]:outline-1 data-[focus]:outline-white cursor-pointer  justify-between data-[open]:rotate-0 py-s description`}
         >
-          {multiple
-            ? label
-            : label
-            ? label
-            : defaultAllLabel && selected[id] === "all"
-            ? defaultAllLabel
-            : selected[`name_${lang}`]}
+          {label
+            // ? label
+            // : defaultAllLabel && selected[id] === "all"
+            // ? defaultAllLabel
+            // : selected[`name_${lang}`]
+            }
           <Expand className="w-4 h-4 stroke-2 rotate-90 stroke-blue" />
         </ListboxButton>
         <ListboxOptions
@@ -77,12 +48,8 @@ export default function Select({
                 <ListboxOption
                   key={opt[id]}
                   value={opt}
-                  className={`group flex  items-center gap-2  py-1.5 px-3 select-none 
-              hover:bg-blue-CAF hover:text-white p-xs cursor-pointer ${
-                multiple && selected.map((elm) => elm[id]).includes(opt[id])
-                  ? "bg-blue-CAF text-white"
-                  : ""
-              }`}
+                  className="group flex  items-center gap-2  py-1.5 px-3 select-none 
+              hover:bg-blue-CAF hover:text-white p-xs cursor-pointer"
                 >
                   {opt[`name_${lang}`]}
                 </ListboxOption>

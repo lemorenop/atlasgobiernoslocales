@@ -33,6 +33,7 @@ export default async function RootLayout({ children, params }) {
         <meta name="twitter:title" content="CAF | Atlas de gobiernos locales y regionales de América Latina y el Caribe" />
         <meta name="twitter:description" content="Explore, compare y descargue indicadores clave sobre el desarrollo en más de 18.000 jurisdicciones locales y regionales de América Latina y el Caribe. Una herramienta abierta y transparente para la toma de decisiones." />
         <meta name="twitter:image" content="/share.png" />
+        <link rel="canonical" href={`${process.env.NEXT_PUBLIC_URL}/${lang}`} />
       </Head>
       <html lang={lang}>
         <body

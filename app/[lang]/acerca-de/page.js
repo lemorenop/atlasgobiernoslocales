@@ -3,6 +3,14 @@ import Hero from "./hero";
 import { getTextById } from "@/app/utils/textUtils";
 import Card from "./card";
 import Download from "./download";
+import { getMetadata } from "../components/metadata";
+
+export async function generateMetadata({ params }) {
+  const { lang } = await params;
+  return getMetadata({ lang, slug: "acerca-de" });
+  
+}
+
 export default async function AcercaDe({ params }) {
   const { lang } = await params;
   const copy = await fetchData("aboutCopy", lang);

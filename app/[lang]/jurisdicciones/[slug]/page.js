@@ -12,6 +12,20 @@ import StickyBar from "./stickyBar";
 import JurisdictionDataProvider from "./jurisdictionDataProvider";
 import DotsChart from "./dotsChart";
 import Comparative from "./comparative";
+
+export async function generateMetadata({ params }) {
+  const { lang, slug } = await params;
+  const jurisdiction = await getGovernments(lang, slug).then((data) => data[0]);
+  const copy = await fetchData("metadataCopy", lang);
+  return {
+    title:`${jurisdiction.name} | ${getTextById(copy, "title", lang)}`,
+    description:getTextById(copy, "description", lang),
+    alternates: {
+      canonical: `${process.env.NEXT_PUBLIC_URL}/${lang}/indicadores/${slug}`,
+    },
+  };
+}
+
 export default async function Jurisdiction({ params }) {
   const { lang, slug } = await params;
   const [
@@ -26,7 +40,6 @@ export default async function Jurisdiction({ params }) {
     getGovernments(lang, slug).then((data) => data[0]),
     fetchData("unitMeasures", lang),
     getJurisdictionData(slug),
-    getGovernments(lang, "ARG"),
   ]);
   const country = government
     ? await getCountries(lang, government.country_iso3).then((data) => data[0])
