@@ -233,7 +233,8 @@ export default function MapIndicator({
       "fill-opacity": 0.7,
       "fill-outline-color": lineColor,
     },
-   
+    minzoom: 0,
+    maxzoom: 22,
     interactive: true,
   };
 
@@ -356,14 +357,14 @@ export default function MapIndicator({
               }`;
 
         setTooltip({
-          governmentCode: governments[feature.properties.codigo_uni].fullName,
+          governmentCode: `${governments[feature.properties.codigo_uni].name} ${governments[feature.properties.codigo_uni].completeName}`,
           value: displayValue,
           x: x,
           y: y,
         });
       } else {
         setTooltip({
-          governmentCode: governments[feature.properties.codigo_uni].fullName,
+          governmentCode: `${governments[feature.properties.codigo_uni].name} ${governments[feature.properties.codigo_uni].completeName}`,
           value: getTextById(copy, "no_data", lang),
           x: x,
           y: y,
@@ -435,8 +436,6 @@ export default function MapIndicator({
               <Layer
                 id="nivel2-layer"
                 {...nivel2Layer}
-                minzoom={4}
-                maxzoom={22}
                 source-layer="nivel_2-721y7u"
               />
             </Source>
@@ -448,8 +447,6 @@ export default function MapIndicator({
               <Layer
                 id="nivel2-layer_simplificado"
                 {...nivel2Layer}
-                minzoom={0}
-                maxzoom={4}
                 source-layer="nivel_2_simplificado"
               />
             </Source>
