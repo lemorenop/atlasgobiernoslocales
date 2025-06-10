@@ -10,10 +10,10 @@ export default function SelectCountrySwitch({
   selectedNivel,
   setSelectedNivel,
   options,
-  
-  
+  multiple,
+  label,
 }) {
-  const { copy, lang,levelPerCountry } = useContext(IndicatorDataContext);
+  const { copy, lang, levelPerCountry } = useContext(IndicatorDataContext);
 
   const [niveles, setNiveles] = useState([
     {
@@ -137,7 +137,7 @@ export default function SelectCountrySwitch({
           value: "1",
           disabled:
             selectedCountry.iso3 === "all" ||
-            Number.isInteger(selectedCountry.iso3)
+            Number.isInteger(selectedCountry.iso3) || multiple
               ? false
               : !levels.some((level) => level.id.includes("1_")),
         },
@@ -146,7 +146,7 @@ export default function SelectCountrySwitch({
           value: "2",
           disabled:
             selectedCountry.iso3 === "all" ||
-            Number.isInteger(selectedCountry.iso3)
+            Number.isInteger(selectedCountry.iso3) || multiple
               ? false
               : !levels.some((level) => level.id.includes("2_")),
         },
@@ -159,6 +159,8 @@ export default function SelectCountrySwitch({
     <>
       <div className="">
         <Select
+          label={label}
+          multiple={multiple}
           id="iso3"
           selected={selectedCountry}
           options={options}

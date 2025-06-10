@@ -6,6 +6,7 @@ import MapContainer from "./mapContainer";
 
 import IndicatorDataProvider from "./indicatorDataProvider";
 import ScatterPlot from "./scatterPlot";
+import DistributionChart from "./distributionChart";
 
 export async function generateStaticParams() {
   const slugs = (await fetchData("indicators", "es")).filter((elm) => elm.slug);
@@ -42,13 +43,13 @@ export default async function Indicator({ params }) {
     countries &&
     levelPerCountry && (
       <main className="flex flex-col justify-start text-black bg-white flex-grow ">
-        <Hero
+        {/* <Hero
           lang={lang}
           slug={slug}
           copy={copy}
           indicators={indicators}
           indicator={currentIndicator}
-        />
+        /> */}
         <IndicatorDataProvider
           copy={copy}
           indicators={indicators}
@@ -58,7 +59,7 @@ export default async function Indicator({ params }) {
           indicatorCode={currentIndicator.code}
           lang={lang}
         >
-          <MapContainer
+          {/* <MapContainer
             regions={regions}
             countries={countries}
             levelPerCountry={levelPerCountry}
@@ -67,7 +68,8 @@ export default async function Indicator({ params }) {
             <div className=" px-[80px]">
               <ScatterPlot />
             </div>
-          </div>
+          </div> */}
+          <DistributionChart/>
         </IndicatorDataProvider>
       </main>
     )
