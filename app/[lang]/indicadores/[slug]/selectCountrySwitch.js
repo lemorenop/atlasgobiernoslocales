@@ -137,7 +137,8 @@ export default function SelectCountrySwitch({
           value: "1",
           disabled:
             selectedCountry.iso3 === "all" ||
-            Number.isInteger(selectedCountry.iso3) || multiple
+            Number.isInteger(selectedCountry.iso3) ||
+            multiple
               ? false
               : !levels.some((level) => level.id.includes("1_")),
         },
@@ -146,13 +147,14 @@ export default function SelectCountrySwitch({
           value: "2",
           disabled:
             selectedCountry.iso3 === "all" ||
-            Number.isInteger(selectedCountry.iso3) || multiple
+            Number.isInteger(selectedCountry.iso3) ||
+            multiple
               ? false
               : !levels.some((level) => level.id.includes("2_")),
         },
       ];
       setNiveles(options);
-      setSelectedNivel(options[1]);
+      if (!multiple) setSelectedNivel(options[1]);
     }
   }, [selectedCountry]);
   return (

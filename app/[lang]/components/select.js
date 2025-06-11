@@ -22,28 +22,62 @@ export default function Select({
       <Listbox
         value={selected}
         onChange={(e) => {
-          if (multiple) {
-            // Check if "all" is in the new selection
-            const hasAll = e.some((item) => item[id] === "all");
-            if (hasAll && e.length > 0) {
-              if (e[e.length - 1][id] === "all") {
-                onChange([e[e.length - 1]]);
-                return;
-              } else {
-                // If "all" is selected, only keep the "all" option
-                const allOption = e.filter((item) => item[id] !== "all");
-                onChange(allOption);
-                return;
-              }
-            } else {
-              onChange(e);
-              return;
-            }
+          if (!multiple) return onChange(e);
+          const lastSelected = e[e.length - 1];
+          const isAll = lastSelected?.[id] === "all";
+          if (e.length > 1 && isAll) {
+            onChange([e[e.length - 1]]);
+            return;
+          } else {
+            const wasSelected = selected.some(
+              (item) => item[id] === lastSelected[id]
+            );
+            if (!wasSelected && e.length > selected.length) {
+              console.log("seleccion");
+              const isRegion = Number.isInteger(lastSelected?.[id]);
+              if (isRegion) {
+                const regionId = lastSelected[id];
+                const regionCountries = options
+                  .flatMap((opt) => opt.options)
+                  .filter((opt) => opt.region_id === regionId && !opt.disabled);
 
-            // If "all" is not selected, just use the new selection
-            // onChange(e);
-            // return;
-          } else onChange(e);
+                const newSelection = [...e, ...regionCountries];
+
+                return onChange(
+                  newSelection.filter((item) => item[id] !== "all")
+                );
+              } else return onChange(e.filter((item) => item[id] !== "all"));
+            } else {
+              console.log("deseleccion");
+              if (e.length < selected.length) {
+                const elementRemoved = selected.find(
+                  (item) =>
+                    !e.some((selectedItem) => selectedItem[id] === item[id])
+                );
+                const isRegion = Number.isInteger(elementRemoved?.[id]);
+                if (isRegion) {
+                  const regionId = elementRemoved[id];
+                  return onChange(
+                    e.filter(
+                      (item) =>
+                        item.region_id !== regionId &&
+                        item[id] !== "all" &&
+                        item[id] !== regionId
+                    )
+                  );
+                }
+              } else
+                return onChange(
+                  e.filter(
+                    (item) =>
+                      item[id] !== lastSelected[id] &&
+                      item[id] !== "all" &&
+                      item[id] !== lastSelected.region_id
+                  )
+                );
+            }
+            return onChange(e);
+          }
         }}
         multiple={multiple}
       >
@@ -75,14 +109,19 @@ export default function Select({
               )}
               {option.options.map((opt) => (
                 <ListboxOption
+                  disabled={opt.disabled ? true : false}
                   key={opt[id]}
                   value={opt}
                   className={`group flex  items-center gap-2  py-1.5 px-3 select-none 
-              hover:bg-blue-CAF hover:text-white p-xs cursor-pointer ${
-                multiple && selected.map((elm) => elm[id]).includes(opt[id])
-                  ? "bg-blue-CAF text-white"
-                  : ""
-              }`}
+                p-xs cursor-pointer ${
+                  multiple && selected.map((elm) => elm[id]).includes(opt[id])
+                    ? "bg-blue-CAF text-white"
+                    : ""
+                } ${
+                    opt.disabled
+                      ? "bg-[#92929240] hover:bg-[#92929240] cursor-not-allowed"
+                      : "hover:bg-blue-CAF hover:text-white"
+                  }`}
                 >
                   {opt[`name_${lang}`]}
                 </ListboxOption>

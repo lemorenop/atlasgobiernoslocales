@@ -12,7 +12,7 @@ export default function IndicatorDataProvider({
   indicatorCode,
   indicator,
   copy,
-  indicators,countries,levelPerCountry
+  indicators,countries,levelPerCountry,regions
 }) {
   const [data, setData] = useState({ data: null, governments: null });
 
@@ -55,7 +55,7 @@ export default function IndicatorDataProvider({
   }, [lang]);
 
   return (
-    <IndicatorDataContext.Provider value={{ ...data, indicator, copy, lang, indicators,countries,levelPerCountry }}>
+    <IndicatorDataContext.Provider value={{ ...data, indicator, copy, lang, indicators,countries,levelPerCountry ,regions}}>
       {children}
     </IndicatorDataContext.Provider>
   );

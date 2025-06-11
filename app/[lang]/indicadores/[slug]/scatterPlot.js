@@ -13,7 +13,7 @@ import SelectCountrySwitch from "./selectCountrySwitch";
 import * as d3 from "d3";
 import Share from "@/app/[lang]/components/share";
 import Loader from "../../components/loader";
-const textColor = "#212529";
+import { chartStyles } from "@/app/utils/chartStyles";
 export default function ScatterPlot() {
   const { governments, lang, indicators, indicator, copy, countries } =
     useContext(IndicatorDataContext);
@@ -156,8 +156,8 @@ export default function ScatterPlot() {
       )
       .selectAll("text")
       .style("text-anchor", "end")
-      .style("font-family", "Raleway")
-      .style("color", textColor)
+      .style("font-family", chartStyles.fontFamily)
+      .style("color", chartStyles.textColor)
       .attr("dx", "-.8em")
       .attr("dy", ".5em");
 
@@ -174,8 +174,8 @@ export default function ScatterPlot() {
       )
       .selectAll("text")
       .style("text-anchor", "end")
-      .style("font-family", "Raleway")
-      .style("color", textColor)
+      .style("font-family", chartStyles.fontFamily)
+      .style("color", chartStyles.textColor)
       .attr("dx", "-.8em")
       .attr("dy", ".5em");
 
@@ -184,7 +184,7 @@ export default function ScatterPlot() {
 
     // Add center lines
     // Vertical line
-    const lineColor = "#55C7D54D";
+    const lineColor = chartStyles.dashLineColor;
 
     svg
       .append("line")
@@ -217,8 +217,8 @@ export default function ScatterPlot() {
       .attr("cx", (d) => xScale(d.x))
       .attr("cy", (d) => yScale(d.y))
       .attr("r", 5)
-      .attr("fill", "#55C7D5")
-      .attr("stroke", "#004A80")
+      .attr("fill", chartStyles.areaColor)
+      .attr("stroke", chartStyles.lineColor)
       .attr("stroke-width", 1)
       .attr("cursor", "pointer")
       .on("mouseover", function (event, d) {
@@ -289,9 +289,9 @@ export default function ScatterPlot() {
     svg
       .append("text")
       .attr("text-anchor", "middle")
-      .style("font-family", "Raleway")
+      .style("font-family", chartStyles.fontFamily)
       .style("font-size", "14px")
-      .style("color", textColor)
+      .style("color", chartStyles.textColor)
       .attr("x", width / 2)
       .attr("y", -margin.top / 2)
       .text(
@@ -306,9 +306,9 @@ export default function ScatterPlot() {
     svg
       .append("text")
       .attr("text-anchor", "middle")
-      .style("font-family", "Raleway")
+        .style("font-family", chartStyles.fontFamily)
       .style("font-size", "14px")
-      .style("color", textColor)
+      .style("color", chartStyles.textColor)
       .attr(
         "transform",
         `translate(${width + margin.right - 20}, ${height / 2}) rotate(90)`

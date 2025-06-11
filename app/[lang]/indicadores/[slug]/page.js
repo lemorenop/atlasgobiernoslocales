@@ -31,7 +31,12 @@ export default async function Indicator({ params }) {
       fetchData("indicatorsCopy", lang),
       getCountries(lang),
       fetchData("levelPerCountry", lang),
-      fetchData("regions", lang),
+      fetchData("regions", lang).then((res) => {
+        return res.map((elm) => {
+          elm.iso3 = elm.id;
+          return elm;
+        });
+      }),
     ]);
   const currentIndicator = indicators.find(
     (indicator) => indicator.slug === slug
@@ -43,14 +48,15 @@ export default async function Indicator({ params }) {
     countries &&
     levelPerCountry && (
       <main className="flex flex-col justify-start text-black bg-white flex-grow ">
-        {/* <Hero
+        <Hero
           lang={lang}
           slug={slug}
           copy={copy}
           indicators={indicators}
           indicator={currentIndicator}
-        /> */}
+        />
         <IndicatorDataProvider
+          regions={regions}
           copy={copy}
           indicators={indicators}
           indicator={currentIndicator}
@@ -59,17 +65,15 @@ export default async function Indicator({ params }) {
           indicatorCode={currentIndicator.code}
           lang={lang}
         >
-          {/* <MapContainer
+          <MapContainer
             regions={regions}
             countries={countries}
             levelPerCountry={levelPerCountry}
           />
-          <div className="px-l md:p-[80px] flex flex-col gap-xl max-md:py-[48px]">
-            <div className=" px-[80px]">
-              <ScatterPlot />
-            </div>
-          </div> */}
-          <DistributionChart/>
+          <div className="px-l md:px-[160px] py-[80px] flex flex-col max-md:py-[48px] gap-[80px]">
+            <DistributionChart />
+            <ScatterPlot />
+          </div>
         </IndicatorDataProvider>
       </main>
     )

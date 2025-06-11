@@ -24,7 +24,7 @@ export function getTextById(data, id, lang, replacements) {
   let text = item[langMap[lang]] ? item[langMap[lang]] : "";
   if (replacements) {
     replacements.forEach((replacement) => {
-      text = text.replace(`[${replacement.id}]`, replacement.replace);
+      text = text.replaceAll(`[${replacement.id}]`, replacement.replace);
     });
   }
   return parse(text);
