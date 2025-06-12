@@ -18,8 +18,8 @@ export async function generateMetadata({ params }) {
   const jurisdiction = await getGovernments(lang, slug).then((data) => data[0]);
   const copy = await fetchData("metadataCopy", lang);
   return {
-    title:`${jurisdiction.name} | ${getTextById(copy, "title", lang)}`,
-    description:getTextById(copy, "description", lang),
+    title: `${jurisdiction.name} | ${getTextById(copy, "title", lang)}`,
+    description: getTextById(copy, "description", lang),
     alternates: {
       canonical: `${process.env.NEXT_PUBLIC_URL}/${lang}/indicadores/${slug}`,
     },
@@ -61,50 +61,71 @@ export default async function Jurisdiction({ params }) {
   const tooltipInfo = getTextById(jurisdictionsCopy, "tooltip_info", lang, [
     { id: "year", replace: yearPoblacion },
   ]);
-  government.level = government.level_per_country_id?.split("_")[0] || null;
+  government["level"] = government.level_per_country_id?.split("_")[0] || null;
   return (
-    <main className="flex flex-col justify-start text-black bg-white flex-grow ">
-      {jurisdictionsCopy && government && indicators && country && (
-        <JurisdictionDataProvider
-          country={country}
-          slug={slug}
-          lang={lang}
-          indicators={indicators}
-          jurisdictionsCopy={jurisdictionsCopy}
-          government={government}
-          tooltipInfo={tooltipInfo}
-          jurisdictionData={jurisdictionData}
-        >
-          <Hero data={jurisdictionData} yearPoblacion={yearPoblacion} />
+    <>
+      {" "}
+      <div
+        id="capture-area"
+        className="flex flex-col justify-start text-black bg-white flex-grow relative"
+        style={{
+          position: "absolute",
+          top: 0,
+          left: 0,
+          zIndex: -9,
+          width: "1400px",
+          height: "auto",
+          overflow: "hidden",
+        }}
+      />
+      <main
+        id="main"
+        className="flex flex-col justify-start text-black bg-white flex-grow relative"
+      >
+        {jurisdictionsCopy && government && indicators && country && (
+          <JurisdictionDataProvider
+            country={country}
+            slug={slug}
+            lang={lang}
+            indicators={indicators}
+            jurisdictionsCopy={jurisdictionsCopy}
+            government={government}
+            tooltipInfo={tooltipInfo}
+            jurisdictionData={jurisdictionData}
+          >
+            <Hero data={jurisdictionData} yearPoblacion={yearPoblacion} />
 
-          <div className="">
-            <StickyBar />
-            <div className="px-l md:p-[80px] grid lg:grid-cols-12 gap-xl max-md:py-[48px]">
-              {existRadarData && (
-                <>
-                  <div className="lg:col-span-4 flex flex-col gap-[24px] justify-center">
-                    <h2 className="max-md:text-[32px] text-h1 font-bold mb-4 text-navy">
-                      {getTextById(jurisdictionsCopy, "indicators_title", lang)}
-                    </h2>
-                    <div className="bg-background p-xl ">
-                      <p className="text-p">
+            <div className="">
+              <StickyBar />
+              <div className="px-l md:p-[80px] grid lg:grid-cols-12 gap-xl max-md:py-[48px] max-w-[1440px] mx-auto">
+                {existRadarData && (
+                  <>
+                    <div className="lg:col-span-4 flex flex-col gap-[24px] justify-center">
+                      <h2 className="max-md:text-[32px] text-h1 font-bold mb-4 text-navy">
                         {getTextById(
                           jurisdictionsCopy,
-                          "indicators_subtitle",
-                          lang,
-                          [
-                            { id: "jurisdiction", replace: government.name },
-                            {
-                              id: "country",
-                              replace: country[`name_${lang}`],
-                            },
-                          ]
+                          "indicators_title",
+                          lang
                         )}
-                      </p>
+                      </h2>
+                      <div className="bg-background p-xl ">
+                        <p className="text-p">
+                          {getTextById(
+                            jurisdictionsCopy,
+                            "indicators_subtitle",
+                            lang,
+                            [
+                              { id: "jurisdiction", replace: government.name },
+                              {
+                                id: "country",
+                                replace: country[`name_${lang}`],
+                              },
+                            ]
+                          )}
+                        </p>
+                      </div>
                     </div>
-                  </div>
 
-                 
                     <RadarChart
                       yearIndicators={yearIndicators}
                       country={country}
@@ -115,21 +136,22 @@ export default async function Jurisdiction({ params }) {
                         country[`name_${lang}`]
                       }
                     />
-               
-                  <div className="col-span-12 px-[80px]">
-                    {" "}
-                    <DotsChart />
-                  </div>
-                </>
-              )}
 
-              <div className="col-span-12">
-                <Comparative yearIndicators={yearIndicators} />
+                    <div className="col-span-12 px-[80px]">
+                      {" "}
+                      <DotsChart />
+                    </div>
+                  </>
+                )}
+
+                <div className="col-span-12">
+                  <Comparative yearIndicators={yearIndicators} />
+                </div>
               </div>
             </div>
-          </div>
-        </JurisdictionDataProvider>
-      )}
-    </main>
+          </JurisdictionDataProvider>
+        )}
+      </main>
+    </>
   );
 }

@@ -33,7 +33,7 @@ export default function Select({
               (item) => item[id] === lastSelected[id]
             );
             if (!wasSelected && e.length > selected.length) {
-              console.log("seleccion");
+              
               const isRegion = Number.isInteger(lastSelected?.[id]);
               if (isRegion) {
                 const regionId = lastSelected[id];
@@ -48,7 +48,7 @@ export default function Select({
                 );
               } else return onChange(e.filter((item) => item[id] !== "all"));
             } else {
-              console.log("deseleccion");
+              
               if (e.length < selected.length) {
                 const elementRemoved = selected.find(
                   (item) =>

@@ -116,7 +116,7 @@ export default async function Navbar({ lang }) {
   return (
     navbarCopy &&
     homeCopyData && (
-      <nav className="bg-white text-black py-s px-4 sm:px-6 lg:px-8 w-full">
+      <nav className="bg-white text-black py-s px-4 sm:px-6 lg:px-8 w-full exclude-from-capture">
         <div className="flex items-center justify-between w-full">
           <a href={`https://www.caf.com/${lang}`} className="" target="_blank">
             <Image

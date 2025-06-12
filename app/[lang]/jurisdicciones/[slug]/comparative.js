@@ -35,7 +35,7 @@ export default function Comparative({ yearIndicators }) {
             { id: "country_name", replace: country[`name_${lang}`] },
           ])}
         </h2>
-        <div className="max-w-[500px] mx-auto w-full">
+        <div className="max-w-[500px] mx-auto w-full exclude-from-capture">
           <SearchComparative
             value={compareJurisdiction}
             onChange={setCompareJurisdiction}
@@ -76,7 +76,7 @@ export default function Comparative({ yearIndicators }) {
               </p>
             </div>
             <a
-              className="inline-flex items-center gap-2  bg-navy text-white px-3  shadow-inner shadow-white/10 focus:outline-none  data-[focus]:outline-1 data-[focus]:outline-white cursor-pointer justify-between data-[open]:rotate-0 py-1.5 uppercase font-bold w-fit mx-auto"
+              className="exclude-from-capture inline-flex items-center gap-2  bg-navy text-white px-3  shadow-inner shadow-white/10 focus:outline-none  data-[focus]:outline-1 data-[focus]:outline-white cursor-pointer justify-between data-[open]:rotate-0 py-1.5 uppercase font-bold w-fit mx-auto"
               href={`/${lang}/jurisdicciones/${compareJurisdiction.id}`}
             >
               {getTextById(jurisdictionsCopy, "explore_gov", lang, [

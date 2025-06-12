@@ -4,7 +4,10 @@ import { getTextById } from "@/app/utils/textUtils";
 import { useContext } from "react";
 import { JurisdictionDataContext } from "./jurisdictionDataProvider";
 import MapGoverment from "./mapGoverment";
-import Share from "./share";
+import Share from "../../components/share";
+import { downloadImage } from "@/app/utils/downloadImage";
+import Arrow from "@/app/[lang]/components/icons/arrow";
+import Loader from "@/app/[lang]/components/loader";
 export default function Hero({ yearPoblacion, data }) {
   const { indicators, jurisdictionsCopy, government, lang } = useContext(
     JurisdictionDataContext
@@ -22,7 +25,7 @@ export default function Hero({ yearPoblacion, data }) {
   return (
     jurisdictionsCopy && (
       <div className="flex flex-col md:grid md:grid-cols-12 bg-navy h-full flex-grow">
-        <div className="md:col-span-6 lg:col-span-4 px-l md:pl-xl lg:pl-[80px] text-white flex flex-col justify-between pt-xl  pb-m pr-xl gap-xl">
+        <div className="md:col-span-6 lg:col-span-4 px-l md:pl-xl lg:pl-[80px] text-white flex flex-col justify-between py-xl pr-xl gap-xl">
           {government && (
             <div className="flex flex-col gap-m ">
               <h1 className="text-h1 font-bold uppercase">
@@ -85,7 +88,7 @@ export default function Hero({ yearPoblacion, data }) {
                   );
                 })}{" "}
             <p className="text-right caption uppercase col-span-2">
-              {yearPoblacion &&pobData
+              {yearPoblacion && pobData
                 ? `${getTextById(
                     jurisdictionsCopy,
                     "year_data",
@@ -94,7 +97,23 @@ export default function Hero({ yearPoblacion, data }) {
                 : `${getTextById(jurisdictionsCopy, "no_pop_data", lang)}`}{" "}
             </p>
           </div>
-          <Share />
+          <Share
+            shareText={`${government.name} - ${
+              government[`description_${lang}`]
+            }`}
+            shareTitle={getTextById(jurisdictionsCopy, "share", lang)}
+          />
+
+          <button
+            onClick={() => downloadImage()}
+            className="cursor-pointer  inline-flex items-center gap-s  bg-white text-blue-CAF font-bold w-fit px-3 focus:outline-none  data-[focus]:outline-1 data-[focus]:outline-white border-1 hover:border-white  border-black hover:bg-navy hover:text-white transition-all duration-300  justify-between data-[open]:rotate-0 py-s description  group"
+          >
+            {getTextById(jurisdictionsCopy, "download_gov", lang)}{" "}
+            <div id="capture-loader" className="hidden ">
+              <Loader className="w-full h-full [&_span]:w-[12px] [&_span]:h-[12px] " />
+            </div>
+            <Arrow className="w-[12px] h-[12px] stroke-2 stroke-blue-CAF group-hover:stroke-white transition-all duration-300 capture-arrow" />
+          </button>
         </div>{" "}
         <div className="md:col-span-6 lg:col-span-8 bg-background max-md:h-[50vh]">
           {government && (

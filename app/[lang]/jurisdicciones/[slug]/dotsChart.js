@@ -1,12 +1,13 @@
 "use client";
-import Select from "../../components/select";
+import Select from "@/app/[lang]/components/select";
 import { JurisdictionDataContext } from "./jurisdictionDataProvider";
 import { useContext, useState, useEffect, useRef } from "react";
 import { getTextById, formatValue } from "@/app/utils/textUtils";
 import * as d3 from "d3";
-import Loader from "../../components/loader";
-import Share from "./share";
-import Info from "../../components/icons/info";
+import Loader from "@/app/[lang]/components/loader";
+import Share from "@/app/[lang]/components/share";
+import Info from "@/app/[lang]/components/icons/info";
+import Tooltip from "@/app/[lang]/components/tooltip";
 const textColor = "#212529";
 
 export default function DotsChart() {
@@ -25,22 +26,6 @@ export default function DotsChart() {
   const [isLoading, setIsLoading] = useState(true);
   const [values, setValues] = useState();
   const svgRef = useRef(null);
-  const unitMeasureLabel =
-    selectedIndicator.unit_measure_id === "perc"
-      ? "%"
-      : selectedIndicator.unit_measure_id === "km2"
-      ? "km2"
-      : selectedIndicator.unit_measure_id === "hab_km2"
-      ? "hab/km2"
-      : selectedIndicator.unit_measure_id === "hab"
-      ? lang === "es"
-        ? " habitantes"
-        : lang === "pt"
-        ? " habitantes"
-        : lang === "en"
-        ? " inhabitants"
-        : ""
-      : "";
   useEffect(() => {
     setIsLoading(true);
     if (data && selectedIndicator) {
@@ -56,7 +41,6 @@ export default function DotsChart() {
       }
 
       // Clear previous chart
-     
 
       if (currentData.length > 0) {
         const container = svgRef.current.parentElement;
@@ -129,11 +113,15 @@ export default function DotsChart() {
           if (isPercentage) return d + "%";
           if (d >= 1000000) {
             const value = d / 1000000;
-            return Number.isInteger(value) ? value + "M" : value.toFixed(1) + "M";
+            return Number.isInteger(value)
+              ? value + "M"
+              : value.toFixed(1) + "M";
           }
           if (d >= 1000) {
             const value = d / 1000;
-            return Number.isInteger(value) ? value + "K" : value.toFixed(1) + "K";
+            return Number.isInteger(value)
+              ? value + "K"
+              : value.toFixed(1) + "K";
           }
           return Number.isInteger(d) ? d : d.toFixed(1);
         };
@@ -146,8 +134,8 @@ export default function DotsChart() {
           .selectAll("text")
           .style("text-anchor", "end")
           .style("font-size", "12px")
-          .style("color",textColor)
-          .style("font-family","Raleway")
+          .style("color", textColor)
+          .style("font-family", "Raleway");
         // Remove the line and ticks from X axis
         svg.selectAll(".domain, .tick line").remove();
 
@@ -165,7 +153,9 @@ export default function DotsChart() {
           const binWidth = xScale(group.nextBin) - xScale(group.bin);
 
           // Sort governments by value within each group
-          const sortedGovernments = [...group.governments].sort((a, b) => a.value - b.value);
+          const sortedGovernments = [...group.governments].sort(
+            (a, b) => a.value - b.value
+          );
 
           sortedGovernments.forEach((gov, j) => {
             const y = yScale(j + 1);
@@ -177,7 +167,8 @@ export default function DotsChart() {
               const value = formatValue(
                 gov.value,
                 selectedIndicator.unit_measure_id,
-                lang,true
+                lang,
+                true
               );
               const tooltipContent = {
                 title: jurisdictionName,
@@ -196,31 +187,39 @@ export default function DotsChart() {
                 )
                 .attr("cursor", "pointer")
                 .on("mouseover", function (event) {
+                  d3.select(this).attr("r", 6)
                   setTooltip({
                     ...tooltipContent,
+                    government_id: gov.government_id,
                     x: event.pageX,
                     y: event.pageY,
                   });
                 })
                 .on("mousemove", function (event) {
+                  d3.select(this).attr("r", 6)
                   setTooltip({
                     ...tooltipContent,
+                    government_id: gov.government_id,
                     x: event.pageX,
                     y: event.pageY,
                   });
                 })
                 .on("mouseout", function () {
+                  d3.select(this).attr("r", 5)
                   setTooltip(null);
                 })
                 .attr("tabindex", 0)
                 .on("focus", function (event) {
+                  d3.select(this).attr("r", 6)
                   setTooltip({
                     ...tooltipContent,
+                    government_id: gov.government_id,
                     x: event.pageX,
                     y: event.pageY,
                   });
                 })
                 .on("blur", function () {
+                  d3.select(this).attr("r", 5)
                   setTooltip(null);
                 });
             }
@@ -232,9 +231,9 @@ export default function DotsChart() {
           .append("text")
           .attr("text-anchor", "middle")
           .attr("x", width / 2)
-          .attr("y", height + margin.bottom - 10) 
-          .style("color",textColor)
-          .style("font-family","Raleway")
+          .attr("y", height + margin.bottom - 10)
+          .style("color", textColor)
+          .style("font-family", "Raleway")
           .text(selectedIndicator.name);
       }
       setIsLoading(false);
@@ -253,7 +252,7 @@ export default function DotsChart() {
       timeoutId = setTimeout(() => {
         if (svgRef.current) {
           // Force a re-render by updating the selected indicator
-          setSelectedIndicator(prev => ({...prev}));
+          setSelectedIndicator((prev) => ({ ...prev }));
         }
       }, 250); // Wait 250ms after the last resize event
     };
@@ -299,6 +298,7 @@ export default function DotsChart() {
         { id: "country_name", replace: country[`name_${lang}`] },
       ])
     : "";
+ 
   return (
     <div className="flex flex-col gap-[24px] ">
       <div className="flex flex-col gap-[24px] md:max-w-[80%] mx-auto">
@@ -312,7 +312,7 @@ export default function DotsChart() {
 
       <div className="flex gap-m flex-col pt-[32px]">
         <div className="flex justify-between">
-          <div className="flex flex-col gap-xs">
+          <div className="flex flex-col gap-xs exclude-from-capture">
             <p>{getTextById(jurisdictionsCopy, "select_indicator", lang)}</p>
             <Select
               id="code"
@@ -370,8 +370,9 @@ export default function DotsChart() {
             </div>
           ) : !values ? (
             <p
-            style={{top:'40%'}}
-            className="text-center text-black right-0 left-0 absolute h-fit m-auto">
+              style={{ top: "40%" }}
+              className="text-center text-black right-0 left-0 absolute h-fit m-auto"
+            >
               {getTextById(jurisdictionsCopy, "no_data", lang)}
             </p>
           ) : (
@@ -383,40 +384,30 @@ export default function DotsChart() {
       </div>
 
       {tooltip && (
-        <div
-          className="tooltip w-fit inline-block z-20 absolute bg-white pointer-events-none"
-          style={{
-            top: tooltip.y,
-            left: tooltip.x,
-            border: "1px solid #212529",
-            padding: "16px",
-            maxWidth: "300px",
-            boxShadow: "0 2px 4px rgba(0, 0, 0, 0.1)",
-            opacity: 1,
-            whiteSpace: "pre-wrap",
-            wordBreak: "break-word",
-          }}
-        >
-          <p className={`${tooltip.subtitle && "font-bold"}  `}>
-            {tooltip.title}
-          </p>
-          {tooltip.valueGov && (
-            <div className="flex items-center gap-xs">
-              <div
-                className={`w-4 h-4 rounded-[100%] border-2 border-[${
-                  tooltip.government_id === government.id
-                    ? "#004A80"
-                    : "#55C7D5"
-                }]`}
-                style={{ backgroundColor: "#55C7D5" }}
-              />
-              <p>{tooltip.valueGov}</p>
-            </div>
-          )}
-        </div>
+        <Tooltip tooltip={tooltip}>
+          <>
+            <p className={`${tooltip.subtitle && "font-bold"}  `}>
+              {tooltip.title}
+            </p>
+            {tooltip.valueGov && (
+              <div className="flex items-center gap-xs">
+                <div
+                style={{borderColor:tooltip.government_id === government.id ? "#004A80" : "#55C7D5",backgroundColor:"#55C7D5"}}
+                  className={`w-4 h-4 rounded-[100%]   ${
+                    tooltip.government_id === government.id
+                      ? "border-2 "
+                      : "border-2 "
+                  }`}
+                
+                />
+                <p>{tooltip.valueGov}</p>
+              </div>
+            )}
+          </>
+        </Tooltip>
       )}
       <div className="max-w-80 caption">
-        <Share color="#004A80" />
+        <Share color="#004A80" shareText={government["description_" + lang]} shareTitle={getTextById(jurisdictionsCopy, "share", lang)} />
       </div>
     </div>
   );

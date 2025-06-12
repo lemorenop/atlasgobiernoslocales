@@ -6,6 +6,7 @@ import Info from "@/app/[lang]/components/icons/info";
 import { JurisdictionDataContext } from "./jurisdictionDataProvider";
 import Loader from "@/app/[lang]/components/loader";
 import { noDataColor } from "@/app/utils/mapSettings";
+import Tooltip from "@/app/[lang]/components/tooltip";
 const govColor = "#1774AD";
 const countryColor = "#55C7D5";
 
@@ -47,9 +48,17 @@ export default function RadarChart({
           throw new Error("Failed to fetch national averages");
         }
         const data = await response.json();
-
-        setNationalData(data);
+        if(data.length === 0){
+          setNationalData(
+            indicatorsID.map((id) => ({
+              indicator_code: id,
+              value: null,
+            }))
+          );
+        }
+        else setNationalData(data);
       } catch (error) {
+
         console.error("Error fetching national averages:", error);
         // Fallback to default values if fetch fails
         setNationalData(
@@ -144,10 +153,10 @@ export default function RadarChart({
         const dataPoint = data.find((d) => d.indicator_code === ind);
         const natPoint = nationalData.find((d) => d.indicator_code == ind);
         // Los valores están entre 0 y 1, multiplicamos por 100 para la escala del gráfico
-        const valueGov = isNaN(dataPoint.value)
+        const valueGov = isNaN(parseFloat(dataPoint.value))
           ? null
           : parseFloat(dataPoint.value) * 100;
-        const valueNat = isNaN(natPoint.value)
+        const valueNat = isNaN(parseFloat(natPoint.value))
           ? null
           : parseFloat(natPoint.value) * 100;
 
@@ -504,19 +513,8 @@ export default function RadarChart({
         <svg className="mx-auto" ref={svgRef}></svg>
       </div>
       {tooltip && (
-        <div
-          className="tooltip w-fit inline-block z-20 absolute bg-white pointer-events-none"
-          style={{
-            top: tooltip.y,
-            left: tooltip.x,
-            border: "1px solid #212529",
-            padding: "16px",
-            maxWidth: tooltip.subtitle ? "300px" : "100%",
-            boxShadow: "0 2px 4px rgba(0, 0, 0, 0.1)",
-            opacity: 1,
-            whiteSpace: "pre-wrap", // clave
-            wordBreak: "break-word", // clave para palabras largas
-          }}
+        <Tooltip tooltip={tooltip} >
+        <
         >
           <p className={`${tooltip.subtitle && "font-bold"}  `}>
             {tooltip.title}
@@ -548,7 +546,8 @@ export default function RadarChart({
               )}
             </>
           )}
-        </div>
+        </>
+        </Tooltip>
       )}
       <div className="flex justify-end gap-s pt-m">
         <button

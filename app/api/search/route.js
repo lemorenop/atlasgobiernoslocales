@@ -7,7 +7,6 @@ export async function GET(req) {
   const query = searchParams.get("query") || "";
   const countryCode = searchParams.get("countryCode") ;
   const nivel = searchParams.get("nivel") || "";
-  console.log(countryCode)
 
   try {
     const searchIndexByLocale = await getSearchIndexByLocale();

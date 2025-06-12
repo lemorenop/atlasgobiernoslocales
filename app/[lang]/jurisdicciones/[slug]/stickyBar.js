@@ -9,7 +9,7 @@ export default function StickyBar() {
         JurisdictionDataContext
       );
   return (
-    <div className="col-span-12 sticky top-0 left-0 w-full bg-background py-s px-l md:px-[48px] z-30 flex gap-m items-center">
+    <div className="col-span-12 sticky top-0 left-0 w-full bg-background py-s px-l md:px-[48px] z-30 flex gap-m items-center exclude-from-capture">
       <p className="text-blue-CAF description font-bold">
         {government.name}, {government["description_" + lang]}
       </p>
