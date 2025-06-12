@@ -6,5 +6,8 @@ export const chartStyles = {
   dashLineColor: "#55C7D54D",
   lineColor: "#55C7D5",
   areaColor: "#55C7D5",
+  blueColor:"#1774AD",
+  cyanColor:"#55C7D5",
+  lightCyanColor:"#55C7D54D"
  
 };

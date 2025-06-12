@@ -14,10 +14,14 @@ import * as d3 from "d3";
 import Share from "@/app/[lang]/components/share";
 import Loader from "../../components/loader";
 import { chartStyles } from "@/app/utils/chartStyles";
+import Tooltip from "@/app/[lang]/components/tooltip";
 export default function ScatterPlot() {
   const { governments, lang, indicators, indicator, copy, countries } =
     useContext(IndicatorDataContext);
-  const [selectedIndicator, setSelectedIndicator] = useState(indicators[0].code!==indicator.code ? indicators[0] : indicators[1]);
+  const [selectedIndicator, setSelectedIndicator] = useState(
+    indicators[0].code !== indicator.code ? indicators[0] : indicators[1]
+  );
+  
   const [scatterData, setSatterData] = useState(null);
   const [selectedCountry, setSelectedCountry] = useState({
     name_es: "Todos",
@@ -66,7 +70,6 @@ export default function ScatterPlot() {
 
     if (governments) loadData();
   }, [selectedIndicator, governments]);
-  //   console.log(governments.ARG10);
   useEffect(() => {
     if (!scatterData || !svgRef.current) return;
 
@@ -218,7 +221,7 @@ export default function ScatterPlot() {
       .attr("cy", (d) => yScale(d.y))
       .attr("r", 5)
       .attr("fill", chartStyles.areaColor)
-      .attr("stroke", chartStyles.lineColor)
+      .attr("stroke", chartStyles.blueColor)
       .attr("stroke-width", 1)
       .attr("cursor", "pointer")
       .on("mouseover", function (event, d) {
@@ -280,9 +283,11 @@ export default function ScatterPlot() {
           x: event.pageX,
           y: event.pageY,
         });
+        d3.select(this).attr("r", 7).attr("stroke-width", 2);
       })
       .on("blur", function () {
         setTooltip(null);
+        d3.select(this).attr("r", 5).attr("r", 5).attr("stroke-width", 1);
       });
 
     // Add X axis label at the top
@@ -296,7 +301,8 @@ export default function ScatterPlot() {
       .attr("y", -margin.top / 2)
       .text(
         `${indicator[`name_${lang}`]} ${
-          indicator.unit_measure_id !== "hab" && indicator.unit_measure_id !== "num"
+          indicator.unit_measure_id !== "hab" &&
+          indicator.unit_measure_id !== "num"
             ? `(${formatValue(null, indicator.unit_measure_id, lang)})`
             : ""
         }`
@@ -306,7 +312,7 @@ export default function ScatterPlot() {
     svg
       .append("text")
       .attr("text-anchor", "middle")
-        .style("font-family", chartStyles.fontFamily)
+      .style("font-family", chartStyles.fontFamily)
       .style("font-size", "14px")
       .style("color", chartStyles.textColor)
       .attr(
@@ -315,7 +321,8 @@ export default function ScatterPlot() {
       )
       .text(
         `${selectedIndicator[`name_${lang}`]} ${
-          selectedIndicator.unit_measure_id !== "hab" && selectedIndicator.unit_measure_id !== "num"
+          selectedIndicator.unit_measure_id !== "hab" &&
+          selectedIndicator.unit_measure_id !== "num"
             ? `(${formatValue(null, selectedIndicator.unit_measure_id, lang)})`
             : ""
         }`
@@ -344,7 +351,7 @@ export default function ScatterPlot() {
             selected={selectedIndicator}
             onChange={setSelectedIndicator}
             lang={lang}
-            options={indicators}
+            options={indicators.filter(ind=>ind.code !== indicator.code && ind.code!==25)}
             id="code"
           />
         </h2>
@@ -398,34 +405,23 @@ export default function ScatterPlot() {
       </div>
 
       {tooltip && (
-        <div
-          className="tooltip w-fit inline-block z-20 absolute bg-white pointer-events-none"
-          style={{
-            top: tooltip.y,
-            left: tooltip.x,
-            border: "1px solid #212529",
-            padding: "16px",
-            maxWidth: "350px",
-            boxShadow: "0 2px 4px rgba(0, 0, 0, 0.1)",
-            opacity: 1,
-            whiteSpace: "pre-wrap",
-            wordBreak: "break-word",
-          }}
-        >
+        <Tooltip tooltip={tooltip}>
+          <>
           <p className="font-bold pb-xs">{tooltip.title}</p>
-          <div className="flex flex-col gap-xs">
-            <div className="flex items-center gap-xs">
-              <p>
-                {indicator[`name_${lang}`]}: {tooltip.valueInd1}
-              </p>
+            <div className="flex flex-col gap-xs">
+              <div className="flex items-center gap-xs">
+                <p>
+                  {indicator[`name_${lang}`]}: {tooltip.valueInd1}
+                </p>
+              </div>
+              <div className="flex items-center gap-xs">
+                <p>
+                  {selectedIndicator[`name_${lang}`]}: {tooltip.valueInd2}
+                </p>
+              </div>
             </div>
-            <div className="flex items-center gap-xs">
-              <p>
-                {selectedIndicator[`name_${lang}`]}: {tooltip.valueInd2}
-              </p>
-            </div>
-          </div>
-        </div>
+          </>
+        </Tooltip>       
       )}
     </div>
   );
@@ -446,8 +442,8 @@ function SelectIndicator({ selected, onChange, lang, options }) {
         style={{ maxHeight: "300px!important" }}
         className="w-80 origin-top-right transition duration-100 ease-out [--anchor-gap:var(--spacing-1)] focus:outline-none data-[closed]:scale-95 data-[closed]:opacity-0 bg-white text-blue-CAF border-1 border-background uppercase description p-m flex flex-col font-bold max-h-[300px] overflow-y-auto z-20"
       >
-        {options.map((option, index) => (
-          <div key={index}>
+        {/* {options.map((option, index) => (
+          <div key={index}> */}
             {options.map((opt) => (
               <ListboxOption
                 key={opt.code}
@@ -458,8 +454,8 @@ function SelectIndicator({ selected, onChange, lang, options }) {
                 {opt[`name_${lang}`]}
               </ListboxOption>
             ))}
-          </div>
-        ))}
+          {/* </div>
+        ))} */}
       </ListboxOptions>
     </Listbox>
   );

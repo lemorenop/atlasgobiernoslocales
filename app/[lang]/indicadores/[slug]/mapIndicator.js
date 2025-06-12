@@ -15,6 +15,7 @@ import { Map, Source, Layer, NavigationControl } from "react-map-gl/mapbox";
 import "mapbox-gl/dist/mapbox-gl.css";
 import * as d3 from "d3";
 import { getTextById, formatValue } from "@/app/utils/textUtils";
+import Tooltip from "@/app/[lang]/components/tooltip";
 
 export default function MapIndicator({
   selectedNivel,
@@ -357,14 +358,18 @@ export default function MapIndicator({
               }`;
 
         setTooltip({
-          governmentCode: `${governments[feature.properties.codigo_uni].name} ${governments[feature.properties.codigo_uni].completeName}`,
+          governmentCode: `${governments[feature.properties.codigo_uni].name} ${
+            governments[feature.properties.codigo_uni].completeName
+          }`,
           value: displayValue,
           x: x,
           y: y,
         });
       } else {
         setTooltip({
-          governmentCode: `${governments[feature.properties.codigo_uni].name} ${governments[feature.properties.codigo_uni].completeName}`,
+          governmentCode: `${governments[feature.properties.codigo_uni].name} ${
+            governments[feature.properties.codigo_uni].completeName
+          }`,
           value: getTextById(copy, "no_data", lang),
           x: x,
           y: y,
@@ -604,22 +609,16 @@ export default function MapIndicator({
       )}
       {/* Tooltip popup */}
       {tooltip && (
-        <div
-          className="tooltip flex flex-col gap-xs font-[Raleway] absolute bg-white max-w-[300px] border-1 border-[#212529] p-s pointer-events-none"
-          style={{
-            top: tooltip.y,
-            left: tooltip.x,
-            boxShadow: "0 2px 4px rgba(0, 0, 0, 0.1)",
-            opacity: 1,
-          }}
-        >
-          <p className="description text-black font-bold">
-            {tooltip.governmentCode}
-          </p>
-          <p className="description text-black font-normal">
-            {indicator[`name_${lang}`]}: {tooltip.value}
-          </p>
-        </div>
+        <Tooltip tooltip={tooltip}>
+          <>
+            <p className="description text-black font-bold">
+              {tooltip.governmentCode}
+            </p>
+            <p className="description text-black font-normal">
+              {indicator[`name_${lang}`]}: {tooltip.value}
+            </p>
+          </>
+        </Tooltip>
       )}
     </div>
   );
