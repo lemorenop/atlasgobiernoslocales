@@ -8,6 +8,7 @@ import Loader from "@/app/[lang]/components/loader";
 import Share from "@/app/[lang]/components/share";
 import Info from "@/app/[lang]/components/icons/info";
 import Tooltip from "@/app/[lang]/components/tooltip";
+import Download from "../../components/download";
 const textColor = "#212529";
 
 export default function DotsChart() {
@@ -299,8 +300,8 @@ export default function DotsChart() {
       ])
     : "";
  
-  return (<>
-    <div className="flex flex-col gap-[24px] ">
+  return (
+    <div className="flex flex-col gap-[24px] " id="dots-chart">
       <div className="flex flex-col gap-[24px] md:max-w-[80%] mx-auto">
         <h2 className="text-navy text-h2 text-center font-bold [&_span]:text-cyan">
           {title}
@@ -383,11 +384,7 @@ export default function DotsChart() {
         </div>
       </div>
 
-     
-      <div className="max-w-80 caption">
-        <Share color="#004A80" shareText={government["description_" + lang]} shareTitle={getTextById(jurisdictionsCopy, "share", lang)} />
-      </div>
-    </div> {tooltip && (
+      {tooltip && (
         <Tooltip tooltip={tooltip}>
           <>
             <p className={`${tooltip.subtitle && "font-bold"}  `}>
@@ -409,6 +406,19 @@ export default function DotsChart() {
             )}
           </>
         </Tooltip>
-      )}</>
+      )}
+      <div className="exclude-from-capture flex justify-between">
+
+      <div className="max-w-80 caption">        <Share color="#004A80" shareText={government["description_" + lang]} shareTitle={getTextById(jurisdictionsCopy, "share", lang)} />
+       
+        </div><div className="w-80"><Download
+        lang={lang}
+        copy={jurisdictionsCopy}
+        refImage={"dots-chart"}
+        buttonId="dots-chart"
+        />
+          </div> 
+      </div>
+    </div>
   );
 }

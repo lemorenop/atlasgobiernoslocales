@@ -61,7 +61,7 @@ export default function SearchComparative({
 
   return (
     <div className={`relative flex flex-col gap-xs justify-between`}>
-      <p className="text-description text-black">{subtitle}</p>
+      <p className="text-description text-black exclude-from-capture">{subtitle}</p>
 
       <Combobox value={value} onChange={onChange}>
         <div className="relative">

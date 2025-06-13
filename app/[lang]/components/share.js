@@ -19,7 +19,7 @@ export default function Share({ color = "#fff", shareText, shareTitle }) {
   }, []);
   return (
     url && (
-      <div className="flex justify-between gap-s uppercase  items-center flex-wrap remove-from-capture">
+      <div className="flex justify-between gap-s uppercase  items-center flex-wrap exclude-from-capture">
         <p className="caption">{shareTitle}</p>
         <div className="flex gap-xs items-center">
           <TwitterShareButton url={url} title={shareText}>

@@ -12,27 +12,28 @@ import StickyBar from "./stickyBar";
 import JurisdictionDataProvider from "./jurisdictionDataProvider";
 import DotsChart from "./dotsChart";
 import Comparative from "./comparative";
+import Download from "../../components/download";
 
-export async function generateMetadata({ params }) {
-  const { lang, slug } = await params;
-  const copy = await fetchData("metadataCopy", lang);
-  if (slug) {
-    const jurisdiction = await getGovernments(lang, slug).then(
-      (data) => data[0]
-    );
-    return {
-      title: `${jurisdiction.name} | ${getTextById(copy, "title", lang)}`,
-      description: getTextById(copy, "description", lang),
-      alternates: {
-        canonical: `${process.env.NEXT_PUBLIC_URL}/${lang}/indicadores/${slug}`,
-      },
-    };
-  } else
-    return {
-      title: getTextById(copy, "title", lang),
-      description: getTextById(copy, "description", lang),
-    };
-}
+// export async function generateMetadata({ params }) {
+//   const { lang, slug } = await params;
+//   const copy = await fetchData("metadataCopy", lang);
+//   if (slug) {
+//     const jurisdiction = await getGovernments(lang, slug).then(
+//       (data) => data[0]
+//     );
+//     return {
+//       title: `${jurisdiction.name} | ${getTextById(copy, "title", lang)}`,
+//       description: getTextById(copy, "description", lang),
+//       alternates: {
+//         canonical: `${process.env.NEXT_PUBLIC_URL}/${lang}/indicadores/${slug}`,
+//       },
+//     };
+//   } else
+//     return {
+//       title: getTextById(copy, "title", lang),
+//       description: getTextById(copy, "description", lang),
+//     };
+// }
 
 export default async function Jurisdiction({ params }) {
   const { lang, slug } = await params;
@@ -89,7 +90,7 @@ export default async function Jurisdiction({ params }) {
       />
       <main
         id="main"
-        className="flex flex-col justify-start text-black bg-white flex-grow relative"
+        className="flex flex-col justify-start text-black bg-white flex-grow "
       >
         {jurisdictionsCopy && government && indicators && country && (
           <JurisdictionDataProvider
@@ -106,54 +107,67 @@ export default async function Jurisdiction({ params }) {
 
             <div className="">
               <StickyBar />
-              <div className="px-l md:p-[80px] grid lg:grid-cols-12 gap-xl max-md:py-[48px] max-w-[1440px] mx-auto">
+              <div className=" md:py-[80px] grid lg:grid-cols-12 gap-xl max-md:py-[48px] max-w-[1440px] mx-auto">
                 {existRadarData && (
                   <>
-                    <div className="lg:col-span-4 flex flex-col gap-[24px] justify-center">
-                      <h2 className="max-md:text-[32px] text-h1 font-bold mb-4 text-navy">
-                        {getTextById(
-                          jurisdictionsCopy,
-                          "indicators_title",
-                          lang
-                        )}
-                      </h2>
-                      <div className="bg-background p-xl ">
-                        <p className="text-p">
+                    <div
+                      className="col-span-12  grid lg:grid-cols-12 gap-xl px-l md:px-[80px]"
+                      id="radar-chart"
+                    >
+                      <div className="lg:col-span-4 flex flex-col gap-[24px] justify-center">
+                        <h2 className="max-md:text-[32px] text-h1 font-bold mb-4 text-navy">
                           {getTextById(
                             jurisdictionsCopy,
-                            "indicators_subtitle",
-                            lang,
-                            [
-                              { id: "jurisdiction", replace: government.name },
-                              {
-                                id: "country",
-                                replace: country[`name_${lang}`],
-                              },
-                            ]
+                            "indicators_title",
+                            lang
                           )}
-                        </p>
+                        </h2>
+                        <div className="bg-background p-xl ">
+                          <p className="text-p">
+                            {getTextById(
+                              jurisdictionsCopy,
+                              "indicators_subtitle",
+                              lang,
+                              [
+                                {
+                                  id: "jurisdiction",
+                                  replace: government.name,
+                                },
+                                {
+                                  id: "country",
+                                  replace: country[`name_${lang}`],
+                                },
+                              ]
+                            )}
+                          </p>
+                        </div>
+                        <Download
+                          lang={lang}
+                          copy={jurisdictionsCopy}
+                          refImage={"radar-chart"}
+                          buttonId="radar-chart"
+                        />
                       </div>
+
+                      <RadarChart
+                        yearIndicators={yearIndicators}
+                        country={country}
+                        data={jurisdictionData}
+                        compareGov={
+                          getTextById(jurisdictionsCopy, "average", lang) +
+                          " " +
+                          country[`name_${lang}`]
+                        }
+                      />
                     </div>
-
-                    <RadarChart
-                      yearIndicators={yearIndicators}
-                      country={country}
-                      data={jurisdictionData}
-                      compareGov={
-                        getTextById(jurisdictionsCopy, "average", lang) +
-                        " " +
-                        country[`name_${lang}`]
-                      }
-                    />
-
-                    <div className="col-span-12 px-[80px]">
+                    <div className="col-span-12 px-[160px]" id="dots-chart">
                       {" "}
                       <DotsChart />
                     </div>
                   </>
                 )}
 
-                <div className="col-span-12">
+                <div className="col-span-12 px-l md:px-[80px]" id="comparative">
                   <Comparative yearIndicators={yearIndicators} />
                 </div>
               </div>

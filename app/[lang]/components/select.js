@@ -93,7 +93,7 @@ export default function Select({
             : defaultAllLabel && selected[id] === "all"
             ? defaultAllLabel
             : selected[`name_${lang}`]}
-          <Expand className="w-4 h-4 stroke-2 rotate-90 stroke-blue" />
+          <Expand className="w-4 h-4 stroke-2 rotate-90 stroke-blue exclude-from-capture" />
         </ListboxButton>
         <ListboxOptions
           anchor="bottom"

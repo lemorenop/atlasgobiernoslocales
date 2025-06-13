@@ -5,7 +5,7 @@ import { useContext } from "react";
 import { JurisdictionDataContext } from "./jurisdictionDataProvider";
 import MapGoverment from "./mapGoverment";
 import Share from "../../components/share";
-import { downloadImage } from "@/app/utils/downloadImage";
+import { downloadImage } from "@/app/utils/downloadHandlers";
 import Arrow from "@/app/[lang]/components/icons/arrow";
 import Loader from "@/app/[lang]/components/loader";
 export default function Hero({ yearPoblacion, data }) {
@@ -104,6 +104,7 @@ export default function Hero({ yearPoblacion, data }) {
           />
 
           <button
+            id="download-gov"
             onClick={() =>
               downloadImage(null, [
                 {
@@ -111,7 +112,7 @@ export default function Hero({ yearPoblacion, data }) {
                   image: mapRef,
                   container: "map-gov",
                 },
-              ])
+              ],'download-gov')
             }
             className="remove-from-capture cursor-pointer  inline-flex items-center gap-s  bg-white text-blue-CAF font-bold w-fit px-3 focus:outline-none  data-[focus]:outline-1 data-[focus]:outline-white border-1 hover:border-white  border-black hover:bg-navy hover:text-white transition-all duration-300  justify-between data-[open]:rotate-0 py-s description  group"
           >

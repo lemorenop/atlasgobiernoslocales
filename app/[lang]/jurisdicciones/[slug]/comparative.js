@@ -7,6 +7,7 @@ import SearchComparative from "./searchComparative";
 import { getJurisdictionData } from "@/app/utils/dataFetchers";
 import RadarChart from "./radarChart";
 import Loader from "@/app/[lang]/components/loader";
+import Download from "../../components/download";
 export default function Comparative({ yearIndicators }) {
   const { jurisdictionsCopy, lang, government, country } = useContext(
     JurisdictionDataContext
@@ -26,7 +27,7 @@ export default function Comparative({ yearIndicators }) {
   return (
     <>
       <div className={`flex flex-col py-[48px]  md:max-w-[60%] mx-auto gap-[24px] ${compareJurisdiction?"":"remove-from-capture"}`}>
-        <h2 className="text-h2 font-bold text-navy text-center">
+        <h2 className="text-h2 font-bold text-navy text-center ">
           {getTextById(jurisdictionsCopy, "compare_title", lang, [
             {
               id: "jurisdiction_name",
@@ -75,6 +76,12 @@ export default function Comparative({ yearIndicators }) {
                 {getTextById(jurisdictionsCopy, "compare_description", lang)}
               </p>
             </div>
+            <Download
+            lang={lang}
+            copy={jurisdictionsCopy}
+            refImage={"comparative"}
+            buttonId="comparative"
+            />
             <a
               className="exclude-from-capture inline-flex items-center gap-2  bg-navy text-white px-3  shadow-inner shadow-white/10 focus:outline-none  data-[focus]:outline-1 data-[focus]:outline-white cursor-pointer justify-between data-[open]:rotate-0 py-1.5 uppercase font-bold w-fit mx-auto"
               href={`/${lang}/jurisdicciones/${compareJurisdiction.id}`}

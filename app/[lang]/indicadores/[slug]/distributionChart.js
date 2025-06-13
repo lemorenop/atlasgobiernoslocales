@@ -15,6 +15,7 @@ import { chartStyles } from "@/app/utils/chartStyles";
 import Loader from "@/app/[lang]/components/loader";
 import Share from "@/app/[lang]/components/share";
 import Tooltip from "@/app/[lang]/components/tooltip";
+import Download from "../../components/download";
 
 export default function DistributionChart() {
   const { governments, countries, copy, lang, regions, indicator } =
@@ -397,7 +398,7 @@ export default function DistributionChart() {
     });
   }, [getChartData, maxValue]);
   return (
-    <div className="flex flex-col gap-xl ">
+    <div className="flex flex-col gap-xl px-l md:px-[160px]" id="distribution-chart">
       <div className="flex flex-col gap-[24px] md:max-w-[80%] mx-auto">
         <h2 className="text-navy text-h2 text-center font-bold [&_span]:text-cyan">
           {getTextById(copy, "distribution_title", lang, [
@@ -459,6 +460,7 @@ export default function DistributionChart() {
           <svg ref={svgRef} className="w-full"></svg>
         </div>
       </div>
+      <div className="flex justify-between">
       <div className="max-w-[300px]">
         <Share
           color="#004a80"
@@ -466,6 +468,14 @@ export default function DistributionChart() {
           shareTitle={getTextById(copy, "share", lang)}
         />
       </div>
+      <div className="w-80">
+        <Download
+          lang={lang}
+          copy={copy}
+          refImage={"distribution-chart"}
+          buttonId="distribution-chart"
+        />
+      </div> </div>
       {tooltip && (
         <Tooltip tooltip={tooltip}>
           <>

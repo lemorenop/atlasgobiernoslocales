@@ -16,6 +16,7 @@ import "mapbox-gl/dist/mapbox-gl.css";
 import * as d3 from "d3";
 import { getTextById, formatValue } from "@/app/utils/textUtils";
 import Tooltip from "@/app/[lang]/components/tooltip";
+import DownloadShapes from "@/app/[lang]/components/downloadShapes";
 
 export default function MapIndicator({
   selectedNivel,
@@ -409,15 +410,7 @@ export default function MapIndicator({
           "nivel2-layer_simplificado",
         ]}
       >
-        <NavigationControl position="bottom-left" />
-        {/* Nivel 0 - Visible at low zoom levels */}
-        {/* <Source
-          id="nivel0-source"
-          type="vector"
-          url="mapbox://dis-caf.4eo2m2u3"
-        >
-          <Layer {...nivel0Layer} source-layer="countries_sm-2an4y3" />
-        </Source> */}
+        <NavigationControl position="bottom-left" showCompass={false} />
 
         {/* Nivel 1 - Visible at low zoom levels */}
         {selectedNivel.value === "1" && (
@@ -502,14 +495,6 @@ export default function MapIndicator({
                     )})`,
                   }}
                 />
-                {/* {((!isPercentage && colorScale.isLogarithmic) || isPercentage && indicator.max !== 100) &&  <div className=" h-[8px]">
-                  <div
-                    style={{ borderLeftColor: d3.interpolateBlues(1) }}
-                    className={`w-0 h-0 border-[4px] border-transparent border-r-0 border-l-[8px] border-l-[${d3.interpolateBlues(
-                      1
-                    )}]`}
-                  />
-                </div>} */}
               </div>
               <div className="text-black flex gap-s justify-between w-full text-[10px]">
                 {!isPercentage && colorScale.isLogarithmic ? (
@@ -607,7 +592,9 @@ export default function MapIndicator({
           </div>
         </div>
       )}
-      {/* Tooltip popup */}
+      <div className="absolute bottom-m right-m w-full md:max-w-80">
+        <DownloadShapes lang={lang} copy={copy} buttonId="download-shapes" />
+      </div>
       {tooltip && (
         <Tooltip tooltip={tooltip}>
           <>

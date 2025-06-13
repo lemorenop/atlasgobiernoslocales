@@ -236,7 +236,7 @@ export default function MapGoverment({
           maxZoom={22}
           {...basicSettings}
         >
-          <NavigationControl position="top-right" />
+          <NavigationControl position="bottom-right"  showCompass={false}/>
 
           {/* Nivel 1 - Visible at low zoom levels */}
           {nivel === "1" && (

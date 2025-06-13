@@ -191,7 +191,7 @@ export default function MapView({ lang = "es", tooltipData }) {
           ]}
           {...basicSettings}
         >
-          <NavigationControl position="top-right" />
+          <NavigationControl position="bottom-right"  showCompass={false}/>
 
           {/* Nivel 0 - Visible at low zoom levels */}
           

@@ -159,7 +159,7 @@ export default function SelectCountrySwitch({
   }, [selectedCountry]);
   return (
     <>
-      <div className="">
+      <div className={`${selectedCountry?.iso3 === "all" || multiple ? "exclude-from-capture" : ""}`}>
         <Select
           label={label}
           multiple={multiple}

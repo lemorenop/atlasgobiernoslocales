@@ -15,7 +15,8 @@ import Share from "@/app/[lang]/components/share";
 import Loader from "../../components/loader";
 import { chartStyles } from "@/app/utils/chartStyles";
 import Tooltip from "@/app/[lang]/components/tooltip";
-export default function ScatterPlot() {
+import Download from "../../components/download";
+  export default function ScatterPlot() {
   const { governments, lang, indicators, indicator, copy, countries } =
     useContext(IndicatorDataContext);
   const [selectedIndicator, setSelectedIndicator] = useState(
@@ -337,7 +338,7 @@ export default function ScatterPlot() {
   ]);
 
   return (
-    <div className="flex flex-col gap-xl ">
+    <div className="flex flex-col gap-xl px-l md:px-[160px] " id="scatter-plot">
       <div className="flex flex-col gap-[24px] md:max-w-[80%] mx-auto">
         <h2 className="text-navy text-h2 text-center font-bold [&_span]:text-cyan">
           {getTextById(copy, "correlation_title", lang, [
@@ -356,7 +357,7 @@ export default function ScatterPlot() {
           />
         </h2>
       </div>
-      <div className="flex justify-between w-full gap-m">
+      <div className={`flex justify-between w-full gap-m `}>
         <SelectCountrySwitch
           selectedCountry={selectedCountry}
           setSelectedCountry={setSelectedCountry}
@@ -396,6 +397,7 @@ export default function ScatterPlot() {
           </p>
         )}
       </div>
+      <div className="flex justify-between">
       <div className="max-w-[300px]">
         <Share
           color="#004a80"
@@ -403,7 +405,16 @@ export default function ScatterPlot() {
           shareTitle={getTextById(copy, "share", lang)}
         />
       </div>
-
+      <div className="w-80">
+        <Download
+          downloadName={`${selectedIndicator[`name_${lang}`]}-${indicator[`name_${lang}`]}`}
+          lang={lang}
+          copy={copy}
+          refImage={"scatter-plot"}
+          buttonId="scatter-plot"
+        />
+      </div>
+      </div>
       {tooltip && (
         <Tooltip tooltip={tooltip}>
           <>
@@ -434,7 +445,7 @@ function SelectIndicator({ selected, onChange, lang, options }) {
         className={` w-fit inline-flex items-center gap-2  text-cyan focus:outline-none  data-[focus]:outline-1 data-[focus]:outline-white cursor-pointer  justify-between data-[open]:rotate-0 pb-1 border-b-2 border-cyan`}
       >
         {selected[`name_${lang}`]}
-        <Expand className="w-4 h-4 stroke-2 rotate-90 stroke-blue" />
+        <Expand className="w-4 h-4 stroke-2 rotate-90 stroke-blue exclude-from-capture" />
       </ListboxButton>
       <ListboxOptions
         anchor="bottom"
