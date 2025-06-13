@@ -9,9 +9,8 @@ import { downloadImage } from "@/app/utils/downloadImage";
 import Arrow from "@/app/[lang]/components/icons/arrow";
 import Loader from "@/app/[lang]/components/loader";
 export default function Hero({ yearPoblacion, data }) {
-  const { indicators, jurisdictionsCopy, government, lang } = useContext(
-    JurisdictionDataContext
-  );
+  const { indicators, jurisdictionsCopy, government, lang, mapRef } =
+    useContext(JurisdictionDataContext);
   const toLocaleString = (value) => {
     const divisor = lang === "es" || lang === "pt" ? "." : ",";
 
@@ -105,8 +104,16 @@ export default function Hero({ yearPoblacion, data }) {
           />
 
           <button
-            onClick={() => downloadImage()}
-            className="cursor-pointer  inline-flex items-center gap-s  bg-white text-blue-CAF font-bold w-fit px-3 focus:outline-none  data-[focus]:outline-1 data-[focus]:outline-white border-1 hover:border-white  border-black hover:bg-navy hover:text-white transition-all duration-300  justify-between data-[open]:rotate-0 py-s description  group"
+            onClick={() =>
+              downloadImage(null, [
+                {
+                  type: "map",
+                  image: mapRef,
+                  container: "map-gov",
+                },
+              ])
+            }
+            className="remove-from-capture cursor-pointer  inline-flex items-center gap-s  bg-white text-blue-CAF font-bold w-fit px-3 focus:outline-none  data-[focus]:outline-1 data-[focus]:outline-white border-1 hover:border-white  border-black hover:bg-navy hover:text-white transition-all duration-300  justify-between data-[open]:rotate-0 py-s description  group"
           >
             {getTextById(jurisdictionsCopy, "download_gov", lang)}{" "}
             <div id="capture-loader" className="hidden ">

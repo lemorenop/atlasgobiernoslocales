@@ -1,13 +1,20 @@
 "use client";
 
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useContext } from "react";
 import { Map, Source, Layer, NavigationControl } from "react-map-gl/mapbox";
 import "mapbox-gl/dist/mapbox-gl.css";
 import { basicSettings, handleMapLoad } from "@/app/utils/mapSettings";
 import Loader from "../../components/loader";
 import { getTextById } from "@/app/utils/textUtils";
+import { JurisdictionDataContext } from "./jurisdictionDataProvider";
 
-export default function MapGoverment({ nivel, governmentID, lang,jurisdictionsCopy }) {
+export default function MapGoverment({
+  nivel,
+  governmentID,
+  lang,
+  jurisdictionsCopy,
+}) {
+  const { setMapRef } = useContext(JurisdictionDataContext);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [viewState, setViewState] = useState({
@@ -29,7 +36,7 @@ export default function MapGoverment({ nivel, governmentID, lang,jurisdictionsCo
           `/api/bounds?govID=${governmentID}&nivel=${nivel}`
         );
         const data = await response.json();
-        
+
         if (Object.keys(data).length !== 0) {
           setBounds(data);
         } else {
@@ -109,12 +116,15 @@ export default function MapGoverment({ nivel, governmentID, lang,jurisdictionsCo
         }
       }
     }
-
-    // Consultar características directamente desde la fuente
-
-    // if(nivel!==1)setMinZoom(4)
-  };
-
+    };
+  mapRef?.current?.getMap().on("idle", () => {
+    const dataUrl = mapRef?.current
+      ?.getMap()
+      .getCanvas()
+      .toDataURL("image/png");
+      setMapRef(dataUrl);
+    //
+  });
   // Helper function to extract bounds from a feature
   const getBoundsFromFeature = (feature) => {
     if (!feature.geometry) return null;
@@ -206,12 +216,12 @@ export default function MapGoverment({ nivel, governmentID, lang,jurisdictionsCo
       }, 1500);
     }
   }
-
+  const [image, setImage] = useState(null);
   return (
-    <div className="w-full h-full relative">
+    <div className="w-full h-full relative" id="map-gov">
       {loading ? (
         <div className="bg-background absolute inset-0 flex items-center justify-center">
-          <Loader className="w-full h-full [&_span]:w-[48px] [&_span]:h-[48px]"/>
+          <Loader className="w-full h-full [&_span]:w-[48px] [&_span]:h-[48px]" />
         </div>
       ) : error ? (
         <div className="absolute inset-0 flex items-center justify-center ">
@@ -262,6 +272,7 @@ export default function MapGoverment({ nivel, governmentID, lang,jurisdictionsCo
           )}
         </Map>
       )}
+      {image && <img src={image} alt="map" />}
     </div>
   );
 }

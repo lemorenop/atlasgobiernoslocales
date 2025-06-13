@@ -116,7 +116,7 @@ export default async function Navbar({ lang }) {
   return (
     navbarCopy &&
     homeCopyData && (
-      <nav className="bg-white text-black py-s px-4 sm:px-6 lg:px-8 w-full exclude-from-capture">
+      <nav className="bg-white text-black py-s px-4 sm:px-6 lg:px-8 w-full ">
         <div className="flex items-center justify-between w-full">
           <a href={`https://www.caf.com/${lang}`} className="" target="_blank">
             <Image
@@ -127,7 +127,7 @@ export default async function Navbar({ lang }) {
               className="object-contain"
             />
           </a>
-          <div className="lg:hidden">
+          <div className="lg:hidden exclude-from-capture">
             <Menu>
         
               <MenuButton
@@ -151,7 +151,7 @@ export default async function Navbar({ lang }) {
             
             </Menu>
           </div>
-          <div className="hidden lg:block">
+          <div className="hidden lg:block exclude-from-capture">
             <div className=" flex items-center gap-m">
               {menuItems.map((item) => item())}{" "}
             </div>

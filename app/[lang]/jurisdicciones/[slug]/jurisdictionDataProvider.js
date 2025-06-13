@@ -23,7 +23,8 @@ export default function JurisdictionDataProvider({
   jurisdictionData,
 }) {
   const [data, setData] = useState(null);
-  
+  const [mapRef, setMapRef] = useState(null);
+
   useEffect(() => {
     async function loadData() {
       try {
@@ -72,6 +73,8 @@ export default function JurisdictionDataProvider({
         slug,
         tooltipInfo,
         jurisdictionData,
+        mapRef,
+        setMapRef
       }}
     >
       {children}

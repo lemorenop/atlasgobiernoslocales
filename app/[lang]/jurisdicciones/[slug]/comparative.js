@@ -25,7 +25,7 @@ export default function Comparative({ yearIndicators }) {
   }, [compareJurisdiction]);
   return (
     <>
-      <div className="flex flex-col py-[48px]  md:max-w-[60%] mx-auto gap-[24px]">
+      <div className={`flex flex-col py-[48px]  md:max-w-[60%] mx-auto gap-[24px] ${compareJurisdiction?"":"remove-from-capture"}`}>
         <h2 className="text-h2 font-bold text-navy text-center">
           {getTextById(jurisdictionsCopy, "compare_title", lang, [
             {

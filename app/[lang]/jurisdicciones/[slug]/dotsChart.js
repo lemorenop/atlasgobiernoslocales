@@ -299,7 +299,7 @@ export default function DotsChart() {
       ])
     : "";
  
-  return (
+  return (<>
     <div className="flex flex-col gap-[24px] ">
       <div className="flex flex-col gap-[24px] md:max-w-[80%] mx-auto">
         <h2 className="text-navy text-h2 text-center font-bold [&_span]:text-cyan">
@@ -383,7 +383,11 @@ export default function DotsChart() {
         </div>
       </div>
 
-      {tooltip && (
+     
+      <div className="max-w-80 caption">
+        <Share color="#004A80" shareText={government["description_" + lang]} shareTitle={getTextById(jurisdictionsCopy, "share", lang)} />
+      </div>
+    </div> {tooltip && (
         <Tooltip tooltip={tooltip}>
           <>
             <p className={`${tooltip.subtitle && "font-bold"}  `}>
@@ -405,10 +409,6 @@ export default function DotsChart() {
             )}
           </>
         </Tooltip>
-      )}
-      <div className="max-w-80 caption">
-        <Share color="#004A80" shareText={government["description_" + lang]} shareTitle={getTextById(jurisdictionsCopy, "share", lang)} />
-      </div>
-    </div>
+      )}</>
   );
 }

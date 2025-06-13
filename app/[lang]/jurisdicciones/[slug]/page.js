@@ -15,15 +15,23 @@ import Comparative from "./comparative";
 
 export async function generateMetadata({ params }) {
   const { lang, slug } = await params;
-  const jurisdiction = await getGovernments(lang, slug).then((data) => data[0]);
   const copy = await fetchData("metadataCopy", lang);
-  return {
-    title: `${jurisdiction.name} | ${getTextById(copy, "title", lang)}`,
-    description: getTextById(copy, "description", lang),
-    alternates: {
-      canonical: `${process.env.NEXT_PUBLIC_URL}/${lang}/indicadores/${slug}`,
-    },
-  };
+  if (slug) {
+    const jurisdiction = await getGovernments(lang, slug).then(
+      (data) => data[0]
+    );
+    return {
+      title: `${jurisdiction.name} | ${getTextById(copy, "title", lang)}`,
+      description: getTextById(copy, "description", lang),
+      alternates: {
+        canonical: `${process.env.NEXT_PUBLIC_URL}/${lang}/indicadores/${slug}`,
+      },
+    };
+  } else
+    return {
+      title: getTextById(copy, "title", lang),
+      description: getTextById(copy, "description", lang),
+    };
 }
 
 export default async function Jurisdiction({ params }) {
@@ -61,6 +69,7 @@ export default async function Jurisdiction({ params }) {
   const tooltipInfo = getTextById(jurisdictionsCopy, "tooltip_info", lang, [
     { id: "year", replace: yearPoblacion },
   ]);
+  console.log(government);
   government["level"] = government.level_per_country_id?.split("_")[0] || null;
   return (
     <>
