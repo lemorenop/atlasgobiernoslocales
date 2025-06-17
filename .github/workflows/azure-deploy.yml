@@ -4,7 +4,7 @@ on:
   push:
     branches:
       - main
-      -segunda-etapa
+      - segunda-etapa
   workflow_dispatch:
 
 env:
@@ -49,6 +49,6 @@ jobs:
         with:
           app-name: azapp-reportered-cr-test
           slot-name: "Production"
-          publish-profile: ${{ secrets.AZURE_PUBLISH_PROFILE }}
+          publish-profile: ${{ secrets.AZURE_PUBLISH_PROFILE}}
           package: .next/standalone
 
