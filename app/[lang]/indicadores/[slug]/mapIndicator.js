@@ -434,6 +434,8 @@ export default function MapIndicator({
               <Layer
                 id="nivel2-layer"
                 {...nivel2Layer}
+                minzoom={4}
+                maxzoom={22}
                 source-layer="nivel_2-721y7u"
               />
             </Source>
@@ -445,6 +447,8 @@ export default function MapIndicator({
               <Layer
                 id="nivel2-layer_simplificado"
                 {...nivel2Layer}
+                minzoom={0}
+                maxzoom={4}
                 source-layer="nivel_2_simplificado"
               />
             </Source>

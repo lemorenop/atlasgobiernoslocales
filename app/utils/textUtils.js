@@ -43,8 +43,8 @@ export function formatValue(value, unit_measure_id, lang, showUnit = true) {
     }
   };
 
-  return !isNaN(value) ? unit_measure_id === "perc"
+  if(value && !isNaN(value))return unit_measure_id === "perc"
     ? (Number.isInteger(value) ? value : value.toFixed(2)) + (showUnit ? "%" : "")
     : (value.toLocaleString(lang === "es" || lang === "pt" ? "pt" : "en")) + (showUnit ? unitLabel() : "")
-    : unitLabel();
+    return unitLabel();
 }
