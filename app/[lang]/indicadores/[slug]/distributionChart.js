@@ -200,7 +200,7 @@ export default function DistributionChart() {
     d3.select(svgRef.current).selectAll("*").remove();
 
     // Set up dimensions
-    const margin = { top: 20, right: 30, bottom: 40, left: 150 };
+    const margin = { top: 20, right: 10, bottom: 40, left: 150 };
     const width = svgRef.current.clientWidth - margin.left - margin.right;
     const height = getChartData().length * 40 + margin.top + margin.bottom;
 
@@ -213,12 +213,11 @@ export default function DistributionChart() {
     const g = svg
       .append("g")
       .attr("transform", `translate(${margin.left},${margin.top})`);
-
     // Create scales
+ 
     const x = d3
       .scaleBand()
-      .domain([
-        "0-10",
+      .domain(  ["0-10",
         "10-20",
         "20-30",
         "30-40",
@@ -227,8 +226,7 @@ export default function DistributionChart() {
         "60-70",
         "70-80",
         "80-90",
-        "90-100",
-      ])
+        "90-100",]  )
       .range([0, width])
       .padding(0.1);
 
@@ -242,7 +240,17 @@ export default function DistributionChart() {
     // Add single X axis at the bottom
     g.append("g")
       .attr("transform", `translate(0,${height - margin.bottom})`)
-      .call(d3.axisBottom(x))
+      .call(d3.axisBottom(x)
+        .tickFormat((d, i) => {
+          
+          if (width < 400) {
+            // Show only even-numbered ranges (0-10, 20-30, etc.)
+            return i % 2 === 0 ? d : "";
+          } else{
+            return d
+          }
+        })
+      )
       .selectAll("text")
       .style("text-anchor", "middle")
       .style("font-family", chartStyles.fontFamily)
@@ -420,7 +428,7 @@ export default function DistributionChart() {
           ])}
         </p>
       </div>
-      <div className="flex justify-between w-full gap-m">
+      <div className="flex justify-between w-full gap-m max-md:flex-col">
         <SelectCountrySwitch
           label={getTextById(copy, "map_country_select", lang)}
           selectedCountry={selectedCountries}
@@ -460,7 +468,7 @@ export default function DistributionChart() {
           <svg ref={svgRef} className="w-full"></svg>
         </div>
       </div>
-      <div className="flex justify-between">
+      <div className="flex justify-between max-md:flex-col gap-[24px]">
       <div className="max-w-[300px]">
         <Share
           color="#004a80"
@@ -468,8 +476,9 @@ export default function DistributionChart() {
           shareTitle={getTextById(copy, "share", lang)}
         />
       </div>
-      <div className="w-80">
+      <div className="max-sm:w-full md:w-80">
         <Download
+          downloadName={`${indicator[`name_${lang}`]}-${selectedNivel.name}`}
           lang={lang}
           copy={copy}
           refImage={"distribution-chart"}

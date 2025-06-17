@@ -592,7 +592,7 @@ export default function MapIndicator({
           </div>
         </div>
       )}
-      <div className="absolute bottom-m right-m w-full md:max-w-80">
+      <div className="max-md:p-l md:absolute bottom-m right-m w-full md:max-w-80">
         <DownloadShapes lang={lang} copy={copy} buttonId="download-shapes" />
       </div>
       {tooltip && (

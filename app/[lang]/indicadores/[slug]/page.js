@@ -70,7 +70,7 @@ export default async function Indicator({ params }) {
             countries={countries}
             levelPerCountry={levelPerCountry}
           />
-          <div className=" py-[80px] flex flex-col max-md:py-[48px] gap-[80px] max-w-[1440px] mx-auto">
+          <div className="max-md:pt-[120px] py-[80px] flex flex-col max-md:pb-[48px] gap-[80px] max-w-[1440px] mx-auto">
             <DistributionChart />
             <ScatterPlot />
           </div>

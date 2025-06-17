@@ -357,7 +357,7 @@ import Download from "../../components/download";
           />
         </h2>
       </div>
-      <div className={`flex justify-between w-full gap-m `}>
+      <div className={`flex justify-between w-full gap-m max-md:flex-col`}>
         <SelectCountrySwitch
           selectedCountry={selectedCountry}
           setSelectedCountry={setSelectedCountry}
@@ -397,7 +397,7 @@ import Download from "../../components/download";
           </p>
         )}
       </div>
-      <div className="flex justify-between">
+      <div className="flex justify-between max-md:flex-col gap-[24px]">
       <div className="max-w-[300px]">
         <Share
           color="#004a80"
@@ -405,7 +405,7 @@ import Download from "../../components/download";
           shareTitle={getTextById(copy, "share", lang)}
         />
       </div>
-      <div className="w-80">
+      <div className="max-sm:w-full md:w-80">
         <Download
           downloadName={`${selectedIndicator[`name_${lang}`]}-${indicator[`name_${lang}`]}`}
           lang={lang}
