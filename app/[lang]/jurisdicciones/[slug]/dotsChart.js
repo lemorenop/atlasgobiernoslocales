@@ -188,7 +188,7 @@ export default function DotsChart() {
                 )
                 .attr("cursor", "pointer")
                 .on("mouseover", function (event) {
-                  d3.select(this).attr("r", 6)
+                  d3.select(this).attr("r", 6);
                   setTooltip({
                     ...tooltipContent,
                     government_id: gov.government_id,
@@ -197,7 +197,7 @@ export default function DotsChart() {
                   });
                 })
                 .on("mousemove", function (event) {
-                  d3.select(this).attr("r", 6)
+                  d3.select(this).attr("r", 6);
                   setTooltip({
                     ...tooltipContent,
                     government_id: gov.government_id,
@@ -206,12 +206,12 @@ export default function DotsChart() {
                   });
                 })
                 .on("mouseout", function () {
-                  d3.select(this).attr("r", 5)
+                  d3.select(this).attr("r", 5);
                   setTooltip(null);
                 })
                 .attr("tabindex", 0)
                 .on("focus", function (event) {
-                  d3.select(this).attr("r", 6)
+                  d3.select(this).attr("r", 6);
                   setTooltip({
                     ...tooltipContent,
                     government_id: gov.government_id,
@@ -220,7 +220,7 @@ export default function DotsChart() {
                   });
                 })
                 .on("blur", function () {
-                  d3.select(this).attr("r", 5)
+                  d3.select(this).attr("r", 5);
                   setTooltip(null);
                 });
             }
@@ -299,7 +299,7 @@ export default function DotsChart() {
         { id: "country_name", replace: country[`name_${lang}`] },
       ])
     : "";
- 
+
   return (
     <div className="flex flex-col gap-[24px] " id="dots-chart">
       <div className="flex flex-col gap-[24px] md:max-w-[80%] mx-auto">
@@ -312,8 +312,8 @@ export default function DotsChart() {
       </div>
 
       <div className="flex gap-m flex-col pt-[32px]">
-        <div className="flex justify-between">
-          <div className="flex flex-col gap-xs exclude-from-capture">
+        <div className="flex justify-between gap-2xl items-end">
+          <div className="flex flex-col gap-xs exclude-from-capture max-sm:w-full ">
             <p>{getTextById(jurisdictionsCopy, "select_indicator", lang)}</p>
             <Select
               id="code"
@@ -393,13 +393,18 @@ export default function DotsChart() {
             {tooltip.valueGov && (
               <div className="flex items-center gap-xs">
                 <div
-                style={{borderColor:tooltip.government_id === government.id ? "#004A80" : "#55C7D5",backgroundColor:"#55C7D5"}}
+                  style={{
+                    borderColor:
+                      tooltip.government_id === government.id
+                        ? "#004A80"
+                        : "#55C7D5",
+                    backgroundColor: "#55C7D5",
+                  }}
                   className={`w-4 h-4 rounded-[100%]   ${
                     tooltip.government_id === government.id
                       ? "border-2 "
                       : "border-2 "
                   }`}
-                
                 />
                 <p>{tooltip.valueGov}</p>
               </div>
@@ -407,17 +412,24 @@ export default function DotsChart() {
           </>
         </Tooltip>
       )}
-      <div className="exclude-from-capture flex justify-between">
-
-      <div className="max-w-80 caption">        <Share color="#004A80" shareText={government["description_" + lang]} shareTitle={getTextById(jurisdictionsCopy, "share", lang)} />
-       
-        </div><div className="w-80"><Download
-        lang={lang}
-        copy={jurisdictionsCopy}
-        refImage={"dots-chart"}
-        buttonId="dots-chart"
-        />
-          </div> 
+      <div className="exclude-from-capture flex justify-between max-md:flex-col gap-[24px]">
+        <div className="sm:max-w-80 max-sm:w-full caption">
+          {" "}
+          <Share
+            color="#004A80"
+            shareText={government["description_" + lang]}
+            shareTitle={getTextById(jurisdictionsCopy, "share", lang)}
+          />
+        </div>
+        <div className="max-sm:w-full md:w-80">
+          <Download
+            downloadName={`${government.name}-${selectedIndicator[`name_${lang}`]}`}
+            lang={lang}
+            copy={jurisdictionsCopy}
+            refImage={"dots-chart"}
+            buttonId="dots-chart"
+          />
+        </div>
       </div>
     </div>
   );

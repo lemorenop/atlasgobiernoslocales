@@ -114,7 +114,7 @@ export default function Hero({ yearPoblacion, data }) {
                 },
               ],'download-gov')
             }
-            className="remove-from-capture cursor-pointer  inline-flex items-center gap-s  bg-white text-blue-CAF font-bold w-fit px-3 focus:outline-none  data-[focus]:outline-1 data-[focus]:outline-white border-1 hover:border-white  border-black hover:bg-navy hover:text-white transition-all duration-300  justify-between data-[open]:rotate-0 py-s description  group"
+            className="w-full md:w-fit  remove-from-capture cursor-pointer  inline-flex items-center gap-s  bg-white text-blue-CAF font-bold  px-3 focus:outline-none  data-[focus]:outline-1 data-[focus]:outline-white border-1 hover:border-white  border-black hover:bg-navy hover:text-white transition-all duration-300  justify-between data-[open]:rotate-0 py-s description  group"
           >
             {getTextById(jurisdictionsCopy, "download_gov", lang)}{" "}
             <div id="capture-loader" className="hidden ">

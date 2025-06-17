@@ -159,7 +159,7 @@ export default async function Jurisdiction({ params }) {
                         }
                       />
                     </div>
-                    <div className="col-span-12 px-[160px]" id="dots-chart">
+                    <div className="col-span-12 px-l md:px-[80px] lg:px-[160px]" id="dots-chart">
                       {" "}
                       <DotsChart />
                     </div>

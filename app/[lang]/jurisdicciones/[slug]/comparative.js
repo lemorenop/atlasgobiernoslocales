@@ -26,7 +26,11 @@ export default function Comparative({ yearIndicators }) {
   }, [compareJurisdiction]);
   return (
     <>
-      <div className={`flex flex-col py-[48px]  md:max-w-[60%] mx-auto gap-[24px] ${compareJurisdiction?"":"remove-from-capture"}`}>
+      <div
+        className={`flex flex-col py-[48px]  md:max-w-[80%] lg:max-w-[60%] mx-auto gap-[24px] ${
+          compareJurisdiction ? "" : "remove-from-capture"
+        }`}
+      >
         <h2 className="text-h2 font-bold text-navy text-center ">
           {getTextById(jurisdictionsCopy, "compare_title", lang, [
             {
@@ -76,12 +80,18 @@ export default function Comparative({ yearIndicators }) {
                 {getTextById(jurisdictionsCopy, "compare_description", lang)}
               </p>
             </div>
-            <Download
-            lang={lang}
-            copy={jurisdictionsCopy}
-            refImage={"comparative"}
-            buttonId="comparative"
-            />
+            <div className=" w-full md:w-80 lg:w-full mx-auto">
+              <Download
+                downloadName={`${government.name}-${compareJurisdiction.name}-${
+                  country[`name_${lang}`]
+                }`}
+                lang={lang}
+                copy={jurisdictionsCopy}
+                refImage={"comparative"}
+                buttonId="comparative"
+              />
+            </div>
+
             <a
               className="exclude-from-capture inline-flex items-center gap-2  bg-navy text-white px-3  shadow-inner shadow-white/10 focus:outline-none  data-[focus]:outline-1 data-[focus]:outline-white cursor-pointer justify-between data-[open]:rotate-0 py-1.5 uppercase font-bold w-fit mx-auto"
               href={`/${lang}/jurisdicciones/${compareJurisdiction.id}`}
