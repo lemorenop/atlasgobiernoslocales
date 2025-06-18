@@ -73,20 +73,7 @@ export default async function Jurisdiction({ params }) {
   government["level"] = government.level_per_country_id?.split("_")[0] || null;
   return (
     <>
-      {" "}
-      <div
-        id="capture-area"
-        className="flex flex-col justify-start text-black bg-white flex-grow relative"
-        style={{
-          position: "absolute",
-          top: 0,
-          left: 0,
-          zIndex: -9,
-          width: "1400px",
-          height: "auto",
-          overflow: "hidden",
-        }}
-      />
+    
       <main
         id="main"
         className="flex flex-col justify-start text-black bg-white flex-grow "
@@ -158,6 +145,9 @@ export default async function Jurisdiction({ params }) {
                           country[`name_${lang}`]
                         }
                       />
+                    </div>
+                    <div className="relative h-[20px] sm:hidden">
+                      <div className="absolute top-[-60px] left-[-60px] w-[120px] h-[120px] bg-navy rounded-full "/>
                     </div>
                     <div className="col-span-12 px-l md:px-[80px] lg:px-[160px]" id="dots-chart">
                       {" "}

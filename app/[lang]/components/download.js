@@ -19,7 +19,7 @@ export default function Download({ lang, copy, refImage, buttonId ,downloadName}
     {
       id: "download_image",
       name: getTextById(copy, "download_image", lang),
-      handleClick: () => downloadImage(refImage, null, buttonId,downloadName),
+      handleClick: () => downloadImage(refImage, null, buttonId,downloadName,lang),
     },
   ];
   return (

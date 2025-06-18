@@ -41,6 +41,20 @@ export default async function RootLayout({ children, params }) {
         >
         <GAnalytics/>
             <Navbar lang={lang} />
+            
+            <div
+        id="capture-area"
+        className="flex flex-col justify-start text-black bg-white flex-grow relative"
+        style={{
+          position: "absolute",
+          top: 0,
+          left: 0,
+          zIndex: -9,
+          width: "100%",
+          height: "auto",
+          overflow: "hidden",
+        }}
+      />
             <div className="flex-grow h-full flex flex-col">{children}</div>
             <Footer lang={lang} />
         </body>
