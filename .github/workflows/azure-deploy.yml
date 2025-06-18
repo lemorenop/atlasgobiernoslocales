@@ -31,7 +31,7 @@ jobs:
           npm install
           npm run build
           cp -r .next/static .next/standalone/.next/static
-          cp -r public .next/standalone/public
+          cp -r public .next/standalone/
           cp web.config .next/standalone/
 
       - name: Deploy to Azure Web App - Producción
