@@ -386,6 +386,17 @@ export default function ScatterPlot() {
     lang,
   ]);
 
+  useEffect(() => {
+    const handleScroll = () => {
+      setTooltip(null);
+    };
+
+    window.addEventListener("scroll", handleScroll);
+
+    return () => {
+      window.removeEventListener("scroll", handleScroll);
+    };
+  }, []);
   return (
     <div className="flex flex-col gap-xl px-l md:px-[160px] " id="scatter-plot">
       <div className="flex flex-col gap-[24px] md:max-w-[80%] mx-auto">

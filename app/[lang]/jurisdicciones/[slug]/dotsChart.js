@@ -51,8 +51,8 @@ export default function DotsChart() {
         const containerWidth =
           container.clientWidth - paddingLeft - paddingRight;
         const containerHeight = 400; // Altura fija para mantener proporción
-
-        const margin = { top: 40, right: 20, bottom: 60, left: 60 };
+        const isMobile =   container.clientWidth < 600;
+        const margin = { top: 40, right:  isMobile ? 10 :20, bottom: 60, left: isMobile ? 10 : 60 };
         const width = containerWidth - margin.left - margin.right;
         const height = containerHeight - margin.top - margin.bottom;
 
@@ -308,7 +308,17 @@ export default function DotsChart() {
         { id: "country_name", replace: country[`name_${lang}`] },
       ])
     : "";
-
+    useEffect(() => {
+      const handleScroll = () => {
+        setTooltip(null);
+      };
+  
+      window.addEventListener("scroll", handleScroll);
+  
+      return () => {
+        window.removeEventListener("scroll", handleScroll);
+      };
+    }, []);
   return (
     <div className="flex flex-col gap-[24px] " id="dots-chart">
       <div className="flex flex-col gap-[24px] md:max-w-[80%] mx-auto">

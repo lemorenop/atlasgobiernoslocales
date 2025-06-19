@@ -467,7 +467,10 @@ export default function DistributionChart() {
           .attr("d", clickArea)
           .on("click", function (event, d) {
             // Remove selected class from all paths
-            d3.selectAll("path.click-area[stroke]").attr("stroke", "transparent");
+            d3.selectAll("path.click-area[stroke]").attr(
+              "stroke",
+              "transparent"
+            );
 
             // Add selected class to clicked path and change color
             d3.select(this).attr("stroke", chartStyles.blueColor);
@@ -483,10 +486,10 @@ export default function DistributionChart() {
       setTooltip(null);
     };
 
-    window.addEventListener('scroll', handleScroll);
-    
+    window.addEventListener("scroll", handleScroll);
+
     return () => {
-      window.removeEventListener('scroll', handleScroll);
+      window.removeEventListener("scroll", handleScroll);
     };
   }, []);
 

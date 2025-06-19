@@ -550,6 +550,17 @@ export default function RadarChart({
       });
     }
   }, [nationalData, chartCreated]);
+  useEffect(() => {
+    const handleScroll = () => {
+      setTootip(null);
+    };
+
+    window.addEventListener("scroll", handleScroll);
+
+    return () => {
+      window.removeEventListener("scroll", handleScroll);
+    };
+  }, []);
   return (
     <div className="flex flex-col lg:col-span-8 min-h-[400px] md:min-h-[600px] max-h-screen">
       <div className="radar-chart-container h-full relative grow">
