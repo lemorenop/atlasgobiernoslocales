@@ -196,6 +196,15 @@ export default function DotsChart() {
                     y: event.pageY,
                   });
                 })
+                .on("click", function (event) {
+                  d3.select(this).attr("r", 6);
+                  setTooltip({
+                    ...tooltipContent,
+                    government_id: gov.government_id,
+                    x: event.pageX,
+                    y: event.pageY,
+                  });
+                })
                 .on("mousemove", function (event) {
                   d3.select(this).attr("r", 6);
                   setTooltip({

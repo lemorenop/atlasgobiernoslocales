@@ -293,6 +293,24 @@ export default function ScatterPlot() {
           y: event.pageY,
         });
       })
+      .on("click", function (event, d) {
+        const tooltipContent = {
+          title: `${d.name}, ${d.completeName}`,
+          valueInd1: formatValue(d.x, indicator.unit_measure_id, lang, true),
+          valueInd2: formatValue(
+            d.y,
+            selectedIndicator.unit_measure_id,
+            lang,
+            true
+          ),
+          government_id: d.id,
+        };
+        setTooltip({
+          ...tooltipContent,
+          x: event.pageX,
+          y: event.pageY,
+        });
+      })
       .on("mouseout", function () {
         setTooltip(null);
         d3.select(this).attr("r", 5).attr("stroke-width", 1);

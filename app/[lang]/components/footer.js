@@ -36,7 +36,7 @@ export default async function Footer({ lang }) {
   return (
     footerCopy && (
       <>
-        <div className="bg-blue-CAF px-l md:px-[80px] flex flex-col md:grid md:grid-cols-12 gap-[32px]md:gap-[64px] text-white relative md:items-center">
+        <div className="bg-blue-CAF px-l md:px-[80px] flex flex-col md:grid md:grid-cols-12 gap-[32px]md:gap-[64px] text-white relative md:items-center exclude-from-capture">
           <Image
             src="/red-logo.png"
             alt="Reporte de Economía y Desarrollo"
@@ -47,7 +47,7 @@ export default async function Footer({ lang }) {
           <p className="text-white z-10 md:py-[48px] col-span-4">
             {getTextById(footerCopy, "credits", lang)}
           </p>
-          <div className="py-[32px] md:py-[48px] relative col-span-5 col-start-8 h-full remove-from-capture">
+          <div className="py-[32px] md:py-[48px] relative col-span-5 col-start-8 h-full ">
             <div className="absolute top-0 right-0 z-0 h-full flex w-full gap-xl justify-end">
               <svg
                 xmlns="http://www.w3.org/2000/svg"
@@ -74,11 +74,12 @@ export default async function Footer({ lang }) {
             </p>
           </div>
         </div>
-        <footer className="bg-background text-black px-l md:px-[80px] remove-from-capture">
+        <footer className="bg-background text-black px-l md:px-[80px] exclude-from-capture">
         
             <div className="pb-[32px] flex flex-col md:flex-row  gap-[32px] md:gap-[80px] pt-[40px] justify-between max-lg:flex-wrap">
               <div className="w-fit flex-1 flex flex-col gap-s  max-md:gap-[32px]">
                 <Image
+                className="h-auto"
                   src={`/logo_${lang}.png`}
                   alt="CAF Network Visualizer"
                   width={240}

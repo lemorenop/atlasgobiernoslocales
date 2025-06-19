@@ -18,16 +18,17 @@ export default async function Navbar({ lang }) {
       <NavbarLink path="home" key="home">
         <a
           href={`/${lang}`}
-          className={`flex items center gap-xs  description cursor-pointer`}
+          className={`flex items center gap-xs  description cursor-pointer relative`}
         >
-          {" "}
+          <div className="relative w-[24px] h-[24px] ">
           <Image
             src="/home.png"
             alt=""
-            width={24}
-            height={24}
-            className="object-contain "
+            fill
+            sizes="24px"
+            className="object-contain   "
           />
+          </div>
           {getTextById(navbarCopy, "home", lang)}
         </a>
       </NavbarLink>
@@ -36,16 +37,17 @@ export default async function Navbar({ lang }) {
       <NavbarLink path="indicadores" key="indicadores">
         <a
           href={`/${lang}/indicadores/acceso-a-fuente-de-agua-mejorada`}
-          className={`flex  items center gap-xs  description cursor-pointer`}
+          className={`flex  items center gap-xs  description cursor-pointer relative`}
         >
-          {" "}
+           <div className="relative w-[24px] h-[24px] ">
           <Image
             src="/ind.png"
             alt=""
-            width={24}
-            height={24}
-            className="object-contain "
+            fill
+            sizes="24px"
+            className="object-contain   "
           />
+          </div>
           {getTextById(navbarCopy, "indicators", lang)}
         </a>
       </NavbarLink>
@@ -58,16 +60,17 @@ export default async function Navbar({ lang }) {
         path={"jurisdicciones"}
         button={
           <div
-            className={`flex items center gap-xs  description cursor-pointer`}
+            className={`flex items center gap-xs  description cursor-pointer relative`}
           >
-            {" "}
+              <div className="relative w-[24px] h-[24px] ">
             <Image
               src="/jur.png"
               alt=""
-              width={24}
-              height={24}
-              className="object-contain "
+              fill
+              sizes="24px"
+              className="object-contain   "
             />
+            </div>
             {getTextById(navbarCopy, "jurisdictions", lang)}
           </div>
         }
@@ -90,16 +93,17 @@ export default async function Navbar({ lang }) {
       <NavbarLink path="acerca-de" key="acerca-de">
         <a
           href={`/${lang}/acerca-de`}
-          className={`flex  items center gap-xs  description cursor-pointer`}
+          className={`flex  items center gap-xs  description cursor-pointer relative`}
         >
-          {" "}
+         <div className="relative w-[24px] h-[24px] ">
           <Image
             src="/about.png"
             alt=""
-            width={24}
-            height={24}
-            className="object-contain "
+            fill
+            sizes="24px"
+            className="object-contain   "
           />
+          </div>
           {getTextById(navbarCopy, "about", lang)}
         </a>
       </NavbarLink>
@@ -124,7 +128,7 @@ export default async function Navbar({ lang }) {
               alt="CAF Network Visualizer"
               width={240}
               height={40}
-              className="object-contain"
+              className="object-contain h-auto"
             />
           </a>
           <div className="lg:hidden exclude-from-capture">

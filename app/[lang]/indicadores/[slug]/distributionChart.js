@@ -198,9 +198,14 @@ export default function DistributionChart() {
     setIsLoading(false);
     // Clear previous chart
     d3.select(svgRef.current).selectAll("*").remove();
-
+    const isMobile = svgRef.current.clientWidth < 600;
     // Set up dimensions
-    const margin = { top: 20, right: 10, bottom: 40, left: 150 };
+    const margin = {
+      top: 20,
+      right: isMobile ? 0 : 10,
+      bottom: 40,
+      left: isMobile ? 50 : 150,
+    };
     const width = svgRef.current.clientWidth - margin.left - margin.right;
     const height = getChartData().length * 40 + margin.top + margin.bottom;
 
@@ -214,10 +219,11 @@ export default function DistributionChart() {
       .append("g")
       .attr("transform", `translate(${margin.left},${margin.top})`);
     // Create scales
- 
+
     const x = d3
       .scaleBand()
-      .domain(  ["0-10",
+      .domain([
+        "0-10",
         "10-20",
         "20-30",
         "30-40",
@@ -226,11 +232,12 @@ export default function DistributionChart() {
         "60-70",
         "70-80",
         "80-90",
-        "90-100",]  )
+        "90-100",
+      ])
       .range([0, width])
       .padding(0.1);
 
-    // Create line generator 
+    // Create line generator
     const line = d3
       .line()
       .x((d) => x(d.range) + x.bandwidth() / 2)
@@ -240,14 +247,13 @@ export default function DistributionChart() {
     // Add single X axis at the bottom
     g.append("g")
       .attr("transform", `translate(0,${height - margin.bottom})`)
-      .call(d3.axisBottom(x)
-        .tickFormat((d, i) => {
-          
+      .call(
+        d3.axisBottom(x).tickFormat((d, i) => {
           if (width < 400) {
             // Show only even-numbered ranges (0-10, 20-30, etc.)
             return i % 2 === 0 ? d : "";
-          } else{
-            return d
+          } else {
+            return d;
           }
         })
       )
@@ -255,7 +261,7 @@ export default function DistributionChart() {
       .style("text-anchor", "middle")
       .style("font-family", chartStyles.fontFamily)
       .style("color", chartStyles.textColor)
-      .style("font-size", chartStyles.fontSize);
+      .style("font-size", isMobile ? "10px" : chartStyles.fontSize);
 
     // Remove the axis line and ticks
     g.selectAll(".domain, .tick line").remove();
@@ -275,7 +281,7 @@ export default function DistributionChart() {
           .attr("y1", 0)
           .attr("x2", width)
           .attr("y2", 0)
-          .attr("stroke",  chartStyles.lightCyanColor)
+          .attr("stroke", chartStyles.lightCyanColor)
           .attr("stroke-width", 1)
           .attr("stroke-dasharray", "4,4");
       }
@@ -289,7 +295,7 @@ export default function DistributionChart() {
           .attr("y1", 0)
           .attr("x2", xPos)
           .attr("y2", countryHeight)
-          .attr("stroke",  chartStyles.lightCyanColor)
+          .attr("stroke", chartStyles.lightCyanColor)
           .attr("stroke-width", 1)
           .attr("stroke-dasharray", "4,4");
       });
@@ -301,6 +307,12 @@ export default function DistributionChart() {
         .range([countryHeight, 0]);
 
       // Create area generator for this country
+      const clickArea = d3
+        .area()
+        .x((d) => x(d.range) + x.bandwidth() / 2)
+        .y0((d) => y(0))
+        .y1((d) => y(maxValue))
+        .curve(d3.curveMonotoneX);
       const startArea = d3
         .area()
         .x((d) => x(d.range))
@@ -315,15 +327,36 @@ export default function DistributionChart() {
         .curve(d3.curveMonotoneX);
 
       // Add country name
-      countryGroup
+      const countryNameText = countryGroup
         .append("text")
-        .attr("x", -10)
+        .attr("x", isMobile ? 2 : -10)
         .attr("y", 20)
         .attr("text-anchor", "end")
         .style("font-family", chartStyles.fontFamily)
-        .style("font-size", chartStyles.fontSize)
+        .style("font-size", isMobile ? "10px" : chartStyles.fontSize)
         .style("color", chartStyles.textColor)
-        .text(country.country);
+        .attr("transform", isMobile ? "rotate(-15, -10, 20)" : "");
+
+      if (isMobile && country.country.includes(" ")) {
+        // Split country name into words
+        const words = country.country.split(" ");
+        const firstLine = words.slice(0, Math.ceil(words.length / 2)).join(" ");
+        const secondLine = words.slice(Math.ceil(words.length / 2)).join(" ");
+
+        countryNameText
+          .append("tspan")
+          .attr("x", isMobile ? 2 : -10)
+          .attr("dy", "0")
+          .text(firstLine);
+
+        countryNameText
+          .append("tspan")
+          .attr("x", isMobile ? 2 : -10)
+          .attr("dy", "1.2em")
+          .text(secondLine);
+      } else {
+        countryNameText.text(country.country);
+      }
 
       // Transform data for this country
       const countryData = Object.entries(country)
@@ -333,39 +366,48 @@ export default function DistributionChart() {
           value: y(value),
           originalValue: value,
         }));
-        function handleTooltip(event, d){  
-          const xPos = d3.pointer(event)[0];
-          const range = x.domain().find(range => {
-            const rangeX = x(range);
-            const rangeEnd = rangeX + x.bandwidth();
-            return xPos >= rangeX && xPos < rangeEnd;
+      function handleTooltip(event, d) {
+        const xPos = d3.pointer(event)[0];
+        const range = x.domain().find((range) => {
+          const rangeX = x(range);
+          const rangeEnd = rangeX + x.bandwidth();
+          return xPos >= rangeX && xPos < rangeEnd;
+        });
+
+        if (range) {
+          const value = countryData.find((d) => d.range === range);
+          const tooltipContent = {
+            title: country.country,
+            range: range,
+            value: formatValue(
+              value.originalValue,
+              indicator.unit_measure_id,
+              lang
+            ),
+          };
+          setTooltip({
+            ...tooltipContent,
+            x: event.pageX,
+            y: event.pageY,
           });
-          d3.select(`#${country.countryCode}`).attr("stroke", chartStyles.blueColor)
-          if (range) {
-            const value = countryData.find(d => d.range === range);
-            const tooltipContent = {
-              title: country.country,
-              range: range,
-              value:formatValue(value.originalValue, indicator.unit_measure_id, lang)
-            };
-            setTooltip({
-              ...tooltipContent,
-              x: event.pageX,
-              y: event.pageY
-            });
-          }
-        
+        }
       }
       // Add the area
       countryGroup
         .append("path")
         .datum(countryData)
-        .attr("fill",  chartStyles.lightCyanColor)
+        .attr("fill", chartStyles.lightCyanColor)
         .style("cursor", "pointer")
-        .on("mouseover", handleTooltip  )
+        .on("mouseover", handleTooltip)
         .on("mousemove", handleTooltip)
-        .on("mouseout", function() {
-          d3.select(`#${country.countryCode}`).attr("stroke",  chartStyles.cyanColor)
+        .on("mouseout", function () {
+          // Only reset color if not selected
+          if (!d3.select(this).classed("selected")) {
+            d3.select(`#${country.countryCode}`).attr(
+              "stroke",
+              chartStyles.cyanColor
+            );
+          }
           setTooltip(null);
         })
         .attr("d", startArea)
@@ -379,34 +421,80 @@ export default function DistributionChart() {
         .append("path")
         .datum(countryData)
         .attr("fill", "none")
-        .attr("stroke",  chartStyles.cyanColor)
+        .attr("stroke", chartStyles.cyanColor)
         .attr("stroke-width", 2)
         .attr("d", line)
         .attr("id", country.countryCode)
         .style("cursor", "pointer")
         .on("mouseover", handleTooltip)
         .on("mousemove", handleTooltip)
-        .on("mouseout", function() {
-          d3.select(`#${country.countryCode}`).attr("stroke", chartStyles.cyanColor)
+        .on("click", function (event, d) {
+          // Remove selected class from all paths
+          d3.selectAll("path[stroke]").attr("stroke", chartStyles.cyanColor);
+
+          // Add selected class to clicked path and change color
+          d3.select(this).attr("stroke", chartStyles.blueColor);
+
+          handleTooltip(event, d);
+        })
+        .on("mouseout", function () {
+          // Only reset color if not selected
+
+          d3.select(`#${country.countryCode}`).attr(
+            "stroke",
+            chartStyles.cyanColor
+          );
+
           setTooltip(null);
         })
-        .attr("stroke-dasharray", function() {
+        .attr("stroke-dasharray", function () {
           return this.getTotalLength();
         })
-        .attr("stroke-dashoffset", function() {
+        .attr("stroke-dashoffset", function () {
           return this.getTotalLength();
         })
         .transition()
         .duration(1000)
         .ease(d3.easeLinear)
         .attr("stroke-dashoffset", 0);
-      
-        
-      
+      if (isMobile)
+        countryGroup
+          .append("path")
+          .attr("class", "click-area")
+          .datum(countryData)
+          .attr("fill", "transparent")
+          .style("cursor", "pointer")
+          .attr("d", clickArea)
+          .on("click", function (event, d) {
+            // Remove selected class from all paths
+            d3.selectAll("path.click-area[stroke]").attr("stroke", "transparent");
+
+            // Add selected class to clicked path and change color
+            d3.select(this).attr("stroke", chartStyles.blueColor);
+
+            handleTooltip(event, d);
+          });
     });
   }, [getChartData, maxValue]);
+
+  // Hide tooltip on scroll
+  useEffect(() => {
+    const handleScroll = () => {
+      setTooltip(null);
+    };
+
+    window.addEventListener('scroll', handleScroll);
+    
+    return () => {
+      window.removeEventListener('scroll', handleScroll);
+    };
+  }, []);
+
   return (
-    <div className="flex flex-col gap-xl px-l md:px-[160px]" id="distribution-chart">
+    <div
+      className="flex flex-col gap-xl px-l md:px-[160px]"
+      id="distribution-chart"
+    >
       <div className="flex flex-col gap-[24px] md:max-w-[80%] mx-auto">
         <h2 className="text-navy text-h2 text-center font-bold [&_span]:text-cyan">
           {getTextById(copy, "distribution_title", lang, [
@@ -469,22 +557,23 @@ export default function DistributionChart() {
         </div>
       </div>
       <div className="flex justify-between max-md:flex-col gap-[24px]">
-      <div className="max-w-[300px]">
-        <Share
-          color="#004a80"
-          shareText={`${indicator[`name_${lang}`]} `}
-          shareTitle={getTextById(copy, "share", lang)}
-        />
+        <div className="max-w-[300px]">
+          <Share
+            color="#004a80"
+            shareText={`${indicator[`name_${lang}`]} `}
+            shareTitle={getTextById(copy, "share", lang)}
+          />
+        </div>
+        <div className="max-sm:w-full md:w-80">
+          <Download
+            downloadName={`${indicator[`name_${lang}`]}-${selectedNivel.name}`}
+            lang={lang}
+            copy={copy}
+            refImage={"distribution-chart"}
+            buttonId="distribution-chart"
+          />
+        </div>{" "}
       </div>
-      <div className="max-sm:w-full md:w-80">
-        <Download
-          downloadName={`${indicator[`name_${lang}`]}-${selectedNivel.name}`}
-          lang={lang}
-          copy={copy}
-          refImage={"distribution-chart"}
-          buttonId="distribution-chart"
-        />
-      </div> </div>
       {tooltip && (
         <Tooltip tooltip={tooltip}>
           <>

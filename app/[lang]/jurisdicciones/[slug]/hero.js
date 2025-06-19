@@ -106,7 +106,7 @@ export default function Hero({ yearPoblacion, data }) {
           <button
             id="download-gov"
             onClick={() =>
-              downloadImage(null, [
+              downloadImage("main", [
                 {
                   type: "map",
                   image: mapRef,

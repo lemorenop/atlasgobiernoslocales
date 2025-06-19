@@ -5,7 +5,7 @@ import { i18n } from "@/app/i18n.config";
 import "@/app/globals.css";
 import { Raleway } from "next/font/google";
 import GAnalytics from "./components/analytics";
-import Head from 'next/head';
+import Head from "next/head";
 
 const raleway = Raleway({
   subsets: ["latin"],
@@ -14,8 +14,10 @@ const raleway = Raleway({
 });
 
 export const metadata = {
-  title: "CAF | Atlas de gobiernos locales y regionales de América Latina y el Caribe",
-  description: "Explore, compare y descargue indicadores clave sobre el desarrollo en más de 18.000 jurisdicciones locales y regionales de América Latina y el Caribe. Una herramienta abierta y transparente para la toma de decisiones.",
+  title:
+    "CAF | Atlas de gobiernos locales y regionales de América Latina y el Caribe",
+  description:
+    "Explore, compare y descargue indicadores clave sobre el desarrollo en más de 18.000 jurisdicciones locales y regionales de América Latina y el Caribe. Una herramienta abierta y transparente para la toma de decisiones.",
   image: "/share.png",
 };
 
@@ -24,14 +26,29 @@ export default async function RootLayout({ children, params }) {
   return (
     <>
       <Head>
-        <meta property="og:title" content="CAF | Atlas de gobiernos locales y regionales de América Latina y el Caribe" />
-        <meta property="og:description" content="Explore, compare y descargue indicadores clave sobre el desarrollo en más de 18.000 jurisdicciones locales y regionales de América Latina y el Caribe. Una herramienta abierta y transparente para la toma de decisiones." />
+        <meta
+          property="og:title"
+          content="CAF | Atlas de gobiernos locales y regionales de América Latina y el Caribe"
+        />
+        <meta
+          property="og:description"
+          content="Explore, compare y descargue indicadores clave sobre el desarrollo en más de 18.000 jurisdicciones locales y regionales de América Latina y el Caribe. Una herramienta abierta y transparente para la toma de decisiones."
+        />
         <meta property="og:image" content="/share.png" />
-        <meta property="og:url" content="https://atlasgobiernoslocales.caf.com/es" />
+        <meta
+          property="og:url"
+          content="https://atlasgobiernoslocales.caf.com/es"
+        />
         <meta property="og:type" content="website" />
         <meta name="twitter:card" content="summary_large_image" />
-        <meta name="twitter:title" content="CAF | Atlas de gobiernos locales y regionales de América Latina y el Caribe" />
-        <meta name="twitter:description" content="Explore, compare y descargue indicadores clave sobre el desarrollo en más de 18.000 jurisdicciones locales y regionales de América Latina y el Caribe. Una herramienta abierta y transparente para la toma de decisiones." />
+        <meta
+          name="twitter:title"
+          content="CAF | Atlas de gobiernos locales y regionales de América Latina y el Caribe"
+        />
+        <meta
+          name="twitter:description"
+          content="Explore, compare y descargue indicadores clave sobre el desarrollo en más de 18.000 jurisdicciones locales y regionales de América Latina y el Caribe. Una herramienta abierta y transparente para la toma de decisiones."
+        />
         <meta name="twitter:image" content="/share.png" />
         <link rel="canonical" href={`${process.env.NEXT_PUBLIC_URL}/${lang}`} />
       </Head>
@@ -39,24 +56,24 @@ export default async function RootLayout({ children, params }) {
         <body
           className={`${raleway.className} antialiased min-h-screen flex flex-col justify-between bg-white font-normal font-[Raleway] h-full`}
         >
-        <GAnalytics/>
-            <Navbar lang={lang} />
-            
-            <div
-        id="capture-area"
-        className="flex flex-col justify-start text-black bg-white flex-grow relative"
-        style={{
-          position: "absolute",
-          top: 0,
-          left: 0,
-          zIndex: -9,
-          width: "100%",
-          height: "auto",
-          overflow: "hidden",
-        }}
-      />
-            <div className="flex-grow h-full flex flex-col">{children}</div>
-            <Footer lang={lang} />
+          <GAnalytics />
+          <Navbar lang={lang} />
+
+          <div
+            id="capture-area"
+            className="flex flex-col justify-start text-black bg-white flex-grow relative"
+            style={{
+              position: "absolute",
+              top: 0,
+              left: 0,
+              zIndex: -9,
+              width: "100%",
+              height: "auto",
+              overflow: "hidden",
+            }}
+          />
+          <div className="flex-grow h-full flex flex-col">{children}</div>
+          <Footer lang={lang} />
         </body>
       </html>
     </>
