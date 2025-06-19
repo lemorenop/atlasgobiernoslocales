@@ -1,5 +1,5 @@
 "use client";
-import { useEffect, useRef, useState, useContext } from "react";
+import { useEffect, useRef, useState, useContext, useCallback } from "react";
 import * as d3 from "d3";
 import { getTextById } from "@/app/utils/textUtils";
 import Info from "@/app/[lang]/components/icons/info";
@@ -15,6 +15,7 @@ export default function RadarChart({
   yearIndicators,
   loadingData = false,
   compareGov,
+  onDownloadFunctionReady,
 }) {
   const { government, indicators, jurisdictionsCopy, jurisdictionData, lang } =
     useContext(JurisdictionDataContext);
@@ -31,10 +32,62 @@ export default function RadarChart({
   });
   const svgRef = useRef(null);
   const indicatorsID = [21, 5, 7, 8, 13, 19, 10, 11, 12, 17, 20];
+
+  // Función para estructurar los datos del radar chart para CSV
+  const getRadarChartDataForCSV = useCallback(() => {
+    if (!data || !nationalData) {
+      return null;
+    }
+
+    // Crear la fila de encabezados
+    const headers = [
+      lang === "es" ? "Gobierno" : lang === "en" ? "Government" : "Governo",
+    ];
+    const indicatorNames = indicatorsID.map((id) => {
+      const indicator = indicators.find((ind) => ind.code === id);
+      return indicator ? indicator[`name_${lang}`] : `Indicator ${id}`;
+    });
+    headers.push(...indicatorNames);
+
+    // Crear la fila de datos del gobierno
+    const governmentRow = [government.name];
+    indicatorsID.forEach((id) => {
+      const dataPoint = data.find((d) => d.indicator_code === id);
+      const value =
+        dataPoint && dataPoint.value !== null
+          ? `${(parseFloat(dataPoint.value) * 100).toFixed(2)}%`
+          : getTextById(jurisdictionsCopy, "no_data", lang);
+      governmentRow.push(value);
+    });
+
+    // Crear la fila de datos nacionales
+    const nationalRow = [compareGov];
+    indicatorsID.forEach((id) => {
+      const dataPoint = nationalData.find((d) => d.indicator_code === id);
+      const value =
+        dataPoint && dataPoint.value !== null
+          ? `${(parseFloat(dataPoint.value) * 100).toFixed(2)}%`
+          : getTextById(jurisdictionsCopy, "no_data", lang);
+      nationalRow.push(value);
+    });
+
+    return [headers, governmentRow, nationalRow];
+  }, [data, nationalData, lang, compareGov]);
+
+  // Notificar al padre cuando la función esté lista
+  useEffect(() => {
+    if (
+      onDownloadFunctionReady &&
+      data &&
+      nationalData
+    ) {
+      onDownloadFunctionReady(getRadarChartDataForCSV);
+    }
+  }, [data, nationalData, lang, compareGov, onDownloadFunctionReady]);
+
   // Fetch national averages
   useEffect(() => {
     if (!government || !government.country_iso3) return;
-
     const fetchNationalAverages = async () => {
       try {
         let nivel = government.level;
@@ -48,17 +101,15 @@ export default function RadarChart({
           throw new Error("Failed to fetch national averages");
         }
         const data = await response.json();
-        if(data.length === 0){
+        if (data.length === 0) {
           setNationalData(
             indicatorsID.map((id) => ({
               indicator_code: id,
               value: null,
             }))
           );
-        }
-        else setNationalData(data);
+        } else setNationalData(data);
       } catch (error) {
-
         console.error("Error fetching national averages:", error);
         // Fallback to default values if fetch fails
         setNationalData(
@@ -74,9 +125,10 @@ export default function RadarChart({
     else {
       setNationalData(compareData);
     }
-  }, [government, compareData]);
+  }, [compareData]);
   const margin = { top: 100, right: 60, bottom: 60, left: 60 }; // Add some margin for better spacing
   useEffect(() => {
+    // setDataDownload(getRadarChartDataForCSV)
     const updateChartDimensions = () => {
       if (!svgRef.current) {
         return;
@@ -98,12 +150,12 @@ export default function RadarChart({
       d3.select(svgRef.current).attr("width", width).attr("height", height);
     };
 
-   if(data && nationalData) updateChartDimensions();
+    if (data && nationalData) updateChartDimensions();
     window.addEventListener("resize", updateChartDimensions);
     return () => {
       window.removeEventListener("resize", updateChartDimensions);
     };
-  }, [data,nationalData]);
+  }, [data, nationalData]);
 
   useEffect(() => {
     const drawChart = (innerWidth, radius, innerRadius, width, height) => {
@@ -459,7 +511,6 @@ export default function RadarChart({
     }
   }, [clientWidth, data]);
 
-
   useEffect(() => {
     if (chartCreated) drawSegments();
     function drawSegments() {
@@ -513,40 +564,39 @@ export default function RadarChart({
         <svg className="mx-auto" ref={svgRef}></svg>
       </div>
       {tooltip && (
-        <Tooltip tooltip={tooltip} >
-        <
-        >
-          <p className={`${tooltip.subtitle && "font-bold"}  `}>
-            {tooltip.title}
-          </p>
-          {tooltip.subtitle && <p className="">{tooltip.subtitle}</p>}
-          {(tooltip.valueGov || tooltip.valueNat) && (
-            <>
-              {(tooltip.valueGov || tooltip.valueGov !== "0") && (
-                <div className="flex items-center gap-xs">
-                  <div
-                    className="w-4 h-4 rounded-[100%] bg-blue-CAF"
-                    style={{ backgroundColor: countryColor }}
-                  />
-                  <p>
-                    {government.name}: {tooltip.valueGov}
-                  </p>
-                </div>
-              )}
-              {(tooltip.valueNat || tooltip.valueNat === "0") && (
-                <div className="flex items-center gap-xs">
-                  <div
-                    className="w-4 h-4 rounded-[100%]"
-                    style={{ backgroundColor: govColor }}
-                  />
-                  <p>
-                    {compareGov}: {tooltip.valueNat}
-                  </p>
-                </div>
-              )}
-            </>
-          )}
-        </>
+        <Tooltip tooltip={tooltip}>
+          <>
+            <p className={`${tooltip.subtitle && "font-bold"}  `}>
+              {tooltip.title}
+            </p>
+            {tooltip.subtitle && <p className="">{tooltip.subtitle}</p>}
+            {(tooltip.valueGov || tooltip.valueNat) && (
+              <>
+                {(tooltip.valueGov || tooltip.valueGov !== "0") && (
+                  <div className="flex items-center gap-xs">
+                    <div
+                      className="w-4 h-4 rounded-[100%] bg-blue-CAF"
+                      style={{ backgroundColor: countryColor }}
+                    />
+                    <p>
+                      {government.name}: {tooltip.valueGov}
+                    </p>
+                  </div>
+                )}
+                {(tooltip.valueNat || tooltip.valueNat === "0") && (
+                  <div className="flex items-center gap-xs">
+                    <div
+                      className="w-4 h-4 rounded-[100%]"
+                      style={{ backgroundColor: govColor }}
+                    />
+                    <p>
+                      {compareGov}: {tooltip.valueNat}
+                    </p>
+                  </div>
+                )}
+              </>
+            )}
+          </>
         </Tooltip>
       )}
       <div className="flex justify-end gap-s pt-m">

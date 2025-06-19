@@ -1,4 +1,5 @@
 import { toPng } from "html-to-image";
+import Papa from "papaparse";
 const SPREADSHEET_URL = "https://drive.google.com/uc?export=download&id=1bqe2sPoRfeCmsmvRL5M0Kfk2etzvwFI2";
 
 
@@ -30,8 +31,10 @@ export const downloadImage = async (captureRef, childrenRef, buttonId,downloadNa
   arrow?.classList.add("hidden");
   showLoader?.classList.remove("hidden");
   const captureArea = document.getElementById("capture-area");
+  captureArea.style.fontFamily = "Inter, sans-serif";
   if (!captureRef) {
     // const element = document.getElementById("capture-area");
+    
     captureArea.innerHTML = document.body.innerHTML;
     //   const element = document.body; // también podés probar con document.documentElement
     if (!captureArea) return;
@@ -150,4 +153,24 @@ export const handleJSONDownload = async (value) => {
   } catch (error) {
     console.error("Error downloading file:", error);
   }
+};
+
+export const handleChartDataDownload = (chartDataFunction, fileName = 'chart-data') => {const chartData = chartDataFunction()
+  if (!chartData || !Array.isArray(chartData)) {
+    console.error("No valid chart data provided");
+    return;
+  }
+
+  const csv = Papa.unparse(chartData);
+  const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+  const link = document.createElement('a');
+  const url = URL.createObjectURL(blob);
+  
+  link.setAttribute('href', url);
+  link.setAttribute('download', `${fileName}.csv`);
+  link.style.visibility = 'hidden';
+  
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
 };

@@ -12,7 +12,7 @@ import StickyBar from "./stickyBar";
 import JurisdictionDataProvider from "./jurisdictionDataProvider";
 import DotsChart from "./dotsChart";
 import Comparative from "./comparative";
-import Download from "../../components/download";
+import RadarChartContainer from "./radarChartContainer";
 
 // export async function generateMetadata({ params }) {
 //   const { lang, slug } = await params;
@@ -73,7 +73,6 @@ export default async function Jurisdiction({ params }) {
   government["level"] = government.level_per_country_id?.split("_")[0] || null;
   return (
     <>
-    
       <main
         id="main"
         className="flex flex-col justify-start text-black bg-white flex-grow "
@@ -96,60 +95,15 @@ export default async function Jurisdiction({ params }) {
               <div className=" md:py-[80px] grid lg:grid-cols-12 gap-xl max-md:py-[48px] max-w-[1440px] mx-auto">
                 {existRadarData && (
                   <>
-                    <div
-                      className="col-span-12  grid lg:grid-cols-12 gap-xl px-l md:px-[80px]"
-                      id="radar-chart"
-                    >
-                      <div className="lg:col-span-4 flex flex-col gap-[24px] justify-center">
-                        <h2 className="max-md:text-[32px] text-h1 font-bold mb-4 text-navy">
-                          {getTextById(
-                            jurisdictionsCopy,
-                            "indicators_title",
-                            lang
-                          )}
-                        </h2>
-                        <div className="bg-background p-xl ">
-                          <p className="text-p">
-                            {getTextById(
-                              jurisdictionsCopy,
-                              "indicators_subtitle",
-                              lang,
-                              [
-                                {
-                                  id: "jurisdiction",
-                                  replace: government.name,
-                                },
-                                {
-                                  id: "country",
-                                  replace: country[`name_${lang}`],
-                                },
-                              ]
-                            )}
-                          </p>
-                        </div>
-                        <Download
-                          lang={lang}
-                          copy={jurisdictionsCopy}
-                          refImage={"radar-chart"}
-                          buttonId="radar-chart"
-                        />
-                      </div>
+                    <RadarChartContainer yearIndicators={yearIndicators} />
 
-                      <RadarChart
-                        yearIndicators={yearIndicators}
-                        country={country}
-                        data={jurisdictionData}
-                        compareGov={
-                          getTextById(jurisdictionsCopy, "average", lang) +
-                          " " +
-                          country[`name_${lang}`]
-                        }
-                      />
-                    </div>
                     <div className="relative h-[20px] sm:hidden">
-                      <div className="absolute top-[-60px] left-[-60px] w-[120px] h-[120px] bg-navy rounded-full "/>
+                      <div className="absolute top-[-60px] left-[-60px] w-[120px] h-[120px] bg-navy rounded-full " />
                     </div>
-                    <div className="col-span-12 px-l md:px-[80px] lg:px-[160px]" id="dots-chart">
+                    <div
+                      className="col-span-12 px-l md:px-[80px] lg:px-[160px]"
+                      id="dots-chart"
+                    >
                       {" "}
                       <DotsChart />
                     </div>

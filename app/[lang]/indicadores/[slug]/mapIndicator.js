@@ -605,7 +605,7 @@ export default function MapIndicator({
             <p className="description text-black font-bold">
               {tooltip.governmentCode}
             </p>
-            <p className="description text-black font-normal">
+            <p className="description text-black font-normal whitespace-nowrap">
               {indicator[`name_${lang}`]}: <span className="font-bold">{tooltip.value}</span>
             </p>
           </>

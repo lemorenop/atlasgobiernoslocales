@@ -1,5 +1,5 @@
 "use client";
-import { useContext, useEffect, useState } from "react";
+import { useContext, useEffect, useState, useCallback } from "react";
 
 import { JurisdictionDataContext } from "./jurisdictionDataProvider";
 import { getTextById } from "@/app/utils/textUtils";
@@ -15,6 +15,12 @@ export default function Comparative({ yearIndicators }) {
   const [compareJurisdiction, setCompareJurisdiction] = useState(null);
   const [comparativeData, setComparativeData] = useState(null);
   const [loadingData, setLoadingData] = useState(false);
+  const [downloadFunction, setDownloadFunction] = useState(null);
+  
+  const handleDownloadFunctionReady = useCallback((func) => {
+    setDownloadFunction(() => func);
+  }, []);
+  
   useEffect(() => {
     if (compareJurisdiction) getData();
     async function getData() {
@@ -72,6 +78,7 @@ export default function Comparative({ yearIndicators }) {
               yearIndicators={yearIndicators}
               compareData={comparativeData}
               country={country}
+              onDownloadFunctionReady={handleDownloadFunctionReady}
             />
           </div>
           <div className="lg:col-span-4 flex flex-col gap-[24px] justify-center">
@@ -89,6 +96,7 @@ export default function Comparative({ yearIndicators }) {
                 copy={jurisdictionsCopy}
                 refImage={"comparative"}
                 buttonId="comparative"
+                chartDataFunction={downloadFunction}
               />
             </div>
 

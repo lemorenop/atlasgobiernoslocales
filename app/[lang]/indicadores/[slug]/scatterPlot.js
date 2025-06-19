@@ -16,13 +16,15 @@ import Loader from "../../components/loader";
 import { chartStyles } from "@/app/utils/chartStyles";
 import Tooltip from "@/app/[lang]/components/tooltip";
 import Download from "../../components/download";
-  export default function ScatterPlot() {
-  const { governments, lang, indicators, indicator, copy, countries } =
+
+export default function ScatterPlot() {
+  const { governments, lang, indicators, indicator, copy, countries, } =
     useContext(IndicatorDataContext);
   const [selectedIndicator, setSelectedIndicator] = useState(
     indicators[0].code !== indicator.code ? indicators[0] : indicators[1]
   );
-  
+
+
   const [scatterData, setSatterData] = useState(null);
   const [selectedCountry, setSelectedCountry] = useState({
     name_es: "Todos",
@@ -30,6 +32,35 @@ import Download from "../../components/download";
     name_pt: "Todos",
     iso3: "all",
   });
+  const [currentData,setCurrentData] = useState(null)
+
+  // Función para estructurar los datos del scatter plot para CSV
+  const getScatterPlotDataForCSV = () => {
+    // console.log('me ejecuto')
+    if (!currentData || !indicator || !selectedIndicator) {
+      return null;
+    }
+
+    // Crear la fila de encabezados
+    const headers = [
+      lang === "es" ? "Gobierno" : lang === "en" ? "Government" : "Governo",
+      lang === "es" ? "País" : lang === "en" ? "Country" : "País",
+      indicator[`name_${lang}`],
+      selectedIndicator[`name_${lang}`],
+    ];
+
+    // Usar los datos filtrados actuales
+    const rows = currentData.map(data => {
+      const value1 = formatValue(data.x, indicator.unit_measure_id, lang, true);
+      const value2 = formatValue(data.y, selectedIndicator.unit_measure_id, lang, true);
+
+      return [`${data.name}-${data.completeName}`, data.countryName, value1, value2];
+    });
+
+    return [headers, ...rows];
+  };
+
+
   const [noData, setNoData] = useState(false);
   const [selectedNivel, setSelectedNivel] = useState({
     name: getTextById(copy, "switch_local", lang),
@@ -101,7 +132,7 @@ import Download from "../../components/download";
           ...data,
         };
       });
-
+      setCurrentData(filteredData)
     if (filteredData.length === 0) {
       setNoData(true);
       return;
@@ -352,7 +383,9 @@ import Download from "../../components/download";
             selected={selectedIndicator}
             onChange={setSelectedIndicator}
             lang={lang}
-            options={indicators.filter(ind=>ind.code !== indicator.code && ind.code!==25)}
+            options={indicators.filter(
+              (ind) => ind.code !== indicator.code && ind.code !== 25
+            )}
             id="code"
           />
         </h2>
@@ -398,27 +431,30 @@ import Download from "../../components/download";
         )}
       </div>
       <div className="flex justify-between max-md:flex-col gap-[24px]">
-      <div className="max-w-[300px]">
-        <Share
-          color="#004a80"
-          shareText={`${indicator[`name_${lang}`]} `}
-          shareTitle={getTextById(copy, "share", lang)}
-        />
-      </div>
-      <div className="max-sm:w-full md:w-80">
-        <Download
-          downloadName={`${selectedIndicator[`name_${lang}`]}-${indicator[`name_${lang}`]}`}
-          lang={lang}
-          copy={copy}
-          refImage={"scatter-plot"}
-          buttonId="scatter-plot"
-        />
-      </div>
+        <div className="max-w-[300px]">
+          <Share
+            color="#004a80"
+            shareText={`${indicator[`name_${lang}`]} `}
+            shareTitle={getTextById(copy, "share", lang)}
+          />
+        </div>
+        <div className="max-sm:w-full md:w-80">
+          <Download
+            chartDataFunction={getScatterPlotDataForCSV}
+            downloadName={`${selectedIndicator[`name_${lang}`]}-${
+              indicator[`name_${lang}`]
+            }`}
+            lang={lang}
+            copy={copy}
+            refImage={"scatter-plot"}
+            buttonId="scatter-plot"
+          />
+        </div>
       </div>
       {tooltip && (
         <Tooltip tooltip={tooltip}>
           <>
-          <p className="font-bold pb-xs">{tooltip.title}</p>
+            <p className="font-bold pb-xs">{tooltip.title}</p>
             <div className="flex flex-col gap-xs">
               <div className="flex items-center gap-xs">
                 <p>
@@ -432,7 +468,7 @@ import Download from "../../components/download";
               </div>
             </div>
           </>
-        </Tooltip>       
+        </Tooltip>
       )}
     </div>
   );
@@ -455,17 +491,17 @@ function SelectIndicator({ selected, onChange, lang, options }) {
       >
         {/* {options.map((option, index) => (
           <div key={index}> */}
-            {options.map((opt) => (
-              <ListboxOption
-                key={opt.code}
-                value={opt}
-                className="group flex  items-center gap-2  py-1.5 px-3 select-none 
+        {options.map((opt) => (
+          <ListboxOption
+            key={opt.code}
+            value={opt}
+            className="group flex  items-center gap-2  py-1.5 px-3 select-none 
           hover:bg-blue-CAF hover:text-white p-xs cursor-pointer"
-              >
-                {opt[`name_${lang}`]}
-              </ListboxOption>
-            ))}
-          {/* </div>
+          >
+            {opt[`name_${lang}`]}
+          </ListboxOption>
+        ))}
+        {/* </div>
         ))} */}
       </ListboxOptions>
     </Listbox>

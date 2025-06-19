@@ -1,27 +1,44 @@
-"use client"
+"use client";
 import { getTextById } from "@/app/utils/textUtils";
 import { Menu, MenuButton, MenuItem, MenuItems } from "@headlessui/react";
-import { downloadImage, handleCSVDownload } from "@/app/utils/downloadHandlers";
+import {
+  downloadImage,
+  handleCSVDownload,
+  handleChartDataDownload,
+} from "@/app/utils/downloadHandlers";
 import Loader from "./loader";
 import Expand from "./icons/expand";
 
-export default function Download({ lang, copy, refImage, buttonId ,downloadName}) {
+export default function Download({
+  lang,
+  copy,
+  refImage,
+  buttonId,
+  downloadName,
+  chartDataFunction,
+}) {
   const options = [
     {
       id: "download_data",
       name: getTextById(copy, "download_data", lang),
       handleClick: (e) => handleCSVDownload(e),
     },
-    // {
-    //   id: "download_current_data",
-    //   name: getTextById(copy, "download_current_data", lang),
-    // },
+
     {
       id: "download_image",
       name: getTextById(copy, "download_image", lang),
-      handleClick: () => downloadImage(refImage, null, buttonId,downloadName,lang),
+      handleClick: () =>
+        downloadImage(refImage, null, buttonId, downloadName, lang),
     },
   ];
+  if (chartDataFunction) {
+    options.push({
+      id: "download_current_data",
+      name: getTextById(copy, "download_current_data", lang),
+      handleClick: () =>
+        handleChartDataDownload(chartDataFunction, downloadName || "chart-data"),
+    });
+  }
   return (
     <div className="exclude-from-capture w-full">
       <Menu>
