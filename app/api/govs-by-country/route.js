@@ -12,7 +12,7 @@ export async function GET(request, { params }) {
      const codes = searchParams.get('codes');
 
     // Verificar si los datos filtrados ya están en caché
-    const cacheKey =  `governments_${lang}_${countryCode}_${level}`;
+    const cacheKey =  `governments_${countryCode}_${level}_${lang}`;
     const cachedData = getFromCache(cacheKey);
     if (cachedData) {
       return NextResponse.json(cachedData);

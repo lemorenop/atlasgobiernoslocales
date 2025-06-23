@@ -191,7 +191,7 @@ export async function getGovernmentsByCountry(lang, codes,countryCode,level) {
   
   const governments= csvParsed.filter((elm)=>codes.includes(elm.government_id))
   return fetchWithCache(
-    `governments_${lang}_${countryCode}_${level}`,
+    `governments_${countryCode}_${level}`,
     () => governments,
     lang
   );
