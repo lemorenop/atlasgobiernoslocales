@@ -39,6 +39,7 @@ export default function JurisdictionDataProvider({
           )
         );
         const codes = governmentsModule.map((elm) => elm.id);
+        console.log("codes", codes);
         const url = `/api/govs-by-country?countryCode=${
           government.country_iso3
         }&level=${
