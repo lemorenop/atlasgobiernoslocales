@@ -26,10 +26,10 @@ export default function Comparative({ yearIndicators }) {
     async function getData() {
       setLoadingData(true);
       console.log('compare jurisdiction',compareJurisdiction)
-      const data = await getJurisdictionData(compareJurisdiction.id);
-
+      const data = await fetch(`/api/gov-data?slug=${compareJurisdiction.id}&lang=${lang}`);
+      const jsonData = await data.json();
       setLoadingData(false);
-      setComparativeData(data);
+      setComparativeData(jsonData.data);
     }
   }, [compareJurisdiction]);
   return (

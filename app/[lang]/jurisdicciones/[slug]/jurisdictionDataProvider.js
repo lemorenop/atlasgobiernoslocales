@@ -3,10 +3,6 @@
 import { useEffect, useState, createContext, useContext } from "react";
 import "@/app/globals.css";
 // import { fetchJurisdictionData } from "@/app/utils/apiClient";
-import {
-  getJurisdictionData,
-  getGovernmentsByCountry,
-} from "@/app/utils/dataFetchers";
 
 // Create a context for the loading state
 export const JurisdictionDataContext = createContext();
