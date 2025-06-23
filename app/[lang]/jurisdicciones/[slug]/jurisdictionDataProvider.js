@@ -47,13 +47,13 @@ export default function JurisdictionDataProvider({
         const response = await fetch(url);
         const data = await response.json();
         const govsByCountry = data.data;
-
+        console.log("govsByCountry", govsByCountry);
         setData({
           governments: governmentsModule,
           governmentsData: govsByCountry,
         });
       } catch (error) {
-        setData({ governments: null, governmentsData: null });
+        setData({ governments: null, governmentsData: [] });
         console.error(`Error loading government ${slug} data:`, error);
       }
     }
