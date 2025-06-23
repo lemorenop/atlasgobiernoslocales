@@ -59,7 +59,7 @@ async function fetchWithCache(cacheKey, fetchFn, lang) {
   const data = await fetchFn();
 
   // Store in cache with language
-  setInCache(`${cacheKey}_${lang}`, data);
+  if(data) setInCache(`${cacheKey}_${lang}`, data);
 
   return data;
 }
