@@ -28,7 +28,7 @@ export default function DotsChart() {
   const svgRef = useRef(null);
   useEffect(() => {
     setIsLoading(true);
-    if (data && selectedIndicator) {
+    if (data && selectedIndicator && data.governmentsData) {
       const currentData = data.governmentsData.filter(
         (elm) =>
           elm.indicator_code === selectedIndicator.code && elm.value !== null
