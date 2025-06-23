@@ -147,6 +147,41 @@ export const downloadImage = async (
   arrow?.classList.remove("hidden");
 };
 
+export const handleShapesDownload = async (shapeType, lang = "es") => {
+  try {
+    let fileName;
+    let downloadName;
+    
+    switch (shapeType) {
+      case "regional":
+        fileName = "nivel_1_low.json";
+        downloadName = "nivel_1.json";
+        break;
+      case "local":
+        fileName = "nivel_2_3_low.gpkg";
+        downloadName = "nivel_2_3.gpkg";
+        break;
+      default:
+        throw new Error("Invalid shape type");
+    }
+
+    const response = await fetch(`/maps/${fileName}`);
+    if (!response.ok) throw new Error("Download failed");
+
+    const blob = await response.blob();
+    const url = window.URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = downloadName;
+    document.body.appendChild(a);
+    a.click();
+    window.URL.revokeObjectURL(url);
+    document.body.removeChild(a);
+  } catch (error) {
+    console.error("Error downloading shapes file:", error);
+  }
+};
+
 export const handleJSONDownload = async (value) => {
   try {
     const fileName =

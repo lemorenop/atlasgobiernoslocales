@@ -39,21 +39,21 @@ export default function JurisdictionDataProvider({
           )
         );
         const codes = governmentsModule.map((elm) => elm.id);
-        const govsByCountry = await getGovernmentsByCountry(
-          lang,
-          codes,
-          government.country_iso3,
+        const url = `/api/govs-by-country?countryCode=${
+          government.country_iso3
+        }&level=${
           government.level_per_country_id.slice("_")[0]
-        );
+        }&lang=${lang}&codes=${codes}`;
+        const response = await fetch(url);
+        const data = await response.json();
+        const govsByCountry = data.data;
 
-        const dataJur = await getJurisdictionData(slug);
         setData({
-          data: dataJur,
           governments: governmentsModule,
           governmentsData: govsByCountry,
         });
       } catch (error) {
-        setData({ data: null, governments: null, governmentsData: null });
+        setData({ governments: null, governmentsData: null });
         console.error(`Error loading government ${slug} data:`, error);
       }
     }
@@ -63,18 +63,18 @@ export default function JurisdictionDataProvider({
 
   return (
     <JurisdictionDataContext.Provider
-      value={{ 
-        data, 
-        indicators, 
-        jurisdictionsCopy, 
-        lang, 
-        government, 
+      value={{
+        data,
+        indicators,
+        jurisdictionsCopy,
+        lang,
+        government,
         country,
         slug,
         tooltipInfo,
         jurisdictionData,
         mapRef,
-        setMapRef
+        setMapRef,
       }}
     >
       {children}

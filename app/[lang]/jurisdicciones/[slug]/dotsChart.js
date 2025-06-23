@@ -18,7 +18,6 @@ export default function DotsChart() {
     jurisdictionsCopy,
     lang,
     government,
-    governmentsData,
     country,
     tooltipInfo,
   } = useContext(JurisdictionDataContext);
