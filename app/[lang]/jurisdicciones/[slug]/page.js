@@ -70,7 +70,9 @@ export default async function Jurisdiction({ params }) {
   const tooltipInfo = getTextById(jurisdictionsCopy, "tooltip_info", lang, [
     { id: "year", replace: yearPoblacion },
   ]);
-  government["level"] = government.level_per_country_id?.split("_")[0] || null;
+  if (government)
+    government["level"] =
+      government.level_per_country_id?.split("_")[0] || null;
   return (
     <>
       <main

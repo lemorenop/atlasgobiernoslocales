@@ -4,18 +4,18 @@ import { getFromCache, setInCache } from "@/app/utils/cache";
 
 export async function GET(request, { params }) {
   try {
-     // Get query parameters
-     const { searchParams } = new URL(request.url);
-     const countryCode = searchParams.get('countryCode');
-     const level = searchParams.get('level');
-     const lang = searchParams.get('lang');
-     const codes = searchParams.get('codes');
+    // Get query parameters
+    const { searchParams } = new URL(request.url);
+    const countryCode = searchParams.get("countryCode");
+    const level = searchParams.get("level");
+    const lang = searchParams.get("lang");
+    const codes = searchParams.get("codes");
 
     // Verificar si los datos filtrados ya están en caché
-    const cacheKey =  `governments_${countryCode}_${level}_${lang}`;
+    const cacheKey = `governments_${countryCode}_${level}_${lang}`;
     const cachedData = getFromCache(cacheKey);
     if (cachedData) {
-      return NextResponse.json(cachedData);
+      return NextResponse.json({ data: cachedData });
     }
 
     const data = await getGovernmentsByCountry(lang, codes, countryCode, level);

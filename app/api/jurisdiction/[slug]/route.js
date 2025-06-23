@@ -9,7 +9,7 @@ export async function GET(request, { params }) {
     const cacheKey = `jurisdiction_${slug}`;
     const cachedData = getFromCache(cacheKey);
     if (cachedData) {
-      return NextResponse.json(cachedData);
+      return NextResponse.json({data:cachedData});
     }
 
     const data = await getJurisdictionData(slug);
