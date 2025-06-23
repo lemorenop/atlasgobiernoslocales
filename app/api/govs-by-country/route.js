@@ -15,9 +15,10 @@ export async function GET(request, { params }) {
     const cacheKey = `governments_${countryCode}_${level}_${lang}`;
     const cachedData = getFromCache(cacheKey);
     if (cachedData) {
+      console.log("uso cache",cacheKey);
       return NextResponse.json({ data: cachedData });
     }
-
+console.log('no uso cache ')
     const data = await getGovernmentsByCountry(lang, codes, countryCode, level);
 
     // Almacenar en caché (con un TTL más corto para los datos filtrados)

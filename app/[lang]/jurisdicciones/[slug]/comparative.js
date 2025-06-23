@@ -25,7 +25,9 @@ export default function Comparative({ yearIndicators }) {
     if (compareJurisdiction) getData();
     async function getData() {
       setLoadingData(true);
+      console.log('compare jurisdiction',compareJurisdiction)
       const data = await getJurisdictionData(compareJurisdiction.id);
+
       setLoadingData(false);
       setComparativeData(data);
     }
