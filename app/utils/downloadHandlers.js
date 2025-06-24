@@ -70,6 +70,50 @@ export const downloadImage = async (
           console.warn("Failed to convert SVG image to base64:", href, error);
         }
       }
+    } 
+  };
+
+  // Function to wait for all images to load
+  const waitForImages = async (container) => {
+    const images = container.querySelectorAll("img");
+
+    const promises = Array.from(images).map((img, index) => {
+      if (img.complete) {
+        return Promise.resolve();
+      }
+
+      return new Promise((resolve, reject) => {
+        const timeoutId = setTimeout(() => {
+          console.warn(
+            `Timeout en imagen ${index + 1}:`,
+            img.src || img.getAttribute("src")
+          );
+          reject(new Error(`Image load timeout for image ${index + 1}`));
+        }, 10000);
+
+        img.onload = () => {
+          clearTimeout(timeoutId);
+          resolve();
+        };
+
+        img.onerror = (error) => {
+          console.warn(
+            `Error cargando imagen ${index + 1}:`,
+            img.src || img.getAttribute("src"),
+            error
+          );
+          clearTimeout(timeoutId);
+          // En lugar de rechazar, resolvemos para continuar con las otras imágenes
+          resolve();
+        };
+      });
+    });
+
+    try {
+      await Promise.all(promises);
+    } catch (error) {
+      console.error("Error en waitForImages:", error);
+      // Continuar incluso si hay errores
     }
   };
 
@@ -83,25 +127,25 @@ export const downloadImage = async (
     childrenRef.forEach((child) => {
       if (child.type === "map") {
         const mapImageUrl = child.image;
-        const mapContainer = captureArea.querySelector(`#${child.container}`);
-        if (mapContainer) {
-          // Remove the SVG element
-          const mapbox = mapContainer.querySelector(".mapboxgl-map");
-          if (mapbox) {
-            mapbox.remove();
+        if (mapImageUrl) {
+          const mapContainer = captureArea.querySelector(`#${child.container}`);
+          if (mapContainer) {
+            // Remove the SVG element
+            const mapbox = mapContainer.querySelector(".mapboxgl-map");
+            if (mapbox) {
+              mapbox.remove();
+            }
+            const img = document.createElement("img");
+            img.src = mapImageUrl;
+            img.style.width = "100%";
+            img.style.height = "100%";
+            img.style.objectFit = "contain";
+            mapContainer.appendChild(img);
           }
-
-          const img = document.createElement("img");
-          img.src = mapImageUrl;
-          img.style.width = "100%";
-          img.style.height = "100%";
-          img.style.objectFit = "contain";
-          mapContainer.appendChild(img);
         }
       }
     });
   }
-
   // Add logo at the top of captureArea
   const logoContainer = document.createElement("div");
   logoContainer.style.textAlign = "center";
@@ -125,17 +169,33 @@ export const downloadImage = async (
 
   // Convert SVG images to base64 for Chrome compatibility
   await convertSVGImagesToBase64(captureArea);
+  // Wait for all images to load
+  await waitForImages(captureArea);
 
-  dataUrl = await toPng(captureArea, {
-    skipFonts: true,
-    cacheBust: true,
-    backgroundColor: "#ffffff",
-    style: {
-      transform: "scale(1)",
-      transformOrigin: "top left",
-    },
-    filter: filter,
-  });
+  // Add a small delay to ensure Chrome has fully rendered everything
+  await new Promise((resolve) => setTimeout(resolve, 200));
+
+  try {
+    dataUrl = await toPng(captureArea, {
+      skipFonts: true,
+      cacheBust: true,
+      backgroundColor: "#ffffff",
+      style: {
+        transform: "scale(1)",
+        transformOrigin: "top left",
+      },
+      filter: filter,
+    });
+  } catch (error) {
+    console.error("Error generating PNG image:", error);
+    console.error("Error details:", {
+      message: error.message,
+      stack: error.stack,
+      captureArea: captureArea ? "exists" : "missing",
+      captureAreaChildren: captureArea ? captureArea.children.length : 0,
+    });
+    throw error; // Re-throw to maintain the original error handling flow
+  }
 
   const link = document.createElement("a");
   link.download = `${downloadName}.png`;
@@ -151,7 +211,7 @@ export const handleShapesDownload = async (shapeType, lang = "es") => {
   try {
     let fileName;
     let downloadName;
-    
+
     switch (shapeType) {
       case "regional":
         fileName = "nivel_1_low.json";

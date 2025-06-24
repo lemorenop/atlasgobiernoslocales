@@ -117,14 +117,7 @@ export default function MapGoverment({
       }
     }
     };
-  mapRef?.current?.getMap().on("idle", () => {
-    const dataUrl = mapRef?.current
-      ?.getMap()
-      .getCanvas()
-      .toDataURL("image/png");
-      setMapRef(dataUrl);
-    //
-  });
+ 
   // Helper function to extract bounds from a feature
   const getBoundsFromFeature = (feature) => {
     if (!feature.geometry) return null;
@@ -216,7 +209,7 @@ export default function MapGoverment({
       }, 1500);
     }
   }
-  const [image, setImage] = useState(null);
+  // const [image, setImage] = useState(null);
   return (
     <div className="w-full h-full relative" id="map-gov">
       {loading ? (
@@ -229,6 +222,13 @@ export default function MapGoverment({
         </div>
       ) : (
         <Map
+        onIdle = {()=>{
+          const dataUrl = mapRef?.current
+      ?.getMap()
+      .getCanvas()
+      .toDataURL("image/png");
+      setMapRef(dataUrl);
+        }}
           ref={mapRef}
           onLoad={handleLoad}
           initialViewState={viewState}
@@ -272,7 +272,7 @@ export default function MapGoverment({
           )}
         </Map>
       )}
-      {image && <img src={image} alt="map" />}
+      {/* {image && <img src={image} alt="map" />} */}
     </div>
   );
 }
