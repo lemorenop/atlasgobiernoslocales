@@ -39,7 +39,8 @@ const csv = {
     "https://docs.google.com/spreadsheets/d/e/2PACX-1vR88Y20j7R16cecEBrgZw4jK3Vg5kI0DoPMfIGzxgu6IxvBHCynnYarfS-5eKFgyg/pub?gid=757641088&single=true&output=csv",
   unitMeasures:
     "https://docs.google.com/spreadsheets/d/e/2PACX-1vTshMm_LWq6GwRRjSxuq1DyflJGr8eC-d0cO0zIBFc6sDJZ_TiDZu-JhLrxusIaAw/pub?gid=328536948&single=true&output=csv",
-    metadataCopy:"https://docs.google.com/spreadsheets/d/e/2PACX-1vR88Y20j7R16cecEBrgZw4jK3Vg5kI0DoPMfIGzxgu6IxvBHCynnYarfS-5eKFgyg/pub?gid=1840611032&single=true&output=csv"
+  metadataCopy:
+    "https://docs.google.com/spreadsheets/d/e/2PACX-1vR88Y20j7R16cecEBrgZw4jK3Vg5kI0DoPMfIGzxgu6IxvBHCynnYarfS-5eKFgyg/pub?gid=1840611032&single=true&output=csv",
 };
 
 /**
@@ -59,9 +60,9 @@ async function fetchWithCache(cacheKey, fetchFn, lang) {
   const data = await fetchFn();
 
   // Store in cache with language
-  if(data) setInCache(`${cacheKey}_${lang}`, data);
+  if (!data.error) setInCache(`${cacheKey}_${lang}`, data);
 
-  return data;
+  return data.error ? data.data : data;
 }
 
 /**
@@ -117,7 +118,10 @@ async function fetchAndParseCSV(csvUrl, lang, id, filterID) {
     });
   } catch (error) {
     console.error(`Error fetching data from ${csvUrl}:`, error);
-    return [];
+    return {
+      error: true,
+      data: [],
+    };
   }
 }
 
@@ -185,14 +189,16 @@ export async function getGovernments(lang, slug) {
   );
 }
 
-export async function getGovernmentsByCountry(lang, codes,countryCode,level) {
+export async function getGovernmentsByCountry(lang, codes, countryCode, level) {
   const csvUrl = csv.allData;
-  const csvParsed= await fetchAndParseCSV(csvUrl, lang)
-  
-  const governments= csvParsed.filter((elm)=>codes.includes(elm.government_id))
+  const csvParsed = await fetchAndParseCSV(csvUrl, lang);
+
+  const governments = csvParsed.filter((elm) =>
+    codes.includes(elm.government_id)
+  );
   return fetchWithCache(
     `governments_${countryCode}_${level}`,
-    () => governments,
+    () => (csvParsed.error ? csvParsed : governments),
     lang
   );
 }
@@ -275,8 +281,6 @@ export async function getGovernmentsData(lang = "es") {
     return [];
   }
 }
-
-
 
 export async function getJurisdictionData(slug) {
   const csvUrl = csv.allData;
