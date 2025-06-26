@@ -507,7 +507,7 @@ export default function DotsChart() {
         <div className="max-sm:w-full md:w-80">
           <Download
             disabled={isLoading || error?true:false}
-            downloadName={`${government.name}-${
+            downloadName={`${country[`name_${lang}`]}-${
               selectedIndicator[`name_${lang}`]
             }`}
             lang={lang}
