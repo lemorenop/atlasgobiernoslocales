@@ -80,7 +80,6 @@ export default async function Indicator({ params }) {
       )
     );
   } catch (error) {
-    console.error("Error fetching indicator data:", error);
     return notFound();
   }
 }

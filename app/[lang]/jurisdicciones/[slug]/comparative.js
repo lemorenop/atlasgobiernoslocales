@@ -72,6 +72,7 @@ export default function Comparative({ yearIndicators }) {
             </div>
             <div className=" w-full md:w-80 lg:w-full mx-auto">
               <Download
+              
                 downloadName={`${government.name}-${
                   compareJurisdiction.name
                 }-radar-${getTextById(

@@ -15,7 +15,7 @@ import { chartStyles } from "@/app/utils/chartStyles";
 import Loader from "@/app/[lang]/components/loader";
 import Share from "@/app/[lang]/components/share";
 import Tooltip from "@/app/[lang]/components/tooltip";
-import Download from "../../components/download";
+import Download from "@/app/[lang]/components/download";
 
 export default function DistributionChart() {
   const { governments, countries, copy, lang, regions, indicator } =
@@ -556,6 +556,7 @@ export default function DistributionChart() {
         </div>
         <div className="max-sm:w-full md:w-80">
           <Download
+            disabled={isLoading}
             downloadName={`${indicator[`name_${lang}`]}-distribution-${selectedNivel.name}`}
             lang={lang}
             copy={copy}

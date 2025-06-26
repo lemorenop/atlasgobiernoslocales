@@ -119,7 +119,6 @@ export const downloadImage = async (
 
   captureArea.style.padding = "20px";
   const element = document.getElementById(captureRef);
-  console.log(element)
   captureArea.style.width = `${element.offsetWidth}px`;
   captureArea.innerHTML = element.innerHTML;
   const excludeElements = captureArea.querySelectorAll(".remove-from-capture");

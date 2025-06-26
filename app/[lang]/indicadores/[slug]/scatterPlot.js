@@ -16,9 +16,10 @@ import Loader from "../../components/loader";
 import { chartStyles } from "@/app/utils/chartStyles";
 import Tooltip from "@/app/[lang]/components/tooltip";
 import Download from "../../components/download";
+import ReloadButton from "@/app/[lang]/components/reloadButton";
 
 export default function ScatterPlot() {
-  const { governments, lang, indicators, indicator, copy, countries,regions } =
+  const { governments, lang, indicators, indicator, copy, countries, regions } =
     useContext(IndicatorDataContext);
   const [selectedIndicator, setSelectedIndicator] = useState(
     indicators[0].code !== indicator.code ? indicators[0] : indicators[1]
@@ -31,11 +32,10 @@ export default function ScatterPlot() {
     name_pt: "Todos",
     iso3: "all",
   });
-  const [currentData,setCurrentData] = useState(null)
+  const [currentData, setCurrentData] = useState(null);
 
   // Función para estructurar los datos del scatter plot para CSV
   const getScatterPlotDataForCSV = () => {
-    
     if (!currentData || !indicator || !selectedIndicator) {
       return null;
     }
@@ -49,16 +49,25 @@ export default function ScatterPlot() {
     ];
 
     // Usar los datos filtrados actuales
-    const rows = currentData.map(data => {
+    const rows = currentData.map((data) => {
       const value1 = formatValue(data.x, indicator.unit_measure_id, lang, true);
-      const value2 = formatValue(data.y, selectedIndicator.unit_measure_id, lang, true);
+      const value2 = formatValue(
+        data.y,
+        selectedIndicator.unit_measure_id,
+        lang,
+        true
+      );
 
-      return [`${data.name}-${data.completeName}`, data.countryName, value1, value2];
+      return [
+        `${data.name}-${data.completeName}`,
+        data.countryName,
+        value1,
+        value2,
+      ];
     });
 
     return [headers, ...rows];
   };
-
 
   const [noData, setNoData] = useState(false);
   const [selectedNivel, setSelectedNivel] = useState({
@@ -68,17 +77,16 @@ export default function ScatterPlot() {
   const [tooltip, setTooltip] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
   const svgRef = useRef(null);
-
-  useEffect(() => {
-    async function loadData() {
-      try {
-        setIsLoading(true);
-        const response = await fetch(
-          `/api/indicators/${selectedIndicator.code}`
-        )
-          .then((res) => res.json())
-          .then((res) => res.data);
-
+  const [error, setError] = useState(false);
+  async function loadData() {
+    try {
+      setIsLoading(true);
+      console.log(`🔎 Busco data en /api/indicators/${selectedIndicator.code}`)
+      const d = await fetch(`/api/indicators/${selectedIndicator.code}`).then(
+        (res) => res.json()
+      );
+      if (!d.error) {
+        const response = d.data;
         const result = { ...governments };
         Object.entries(response).forEach(([key, value]) => {
           if (result[key]) {
@@ -90,14 +98,23 @@ export default function ScatterPlot() {
         });
 
         setSatterData(result);
-      } catch (error) {
-        setNoData(true);
-        setSatterData();
-        console.error("Error loading government data:", error);
-      } finally {
+      } else {
+        console.log(`Error buscando data en /api/indicators/${selectedIndicator.code}`)
+        setError(true);
         setIsLoading(false);
+        setSatterData();
       }
+    } catch (error) {
+      setError(true);
+      setSatterData();
+      setIsLoading(false);
+      console.error("Error loading government data:", error);
+    } finally {
+      setIsLoading(false);
     }
+  }
+  useEffect(() => {
+   
 
     if (governments) loadData();
   }, [selectedIndicator, governments]);
@@ -106,12 +123,12 @@ export default function ScatterPlot() {
 
     // Clear previous chart
     d3.select(svgRef.current).selectAll("*").remove();
-    
+
     // Filter data based on selected country/region and level
     const filteredData = Object.entries(scatterData)
       .filter(([_, data]) => {
         let countryMatch = false;
-        
+
         if (selectedCountry.iso3 === "all") {
           countryMatch = true;
         } else if (isNaN(selectedCountry.iso3)) {
@@ -120,13 +137,15 @@ export default function ScatterPlot() {
         } else {
           // It's a region (iso3 is a number)
           // Find countries that belong to this region
-          const regionCountries = countries.filter(country => 
-            country.region_id === parseInt(selectedCountry.iso3)
+          const regionCountries = countries.filter(
+            (country) => country.region_id === parseInt(selectedCountry.iso3)
           );
-          const regionCountryCodes = regionCountries.map(country => country.iso3);
+          const regionCountryCodes = regionCountries.map(
+            (country) => country.iso3
+          );
           countryMatch = regionCountryCodes.includes(data.countryCode);
         }
-        
+
         const levelMatch = data.nivel === selectedNivel.value;
         return countryMatch && levelMatch && data.value && data.value_2;
       })
@@ -145,7 +164,7 @@ export default function ScatterPlot() {
           ...data,
         };
       });
-      setCurrentData(filteredData)
+    setCurrentData(filteredData);
     if (filteredData.length === 0) {
       setNoData(true);
       return;
@@ -361,7 +380,7 @@ export default function ScatterPlot() {
       .style("font-size", "14px")
       .style("color", chartStyles.textColor)
       .attr("x", width / 2)
-      .attr("y", height + margin.bottom / 3*2)
+      .attr("y", height + (margin.bottom / 3) * 2)
       .text(
         `${indicator[`name_${lang}`]} ${
           indicator.unit_measure_id !== "hab" &&
@@ -439,9 +458,8 @@ export default function ScatterPlot() {
           setSelectedCountry={setSelectedCountry}
           selectedNivel={selectedNivel}
           setSelectedNivel={setSelectedNivel}
-          options={[  
+          options={[
             {
-             
               options: [
                 {
                   name_es: "Todos",
@@ -449,19 +467,19 @@ export default function ScatterPlot() {
                   name_pt: "Todos",
                   iso3: "all",
                 },
-               
               ],
-            },{
-              group_title:getTextById(copy, "regions", lang),
-              options:regions
             },
             {
-              group_title:getTextById(copy, "countries", lang),
-              options:countries.sort((a, b) =>
+              group_title: getTextById(copy, "regions", lang),
+              options: regions,
+            },
+            {
+              group_title: getTextById(copy, "countries", lang),
+              options: countries.sort((a, b) =>
                 a["name_" + lang].localeCompare(b["name_" + lang])
               ),
-            }
-        ]}
+            },
+          ]}
         />
       </div>
       <div className="overflow-x-auto bg-[#55C7D51A] border-1 border-[#55C7D54D] p-m relative">
@@ -469,6 +487,12 @@ export default function ScatterPlot() {
           <div className="flex justify-center items-center h-[400px]">
             <Loader className="w-10 h-10  min-w-10 min-h-10 [&_span]:w-full [&_span]:h-full" />
           </div>
+        ) : error ? (
+          <ReloadButton
+            onClick={loadData}
+            copy={copy}
+            lang={lang}
+          />
         ) : (
           <div className="w-full h-[400px]">
             <svg ref={svgRef}></svg>
@@ -493,6 +517,7 @@ export default function ScatterPlot() {
         </div>
         <div className="max-sm:w-full md:w-80">
           <Download
+            disabled={error || isLoading?true: false }
             chartDataFunction={getScatterPlotDataForCSV}
             downloadName={`${selectedIndicator[`name_${lang}`]}-${
               indicator[`name_${lang}`]

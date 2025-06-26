@@ -15,7 +15,7 @@ export default function Download({
   refImage,
   buttonId,
   downloadName,
-  chartDataFunction,
+  chartDataFunction,disabled=false
 }) {
   const options = [
     {
@@ -43,8 +43,9 @@ export default function Download({
     <div className="exclude-from-capture w-full">
       <Menu>
         <MenuButton
+          disabled={disabled}
           id={buttonId}
-          className="w-full inline-flex items-center gap-2 bg-white border-1 border-black px-3 shadow-inner shadow-white/10 focus:outline-none data-[focus]:outline-1 data-[focus]:outline-white cursor-pointer text-blue-CAF justify-between data-[open]:rotate-0 py-s description font-bold"
+          className="w-full inline-flex items-center gap-2 bg-white border-1 border-black px-3 shadow-inner shadow-white/10 focus:outline-none data-[focus]:outline-1 data-[focus]:outline-white cursor-pointer text-blue-CAF justify-between data-[open]:rotate-0 py-s description font-bold  disabled:cursor-not-allowed"
         >
           {getTextById(copy, "download", lang)}
           <div id="capture-loader" className="hidden">
