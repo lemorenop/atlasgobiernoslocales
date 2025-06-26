@@ -3,6 +3,7 @@ import { fetchData } from '@/app/utils/dataFetchers';
 
 export async function GET() {
   try {
+    console.log(`🔎 Busco listado de indicadores`);
     const indicators = await fetchData("indicators","es"); 
     return NextResponse.json(indicators);
   } catch (error) {

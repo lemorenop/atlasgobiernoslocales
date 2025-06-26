@@ -82,9 +82,7 @@ export default function Select({
         multiple={multiple}
       >
         <ListboxButton
-          className={`${
-            label ? "font-bold text-blue-CAF" : "text-placeholder"
-          } w-full md:w-80 inline-flex items-center gap-2  bg-white border-1 border-black px-3  shadow-inner shadow-white/10 focus:outline-none  data-[focus]:outline-1 data-[focus]:outline-white cursor-pointer  justify-between data-[open]:rotate-0 py-s description`}
+          className={`font-bold text-blue-CAF w-full md:w-80 inline-flex items-center gap-2  bg-white border-1 border-black px-3  shadow-inner shadow-white/10 focus:outline-none  data-[focus]:outline-1 data-[focus]:outline-white cursor-pointer  justify-between data-[open]:rotate-0 py-s description`}
         >
           {multiple
             ? label
@@ -93,7 +91,7 @@ export default function Select({
             : defaultAllLabel && selected[id] === "all"
             ? defaultAllLabel
             : selected[`name_${lang}`]}
-          <Expand className="w-4 h-4 stroke-2 rotate-90 stroke-blue exclude-from-capture" />
+          <Expand className="w-4 h-4 stroke-2 rotate-90 stroke-blue-CAF exclude-from-capture" />
         </ListboxButton>
         <ListboxOptions
           anchor="bottom"

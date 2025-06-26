@@ -13,25 +13,12 @@ export default function Comparative({ yearIndicators }) {
     JurisdictionDataContext
   );
   const [compareJurisdiction, setCompareJurisdiction] = useState(null);
-  const [comparativeData, setComparativeData] = useState(null);
-  const [loadingData, setLoadingData] = useState(false);
   const [downloadFunction, setDownloadFunction] = useState(null);
-  
+
   const handleDownloadFunctionReady = useCallback((func) => {
     setDownloadFunction(() => func);
   }, []);
-  
-  useEffect(() => {
-    if (compareJurisdiction) getData();
-    async function getData() {
-      setLoadingData(true);
-      console.log('compare jurisdiction',compareJurisdiction)
-      const data = await fetch(`/api/gov-data?slug=${compareJurisdiction.id}&lang=${lang}`);
-      const jsonData = await data.json();
-      setLoadingData(false);
-      setComparativeData(jsonData.data);
-    }
-  }, [compareJurisdiction]);
+
   return (
     <>
       <div
@@ -66,19 +53,13 @@ export default function Comparative({ yearIndicators }) {
           />
         </div>
       </div>
-      {!comparativeData && loadingData && (
-        <div className="flex justify-center items-center h-[400px]">
-          <Loader className="w-10 h-10  min-w-10 min-h-10 [&_span]:w-full [&_span]:h-full" />
-        </div>
-      )}
-      {compareJurisdiction && comparativeData && (
+
+      {compareJurisdiction && (
         <div className=" grid lg:grid-cols-12 gap-xl">
           <div className="lg:col-span-8">
             <RadarChart
-              compareGov={compareJurisdiction.name}
-              loadingData={loadingData}
+              compareGov={compareJurisdiction}
               yearIndicators={yearIndicators}
-              compareData={comparativeData}
               country={country}
               onDownloadFunctionReady={handleDownloadFunctionReady}
             />
@@ -91,9 +72,13 @@ export default function Comparative({ yearIndicators }) {
             </div>
             <div className=" w-full md:w-80 lg:w-full mx-auto">
               <Download
-                downloadName={`${government.name}-${compareJurisdiction.name}-${
-                  country[`name_${lang}`]
-                }`}
+                downloadName={`${government.name}-${
+                  compareJurisdiction.name
+                }-radar-${getTextById(
+                  jurisdictionsCopy,
+                  "indicators_title",
+                  lang
+                )}`}
                 lang={lang}
                 copy={jurisdictionsCopy}
                 refImage={"comparative"}

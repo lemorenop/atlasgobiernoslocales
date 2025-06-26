@@ -36,7 +36,7 @@ export default async function Footer({ lang }) {
   return (
     footerCopy && (
       <>
-        <div className="bg-blue-CAF px-l md:px-[80px] flex flex-col md:grid md:grid-cols-12 gap-[32px]md:gap-[64px] text-white relative md:items-center exclude-from-capture">
+        <div className="bg-blue-CAF px-l md:px-[80px] flex flex-col md:grid md:grid-cols-12 gap-[32px]md:gap-[64px] text-white relative md:items-center footer">
           <Image
             src="/red-logo.png"
             alt="Reporte de Economía y Desarrollo"
@@ -69,7 +69,7 @@ export default async function Footer({ lang }) {
               />
             </div>
 
-            <p className="p-[24px] bg-navy z-10 relative my-auto specific-underline-style">
+            <p className="p-[24px] bg-navy z-10 relative my-auto specific-underline-style exclude-from-capture">
               {getTextById(footerCopy, "highlighted_message_1", lang)}
             </p>
           </div>

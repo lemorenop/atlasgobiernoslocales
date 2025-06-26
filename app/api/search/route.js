@@ -11,7 +11,7 @@ export async function GET(req) {
   try {
     const searchIndexByLocale = await getSearchIndexByLocale();
 
-    if (query && query !== "" && searchIndexByLocale[lang]) {
+    if (query && query !== "" && searchIndexByLocale?.[lang]) {
       const indexParams = {
         limit: 30,
         enrich: true,
@@ -39,9 +39,9 @@ export async function GET(req) {
         ...new Map(filteredResults.map((item) => [item.id, item.doc])).values(),
       ];
       return NextResponse.json(uniqueResults);
-    }
+    } else return NextResponse.json([]);
   } catch (error) {
-    console.error(`Error al buscar ${query} dentro de los gobiernosen el idioma${lang}:`, error);
+    console.error(`Error al buscar ${query} dentro de los gobiernosen el idioma ${lang}:`, error);
     return NextResponse.json(
       { error: `Error al buscar ${query} dentro de los gobiernosen el idioma${lang}:` },
       { status: 500 }

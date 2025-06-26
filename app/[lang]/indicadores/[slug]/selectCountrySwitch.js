@@ -159,7 +159,7 @@ export default function SelectCountrySwitch({
   }, [selectedCountry]);
   return (
     <>
-      <div className={`${selectedCountry?.iso3 === "all" || multiple ? "exclude-from-capture" : ""}`}>
+      <div className={`font-bold text-navy ${selectedCountry?.iso3 === "all" || multiple ? "exclude-from-capture" : ""}`}>
         <Select
           label={label}
           multiple={multiple}
@@ -171,7 +171,7 @@ export default function SelectCountrySwitch({
           lang={lang}
         />
       </div>
-      <div className="w-fit">
+      <div className="w-fit exclude-from-capture">
         <LevelSwitch
           handleChange={setSelectedNivel}
           value={selectedNivel}

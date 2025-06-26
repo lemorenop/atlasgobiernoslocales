@@ -7,8 +7,9 @@ export async function GET(request) {
     const { searchParams } = new URL(request.url);
     const countryIso3 = searchParams.get('country_iso3');
     const nivel = searchParams.get('nivel');
-    
+    console.log(`🔎 Busco data de los promedios nacionales para el país ${countryIso3} y el nivel ${nivel}`);
     // Fetch all national averages data
+    
     const data = await getNationalAverages();
     
     // Apply filters if provided

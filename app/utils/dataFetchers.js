@@ -55,14 +55,16 @@ async function fetchWithCache(cacheKey, fetchFn, lang) {
   if (cachedData) {
     return cachedData;
   }
-
-  // Fetch data
-  const data = await fetchFn();
-
-  // Store in cache with language
-  if (!data.error) setInCache(`${cacheKey}_${lang}`, data);
-
-  return data.error ? data.data : data;
+  try {
+    // Fetch data
+    const data = await fetchFn();
+    // Store in cache with language
+    setInCache(`${cacheKey}_${lang}`, data, 0);
+    return data.error ? data.data : data;
+  } catch (error) {
+    console.error(`❌ Error in fetchWithCache for key ${cacheKey}:`, error);
+    throw new Error(`❌ Error in fetchWithCache for key ${cacheKey}:`, error);
+  }
 }
 
 /**
@@ -75,7 +77,6 @@ async function fetchAndParseCSV(csvUrl, lang, id, filterID) {
   try {
     const response = await fetch(csvUrl);
     const csvText = await response.text();
-
     return new Promise((resolve, reject) => {
       Papa.parse(csvText, {
         header: true,
@@ -111,17 +112,14 @@ async function fetchAndParseCSV(csvUrl, lang, id, filterID) {
           resolve(filteredResults);
         },
         error: (error) => {
-          console.error(`Error parsing CSV from ${csvUrl}:`, error);
+          console.error(`❌ Error parsing CSV from ${csvUrl}:`, error);
           reject(error);
         },
       });
     });
   } catch (error) {
-    console.error(`Error fetching data from ${csvUrl}:`, error);
-    return {
-      error: true,
-      data: [],
-    };
+    console.error(`❌ Error en fetchAndParseCSV fetching ${csvUrl}:`, error);
+    throw new Error(`❌ Error en fetchAndParseCSV from ${csvUrl}:`, error);
   }
 }
 
@@ -144,8 +142,9 @@ async function fetchAndParseDataCSV(csvUrl, code) {
       });
     });
   } catch (error) {
-    console.error(`Error fetching data from ${csvUrl}:`, error);
-    return [];
+    throw new Error(`Error fetching data from ${csvUrl}:`, error);
+    // console.error(`Error fetching data from ${csvUrl}:`, error);
+    // return [];
   }
 }
 
@@ -155,12 +154,18 @@ async function fetchAndParseDataCSV(csvUrl, code) {
  */
 
 export async function fetchData(key, lang) {
+  console.log("🧘‍♀️ fetchData ", key);
   const csvUrl = csv[key];
-  return fetchWithCache(
-    `${key}_${lang}`,
-    () => fetchAndParseCSV(csvUrl, lang),
-    lang
-  );
+  try {
+    const d = await fetchWithCache(
+      `${key}_${lang}`,
+      () => fetchAndParseCSV(csvUrl, lang),
+      lang
+    );
+    return d;
+  } catch (error) {
+    throw new Error(`❌ Error en fetchData buscando el csv ${key}:`, error);
+  }
 }
 
 /**
@@ -168,12 +173,17 @@ export async function fetchData(key, lang) {
  * @returns {Promise<Array>} - Array of country objects
  */
 export async function getCountries(lang, iso3) {
+  console.log("🧘‍♀️ getCountries");
   const csvUrl = csv.countries;
-  return fetchWithCache(
-    `countries_${lang}_${iso3}`,
-    () => fetchAndParseCSV(csvUrl, lang, iso3, "iso3"),
-    lang
-  );
+  try {
+    return fetchWithCache(
+      `countries_${lang}_${iso3}`,
+      () => fetchAndParseCSV(csvUrl, lang, iso3, "iso3"),
+      lang
+    );
+  } catch (error) {
+    throw new Error(`❌ Error en getCountries:`, error);
+  }
 }
 
 /**
@@ -181,6 +191,7 @@ export async function getCountries(lang, iso3) {
  * @returns {Promise<Array>} - Array of government objects
  */
 export async function getGovernments(lang, slug) {
+  console.log("🧘‍♀️ getGovernments");
   const csvUrl = csv.governments;
   return fetchWithCache(
     `governments_${lang}_${slug}`,
@@ -190,23 +201,30 @@ export async function getGovernments(lang, slug) {
 }
 
 export async function getGovernmentsByCountry(lang, codes, countryCode, level) {
-  const csvUrl = csv.allData;
-  const csvParsed = await fetchAndParseCSV(csvUrl, lang);
-
-  const governments = csvParsed.filter((elm) =>
-    codes.includes(elm.government_id)
-  );
-  return fetchWithCache(
-    `governments_${countryCode}_${level}`,
-    () => (csvParsed.error ? csvParsed : governments),
-    lang
-  );
+  try {
+    console.log("🧘‍♀️ getGovsByCountry");
+    const csvUrl = csv.allData;
+    const csvParsed = await fetchAndParseCSV(csvUrl, lang);
+    const governments = csvParsed.filter((elm) =>
+      codes.includes(elm.government_id)
+    );
+    const d = await fetchWithCache(
+      `governments_${countryCode}_${level}`,
+      () => governments,
+      lang
+    );
+    return d;
+  } catch (error) {
+    console.error(`❌ Error en getGovernmentsByCountry:`, error);
+    throw new Error(`❌ Error en getGovernmentsByCountry:`, error);
+  }
 }
 /**
  * Fetches all data
  * @returns {Promise<Array>} - Array of all data objects
  */
 export async function getAllData() {
+  console.log("🧘‍♀️ getAllData");
   const csvUrl = csv.allData;
   return fetchWithCache("allData", () => fetchAndParseCSV(csvUrl), "es");
 }
@@ -216,6 +234,7 @@ export async function getAllData() {
  * @returns {Promise<Array>} - Array of year data objects
  */
 export async function getYearData(lang, id) {
+  console.log("🧘‍♀️ getYearData");
   const csvUrl = csv.yearData;
   return fetchWithCache(
     `yearData_${lang}_${id}`,
@@ -229,6 +248,7 @@ export async function getYearData(lang, id) {
  * @returns {Promise<Array>} - Array of national averages objects
  */
 export async function getNationalAverages() {
+  console.log("🧘‍♀️ getNationalAverages");
   const csvUrl = csv.nationalAverages;
   return fetchWithCache(
     "nationalAverages",
@@ -238,6 +258,7 @@ export async function getNationalAverages() {
 }
 
 export async function getGovernmentsData(lang = "es") {
+  console.log("🧘‍♀️ getGovernmentsData");
   const validLangs = ["es", "en", "pt"];
   const language = validLangs.includes(lang) ? lang : "es";
 
@@ -270,12 +291,6 @@ export async function getGovernmentsData(lang = "es") {
         `Failed to load governments data for language ${language}`
       );
     }
-
-    const data = await response.json();
-    console.log(
-      `Successfully loaded ${data.length} government entries for ${language}`
-    );
-    return data;
   } catch (error) {
     console.error("Error loading governments data:", error);
     return [];
@@ -283,14 +298,21 @@ export async function getGovernmentsData(lang = "es") {
 }
 
 export async function getJurisdictionData(slug) {
+  console.log("🧘‍♀️ getJurisdictionData");
   const csvUrl = csv.allData;
-  return fetchWithCache(
-    `jurisdictionData_${slug}`,
-    () => fetchAndParseDataCSV(csvUrl, slug),
-    "es"
-  );
+  try {
+    const d= await fetchWithCache(
+      `jurisdictionData_${slug}`,
+      () => fetchAndParseDataCSV(csvUrl, slug),
+      "es"
+    );
+    return d
+  } catch (error) {
+    throw new Error(`❌ Error en getJurisdictionData:`, error);
+  }
 }
 export async function getIndicatorData(slug) {
+  console.log("🧘‍♀️ getIndicatorData");
   const csvUrl = csv.allData;
   const allData = await fetchWithCache(
     `allData`,

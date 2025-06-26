@@ -13,6 +13,7 @@ import JurisdictionDataProvider from "./jurisdictionDataProvider";
 import DotsChart from "./dotsChart";
 import Comparative from "./comparative";
 import RadarChartContainer from "./radarChartContainer";
+import { notFound } from "next/navigation";
 
 // export async function generateMetadata({ params }) {
 //   const { lang, slug } = await params;
@@ -37,49 +38,58 @@ import RadarChartContainer from "./radarChartContainer";
 
 export default async function Jurisdiction({ params }) {
   const { lang, slug } = await params;
-  const [
-    jurisdictionsCopy,
-    indicatorsAll,
-    government,
-    unitMeasures,
-    jurisdictionData,
-  ] = await Promise.all([
-    fetchData("jurisdictionsCopy", lang),
-    fetchData("indicators", lang),
-    getGovernments(lang, slug).then((data) => data[0]),
-    fetchData("unitMeasures", lang),
-    getJurisdictionData(slug),
-  ]);
-  const country = government
-    ? await getCountries(lang, government.country_iso3).then((data) => data[0])
-    : null;
-  const years = government
-    ? await getYearData(lang, government.country_iso3).then((data) => data[0])
-    : null;
-  const yearPoblacion = years ? years.year_population : null;
-  const yearIndicators = years ? years.year_indicators : null;
-  const indicators = indicatorsAll.map((elm) => {
-    const unit = unitMeasures.find((unit) => unit.id === elm.unit_measure_id);
-    elm.unit = unit;
-    return { ...elm };
-  });
-  const indicatorsID = [21, 5, 7, 8, 13, 19, 10, 11, 12, 17, 20];
-  const existRadarData = jurisdictionData.some(
-    (elm) => indicatorsID.includes(elm.indicator_code) && elm.value !== null
-  );
-  const tooltipInfo = getTextById(jurisdictionsCopy, "tooltip_info", lang, [
-    { id: "year", replace: yearPoblacion },
-  ]);
-  if (government)
+
+  try {
+    const [
+      jurisdictionsCopy,
+      indicatorsAll,
+      government,
+      unitMeasures,
+      jurisdictionData,
+    ] = await Promise.all([
+      fetchData("jurisdictionsCopy", lang),
+      fetchData("indicators", lang),
+      getGovernments(lang, slug).then((data) => data[0]),
+      fetchData("unitMeasures", lang),
+      getJurisdictionData(slug),
+    ]);
+    if (
+      !jurisdictionsCopy ||
+      !indicatorsAll ||
+      !government ||
+      !unitMeasures ||
+      !jurisdictionData
+    )
+      return notFound();
+    const [country, years] = await Promise.all([
+      getCountries(lang, government.country_iso3).then((data) => data[0]),
+      getYearData(lang, government.country_iso3).then((data) => data[0]),
+    ]);
+
+    const yearPoblacion = years.year_population;
+    const yearIndicators = years.year_indicators;
+    const indicators = indicatorsAll.map((elm) => {
+      const unit = unitMeasures.find((unit) => unit.id === elm.unit_measure_id);
+      elm.unit = unit;
+      return { ...elm };
+    });
+    const indicatorsID = [21, 5, 7, 8, 13, 19, 10, 11, 12, 17, 20];
+    const existRadarData = jurisdictionData.some(
+      (elm) => indicatorsID.includes(elm.indicator_code) && elm.value !== null
+    );
+    const tooltipInfo = getTextById(jurisdictionsCopy, "tooltip_info", lang, [
+      { id: "year", replace: yearPoblacion },
+    ]);
+
     government["level"] =
       government.level_per_country_id?.split("_")[0] || null;
-  return (
-    <>
-      <main
-        id="main"
-        className="flex flex-col justify-start text-black bg-white flex-grow "
-      >
-        {jurisdictionsCopy && government && indicators && country && (
+
+    return (
+      <>
+        <main
+          id="main"
+          className="flex flex-col justify-start text-black bg-white flex-grow "
+        >
           <JurisdictionDataProvider
             country={country}
             slug={slug}
@@ -97,8 +107,12 @@ export default async function Jurisdiction({ params }) {
               <div className=" md:py-[80px] grid lg:grid-cols-12 gap-xl max-md:py-[48px] max-w-[1440px] mx-auto">
                 {existRadarData && (
                   <>
-                    <RadarChartContainer yearIndicators={yearIndicators} />
-
+                    <div
+                      className="col-span-12  px-l md:px-[80px]"
+                      id="radar-chart"
+                    >
+                      <RadarChartContainer yearIndicators={yearIndicators} />
+                    </div>
                     <div className="relative h-[20px] sm:hidden">
                       <div className="absolute top-[-60px] left-[-60px] w-[120px] h-[120px] bg-navy rounded-full " />
                     </div>
@@ -106,7 +120,6 @@ export default async function Jurisdiction({ params }) {
                       className="col-span-12 px-l md:px-[80px] lg:px-[160px]"
                       id="dots-chart"
                     >
-                      {" "}
                       <DotsChart />
                     </div>
                   </>
@@ -118,8 +131,16 @@ export default async function Jurisdiction({ params }) {
               </div>
             </div>
           </JurisdictionDataProvider>
-        )}
-      </main>
-    </>
-  );
+        </main>
+      </>
+    );
+  } catch (error) {
+    console.error("❌ Error loading jurisdiction data:", error);
+    return notFound();
+  }
+
+  // if (government) {
+  //   //if government y meter todo dentro de un promise
+
+  // } else return notFound();
 }

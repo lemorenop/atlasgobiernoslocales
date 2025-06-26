@@ -7,13 +7,13 @@ import { JurisdictionDataContext } from "./jurisdictionDataProvider";
 import Loader from "@/app/[lang]/components/loader";
 import { noDataColor } from "@/app/utils/mapSettings";
 import Tooltip from "@/app/[lang]/components/tooltip";
+import ReloadButton from "../../components/reloadButton";
 const govColor = "#1774AD";
 const countryColor = "#55C7D5";
+const indicatorsID = [21, 5, 7, 8, 13, 19, 10, 11, 12, 17, 20];
 
 export default function RadarChart({
-  compareData = null,
   yearIndicators,
-  loadingData = false,
   compareGov,
   onDownloadFunctionReady,
 }) {
@@ -26,12 +26,14 @@ export default function RadarChart({
   const [nationalData, setNationalData] = useState(null);
   const [chartCreated, setChartCreated] = useState(false);
   const [clientWidth, setClientWidth] = useState(0); // solo voy a volver a construit el svg si el ancho del contenedor cambia
+  const [error, setError] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
   const [chartDimensions, setChartDimensions] = useState({
     innerWidth: 0,
     innerHeight: 0,
   });
   const svgRef = useRef(null);
-  const indicatorsID = [21, 5, 7, 8, 13, 19, 10, 11, 12, 17, 20];
+  const isFetchingRef = useRef(false);
 
   // Función para estructurar los datos del radar chart para CSV
   const getRadarChartDataForCSV = useCallback(() => {
@@ -61,7 +63,7 @@ export default function RadarChart({
     });
 
     // Crear la fila de datos nacionales
-    const nationalRow = [compareGov];
+    const nationalRow = [compareGov.name];
     indicatorsID.forEach((id) => {
       const dataPoint = nationalData.find((d) => d.indicator_code === id);
       const value =
@@ -76,19 +78,13 @@ export default function RadarChart({
 
   // Notificar al padre cuando la función esté lista
   useEffect(() => {
-    if (
-      onDownloadFunctionReady &&
-      data &&
-      nationalData
-    ) {
+    if (onDownloadFunctionReady && data && nationalData) {
       onDownloadFunctionReady(getRadarChartDataForCSV);
     }
   }, [data, nationalData, lang, compareGov, onDownloadFunctionReady]);
-
-  // Fetch national averages
-  useEffect(() => {
-    if (!government || !government.country_iso3) return;
-    const fetchNationalAverages = async () => {
+  const fetchNationalAverages = async () => {
+    setIsLoading(true);
+    if (compareGov.id === "national") {
       try {
         let nivel = government.level;
         // Construir la URL con los parámetros de filtro
@@ -96,36 +92,59 @@ export default function RadarChart({
         if (nivel) {
           url += `&nivel=${nivel}`;
         }
-        const response = await fetch(url);
-        if (!response.ok) {
-          throw new Error("Failed to fetch national averages");
+        try {
+          console.log("🔎 Busco data de los promedios nacionales en ", url);
+          const data = await fetch(url).then((res) => res.json());
+
+        
+          if (!data.error) {
+            if (data.length === 0) {
+              setNationalData(
+                indicatorsID.map((id) => ({
+                  indicator_code: id,
+                  value: null,
+                }))
+              );
+            } else setNationalData(data);
+          } else {
+            setNationalData(null);
+            setError(true);
+            setIsLoading(false);
+          }
+        } catch (error) {
+          console.error("Error en /api/national-averages:", error);
+          throw new Error(`❌ Error en /api/national-averages: ${error}`);
         }
-        const data = await response.json();
-        if (data.length === 0) {
-          setNationalData(
-            indicatorsID.map((id) => ({
-              indicator_code: id,
-              value: null,
-            }))
-          );
-        } else setNationalData(data);
       } catch (error) {
-        console.error("Error fetching national averages:", error);
-        // Fallback to default values if fetch fails
-        setNationalData(
-          indicatorsID.map((id) => ({
-            indicator_code: id,
-            value: null,
-            // unit_measure_id: unitMeasures.find((um) => um.id === id),
-          }))
-        );
+        console.error("Error en fetchNationalAverages:", error);
+        setError(true);
+        setIsLoading(false);
+        setNationalData(null);
       }
-    };
-    if (!compareData) fetchNationalAverages();
-    else {
-      setNationalData(compareData);
+    } else {
+      console.log(
+        `🔎 Busco data de la jurisdicción ${compareGov.name} en /api/gov-data`
+      );
+      const jsonData = await fetch(
+        `/api/gov-data?slug=${compareGov.id}&lang=${lang}`
+      ).then((res) => res.json());
+
+      if (!jsonData.error) {
+        setNationalData(jsonData.data);
+        setError(false);
+        setIsLoading(false);
+      } else {
+        setError(true);
+        setIsLoading(false);
+      }
     }
-  }, [compareData]);
+  }
+  // Fetch national averages
+  useEffect(() => {
+    if (compareGov) {
+      fetchNationalAverages();
+    }
+  }, [compareGov]);
   const margin = { top: 100, right: 60, bottom: 60, left: 60 }; // Add some margin for better spacing
   useEffect(() => {
     // setDataDownload(getRadarChartDataForCSV)
@@ -500,6 +519,7 @@ export default function RadarChart({
       });
 
       setNationalPosition(natPositions);
+      setIsLoading(false);
       setChartCreated(true);
     };
     // Redraw the chart with new dimensions
@@ -561,16 +581,24 @@ export default function RadarChart({
       window.removeEventListener("scroll", handleScroll);
     };
   }, []);
+ 
   return (
     <div className="flex flex-col lg:col-span-8 min-h-[400px] md:min-h-[600px] max-h-screen">
       <div className="radar-chart-container h-full relative grow">
-        {chartCreated && loadingData && (
+        {chartCreated && isLoading && (
           <div className="absolute top-0 left-0 w-full h-full opacity-50 z-10 bg-white">
             <Loader className="w-full h-full [&_span]:w-[48px] [&_span]:h-[48px]" />
           </div>
         )}
-        {!chartCreated && (
+        {!chartCreated && isLoading && (
           <Loader className="w-full h-full [&_span]:w-[48px] [&_span]:h-[48px]" />
+        )}
+        {error && !isLoading && (
+          <ReloadButton
+            copy={jurisdictionsCopy}
+            lang={lang}
+            onClick={fetchNationalAverages}
+          />
         )}
         <svg className="mx-auto" ref={svgRef}></svg>
       </div>
@@ -601,7 +629,7 @@ export default function RadarChart({
                       style={{ backgroundColor: govColor }}
                     />
                     <p>
-                      {compareGov}: {tooltip.valueNat}
+                      {compareGov.name}: {tooltip.valueNat}
                     </p>
                   </div>
                 )}
@@ -666,7 +694,7 @@ export default function RadarChart({
           </div>
           <div className="flex gap-xs items-center">
             <div className="w-4 h-1 " style={{ backgroundColor: govColor }} />
-            <p>{compareGov}</p>
+            <p>{compareGov.name}</p>
           </div>{" "}
         </div>
       </div>

@@ -70,7 +70,7 @@ export const downloadImage = async (
           console.warn("Failed to convert SVG image to base64:", href, error);
         }
       }
-    } 
+    }
   };
 
   // Function to wait for all images to load
@@ -119,6 +119,7 @@ export const downloadImage = async (
 
   captureArea.style.padding = "20px";
   const element = document.getElementById(captureRef);
+  console.log(element)
   captureArea.style.width = `${element.offsetWidth}px`;
   captureArea.innerHTML = element.innerHTML;
   const excludeElements = captureArea.querySelectorAll(".remove-from-capture");
@@ -171,6 +172,14 @@ export const downloadImage = async (
   await convertSVGImagesToBase64(captureArea);
   // Wait for all images to load
   await waitForImages(captureArea);
+
+  // Add footer element below all content
+  const footerElement = document.querySelector(".footer");
+
+  const footerClone = footerElement.cloneNode(true);
+
+  footerClone.style.marginTop = "40px";
+  captureArea.appendChild(footerClone);
 
   // Add a small delay to ensure Chrome has fully rendered everything
   await new Promise((resolve) => setTimeout(resolve, 200));

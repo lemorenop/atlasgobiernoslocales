@@ -4,6 +4,7 @@ export async function GET(request, { params }) {
   const { slug } = await params;
   const geojson = await import("@/public/maps/world-stc.json");
   const feature = geojson.features.find((f) => f.properties.REF_AREA === slug);
+  console.log(`🔎 Busco geometría del país ${slug}`);
 
   if (!feature) {
     return NextResponse.json({ error: "Country not found" }, { status: 404 });

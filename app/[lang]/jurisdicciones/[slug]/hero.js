@@ -77,9 +77,11 @@ export default function Hero({ yearPoblacion, data }) {
                           <br />
                           <span className="font-bold description">
                             {toLocaleString(value)}
-                            <sup className="text-[10px]">
+                          {ind.code!==1?  <sup className="text-[10px]">
                               {fullInd.unit?.unit ? fullInd.unit?.unit : ""}
-                            </sup>
+                            </sup>:
+                            <span className="text-[10px]">{" "}{fullInd.unit?.unit}</span>
+                            }
                           </span>
                         </p>
                       </div>

@@ -18,12 +18,11 @@ import Tooltip from "@/app/[lang]/components/tooltip";
 import Download from "../../components/download";
 
 export default function ScatterPlot() {
-  const { governments, lang, indicators, indicator, copy, countries, } =
+  const { governments, lang, indicators, indicator, copy, countries,regions } =
     useContext(IndicatorDataContext);
   const [selectedIndicator, setSelectedIndicator] = useState(
     indicators[0].code !== indicator.code ? indicators[0] : indicators[1]
   );
-
 
   const [scatterData, setSatterData] = useState(null);
   const [selectedCountry, setSelectedCountry] = useState({
@@ -36,7 +35,7 @@ export default function ScatterPlot() {
 
   // Función para estructurar los datos del scatter plot para CSV
   const getScatterPlotDataForCSV = () => {
-    // console.log('me ejecuto')
+    
     if (!currentData || !indicator || !selectedIndicator) {
       return null;
     }
@@ -107,13 +106,27 @@ export default function ScatterPlot() {
 
     // Clear previous chart
     d3.select(svgRef.current).selectAll("*").remove();
-
-    // Filter data based on selected country and level
+    
+    // Filter data based on selected country/region and level
     const filteredData = Object.entries(scatterData)
       .filter(([_, data]) => {
-        const countryMatch =
-          selectedCountry.iso3 === "all" ||
-          data.countryCode === selectedCountry.iso3;
+        let countryMatch = false;
+        
+        if (selectedCountry.iso3 === "all") {
+          countryMatch = true;
+        } else if (isNaN(selectedCountry.iso3)) {
+          // It's a country (iso3 is a string)
+          countryMatch = data.countryCode === selectedCountry.iso3;
+        } else {
+          // It's a region (iso3 is a number)
+          // Find countries that belong to this region
+          const regionCountries = countries.filter(country => 
+            country.region_id === parseInt(selectedCountry.iso3)
+          );
+          const regionCountryCodes = regionCountries.map(country => country.iso3);
+          countryMatch = regionCountryCodes.includes(data.countryCode);
+        }
+        
         const levelMatch = data.nivel === selectedNivel.value;
         return countryMatch && levelMatch && data.value && data.value_2;
       })
@@ -340,7 +353,7 @@ export default function ScatterPlot() {
         d3.select(this).attr("r", 5).attr("r", 5).attr("stroke-width", 1);
       });
 
-    // Add X axis label at the top
+    // Add X axis label at the bottom
     svg
       .append("text")
       .attr("text-anchor", "middle")
@@ -348,7 +361,7 @@ export default function ScatterPlot() {
       .style("font-size", "14px")
       .style("color", chartStyles.textColor)
       .attr("x", width / 2)
-      .attr("y", -margin.top / 2)
+      .attr("y", height + margin.bottom / 3*2)
       .text(
         `${indicator[`name_${lang}`]} ${
           indicator.unit_measure_id !== "hab" &&
@@ -384,6 +397,7 @@ export default function ScatterPlot() {
     indicator,
     selectedIndicator,
     lang,
+    countries,
   ]);
 
   useEffect(() => {
@@ -425,8 +439,9 @@ export default function ScatterPlot() {
           setSelectedCountry={setSelectedCountry}
           selectedNivel={selectedNivel}
           setSelectedNivel={setSelectedNivel}
-          options={[
+          options={[  
             {
+             
               options: [
                 {
                   name_es: "Todos",
@@ -434,10 +449,19 @@ export default function ScatterPlot() {
                   name_pt: "Todos",
                   iso3: "all",
                 },
-                ...countries,
+               
               ],
+            },{
+              group_title:getTextById(copy, "regions", lang),
+              options:regions
             },
-          ]}
+            {
+              group_title:getTextById(copy, "countries", lang),
+              options:countries.sort((a, b) =>
+                a["name_" + lang].localeCompare(b["name_" + lang])
+              ),
+            }
+        ]}
         />
       </div>
       <div className="overflow-x-auto bg-[#55C7D51A] border-1 border-[#55C7D54D] p-m relative">

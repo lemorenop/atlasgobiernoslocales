@@ -3,6 +3,7 @@ import { getCountries } from '@/app/utils/dataFetchers';
 
 export async function GET() {
   try {
+    console.log(`🔎 Busco listado de países`);
     const countries = await getCountries();
     return NextResponse.json(countries);
   } catch (error) {

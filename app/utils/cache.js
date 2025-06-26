@@ -6,6 +6,7 @@
 const cache = {
   data: {},
   timestamps: {},
+  ttls: {}, // Almacena el TTL individual de cada entrada
   // Tiempo de expiración por defecto: 1 hora
   defaultTTL: 60 * 60 * 1000,
 };
@@ -17,10 +18,11 @@ const cache = {
  */
 export function getFromCache(key) {
   const timestamp = cache.timestamps[key];
+  const ttl = cache.ttls[key] || cache.defaultTTL;
   const now = Date.now();
   
   // Si no existe en caché o ha expirado, devolver null
-  if (!timestamp || now - timestamp > cache.defaultTTL) {
+  if (!timestamp || now - timestamp > ttl) {
     return null;
   }
   
@@ -36,6 +38,7 @@ export function getFromCache(key) {
 export function setInCache(key, value, ttl = cache.defaultTTL) {
   cache.data[key] = value;
   cache.timestamps[key] = Date.now();
+  cache.ttls[key] = ttl;
 }
 
 /**
@@ -45,6 +48,7 @@ export function setInCache(key, value, ttl = cache.defaultTTL) {
 export function clearFromCache(key) {
   delete cache.data[key];
   delete cache.timestamps[key];
+  delete cache.ttls[key];
 }
 
 /**
@@ -53,4 +57,5 @@ export function clearFromCache(key) {
 export function clearCache() {
   cache.data = {};
   cache.timestamps = {};
+  cache.ttls = {};
 } 
