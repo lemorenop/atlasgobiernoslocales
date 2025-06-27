@@ -45,8 +45,8 @@ export default function DotsChart() {
         )
       );
 
-      const codes = governmentsModule.map((elm) => elm.id);
-      const url = `/api/govs-by-country?countryCode=${government.country_iso3}&level=${government.level}&lang=${lang}&codes=${codes}`;
+      // const codes = governmentsModule.map((elm) => elm.id);
+      const url = `/api/govs-by-country?countryCode=${government.country_iso3}&level=${government.level}&lang=${lang}`;
 
       console.log(
         "🔎 Busco la data en /api/govs-by-country"
