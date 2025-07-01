@@ -17,12 +17,12 @@ import { chartStyles } from "@/app/utils/chartStyles";
 import Tooltip from "@/app/[lang]/components/tooltip";
 import Download from "../../components/download";
 import ReloadButton from "@/app/[lang]/components/reloadButton";
-
+const dotSize = 4;
 export default function ScatterPlot() {
   const { governments, lang, indicators, indicator, copy, countries, regions } =
     useContext(IndicatorDataContext);
   const [selectedIndicator, setSelectedIndicator] = useState(
-    indicators[0].code !== indicator.code ? indicators[0] : indicators[1]
+    indicator.code===1 ? indicators[0] : indicators.find(elm=>elm.code===1)
   );
 
   const [scatterData, setSatterData] = useState(null);
@@ -151,9 +151,9 @@ export default function ScatterPlot() {
       })
       .map(([id, data]) => {
         // Convert percentage values to 0-100 range
-        const x =
-          indicator.unit_measure_id === "perc" ? data.value * 100 : data.value;
         const y =
+          indicator.unit_measure_id === "perc" ? data.value * 100 : data.value;
+        const x =
           selectedIndicator.unit_measure_id === "perc"
             ? data.value_2 * 100
             : data.value_2;
@@ -172,7 +172,7 @@ export default function ScatterPlot() {
     setNoData(false);
 
     // Set up dimensions
-    const margin = { top: 40, right: 40, bottom: 60, left: 60 };
+    const margin = { top: 40, right: 40, bottom: 60, left: 70 };
     const container = svgRef.current.parentElement;
     const width = container.clientWidth - margin.left - margin.right;
     const height = 400 - margin.top - margin.bottom;
@@ -219,7 +219,7 @@ export default function ScatterPlot() {
       .call(
         d3
           .axisBottom(xScale)
-          .tickFormat(formatAxisLabel, indicator.unit_measure_id)
+          .tickFormat(formatAxisLabel, selectedIndicator.unit_measure_id)
       )
       .selectAll("text")
       .style("text-anchor", "end")
@@ -237,7 +237,7 @@ export default function ScatterPlot() {
       .call(
         d3
           .axisLeft(yScale)
-          .tickFormat(formatAxisLabel, selectedIndicator.unit_measure_id)
+          .tickFormat(formatAxisLabel, indicator.unit_measure_id)
       )
       .selectAll("text")
       .style("text-anchor", "end")
@@ -283,7 +283,7 @@ export default function ScatterPlot() {
       .append("circle")
       .attr("cx", (d) => xScale(d.x))
       .attr("cy", (d) => yScale(d.y))
-      .attr("r", 5)
+      .attr("r", dotSize)
       .attr("fill", chartStyles.areaColor)
       .attr("stroke", chartStyles.blueColor)
       .attr("stroke-width", 1)
@@ -294,7 +294,7 @@ export default function ScatterPlot() {
           valueInd1: formatValue(d.x, indicator.unit_measure_id, lang, true),
           valueInd2: formatValue(
             d.y,
-            selectedIndicator.unit_measure_id,
+            indicator.unit_measure_id,
             lang,
             true
           ),
@@ -305,15 +305,15 @@ export default function ScatterPlot() {
           x: event.pageX,
           y: event.pageY,
         });
-        d3.select(this).attr("r", 7).attr("stroke-width", 2);
+        d3.select(this).attr("r", dotSize).attr("stroke-width", 2);
       })
       .on("mousemove", function (event, d) {
         const tooltipContent = {
           title: `${d.name}, ${d.completeName}`,
-          valueInd1: formatValue(d.x, indicator.unit_measure_id, lang, true),
+          valueInd1: formatValue(d.x, selectedIndicator.unit_measure_id, lang, true),
           valueInd2: formatValue(
             d.y,
-            selectedIndicator.unit_measure_id,
+            indicator.unit_measure_id,
             lang,
             true
           ),
@@ -328,10 +328,10 @@ export default function ScatterPlot() {
       .on("click", function (event, d) {
         const tooltipContent = {
           title: `${d.name}, ${d.completeName}`,
-          valueInd1: formatValue(d.x, indicator.unit_measure_id, lang, true),
+            valueInd1: formatValue(d.x, selectedIndicator.unit_measure_id, lang, true),
           valueInd2: formatValue(
             d.y,
-            selectedIndicator.unit_measure_id,
+            indicator.unit_measure_id,
             lang,
             true
           ),
@@ -345,16 +345,16 @@ export default function ScatterPlot() {
       })
       .on("mouseout", function () {
         setTooltip(null);
-        d3.select(this).attr("r", 5).attr("stroke-width", 1);
+        d3.select(this).attr("r", dotSize).attr("stroke-width", 1);
       })
       .attr("tabindex", 0)
       .on("focus", function (event, d) {
         const tooltipContent = {
           title: `${d.name}, ${d.completeName}`,
-          valueInd1: formatValue(d.x, indicator.unit_measure_id, lang, true),
+              valueInd1: formatValue(d.x, selectedIndicator.unit_measure_id, lang, true),
           valueInd2: formatValue(
             d.y,
-            selectedIndicator.unit_measure_id,
+            indicator.unit_measure_id,
             lang,
             true
           ),
@@ -365,11 +365,11 @@ export default function ScatterPlot() {
           x: event.pageX,
           y: event.pageY,
         });
-        d3.select(this).attr("r", 7).attr("stroke-width", 2);
+        d3.select(this).attr("r", dotSize+2).attr("stroke-width", 2);
       })
       .on("blur", function () {
         setTooltip(null);
-        d3.select(this).attr("r", 5).attr("r", 5).attr("stroke-width", 1);
+          d3.select(this).attr("r", dotSize).attr("r", dotSize).attr("stroke-width", 1);
       });
 
     // Add X axis label at the bottom
@@ -382,10 +382,10 @@ export default function ScatterPlot() {
       .attr("x", width / 2)
       .attr("y", height + (margin.bottom / 3) * 2)
       .text(
-        `${indicator[`name_${lang}`]} ${
-          indicator.unit_measure_id !== "hab" &&
-          indicator.unit_measure_id !== "num"
-            ? `(${formatValue(null, indicator.unit_measure_id, lang)})`
+        `${selectedIndicator[`name_${lang}`]} ${
+          selectedIndicator.unit_measure_id !== "hab" &&
+          selectedIndicator.unit_measure_id !== "num"
+            ? `(${formatValue(null, selectedIndicator.unit_measure_id, lang)})`
             : ""
         }`
       );
@@ -399,13 +399,13 @@ export default function ScatterPlot() {
       .style("color", chartStyles.textColor)
       .attr(
         "transform",
-        `translate(${width + margin.right - 20}, ${height / 2}) rotate(90)`
+        `translate(${-margin.left+10}, ${height / 2}) rotate(-90)`
       )
       .text(
-        `${selectedIndicator[`name_${lang}`]} ${
-          selectedIndicator.unit_measure_id !== "hab" &&
-          selectedIndicator.unit_measure_id !== "num"
-            ? `(${formatValue(null, selectedIndicator.unit_measure_id, lang)})`
+        `${indicator[`name_${lang}`]} ${
+          indicator.unit_measure_id !== "hab" &&
+          indicator.unit_measure_id !== "num"
+            ? `(${formatValue(null, indicator.unit_measure_id, lang)})`
             : ""
         }`
       );
@@ -536,12 +536,12 @@ export default function ScatterPlot() {
             <div className="flex flex-col gap-xs">
               <div className="flex items-center gap-xs">
                 <p>
-                  {indicator[`name_${lang}`]}: {tooltip.valueInd1}
+                  {selectedIndicator[`name_${lang}`]}: {tooltip.valueInd1}
                 </p>
               </div>
               <div className="flex items-center gap-xs">
                 <p>
-                  {selectedIndicator[`name_${lang}`]}: {tooltip.valueInd2}
+                  {indicator[`name_${lang}`]}: {tooltip.valueInd2}
                 </p>
               </div>
             </div>

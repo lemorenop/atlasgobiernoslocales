@@ -478,17 +478,7 @@ export default function DistributionChart() {
         <h2 className="text-navy text-h2 text-center font-bold [&_span]:text-cyan">
           {getTextById(copy, "distribution_title", lang, [
             ,
-            {
-              id: "nivel",
-              replace:
-                lang === "en"
-                  ? selectedNivel.value === "2"
-                    ? "Local"
-                    : "Regional"
-                  : selectedNivel.value === "2"
-                  ? "local"
-                  : "regional",
-            },
+           
             {
               id: "indicator_name",
               replace: indicator[`name_${lang}`],
