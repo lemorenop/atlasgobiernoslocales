@@ -18,6 +18,21 @@ import Tooltip from "@/app/[lang]/components/tooltip";
 import Download from "../../components/download";
 import ReloadButton from "@/app/[lang]/components/reloadButton";
 const dotSize = 4;
+
+// Format function for axis labels
+const formatAxisLabel = (d, unitMeasureId) => {
+  if (unitMeasureId === "perc") return d;
+  if (d >= 1000000) {
+    const value = d / 1000000;
+    return Number.isInteger(value) ? value + "M" : value.toFixed(1) + "M";
+  }
+  if (d >= 1000) {
+    const value = d / 1000;
+    return Number.isInteger(value) ? value + "K" : value.toFixed(1) + "K";
+  }
+  return Number.isInteger(d) ? d : d.toFixed(1);
+};
+
 export default function ScatterPlot() {
   const { governments, lang, indicators, indicator, copy, countries, regions } =
     useContext(IndicatorDataContext);
@@ -78,6 +93,7 @@ export default function ScatterPlot() {
   const [isLoading, setIsLoading] = useState(true);
   const svgRef = useRef(null);
   const [error, setError] = useState(false);
+  const [logValues, setLogValues] = useState(null);
   async function loadData() {
     try {
       setIsLoading(true);
@@ -85,6 +101,13 @@ export default function ScatterPlot() {
       const d = await fetch(`/api/indicators/${selectedIndicator.code}`).then(
         (res) => res.json()
       );
+      if([1,2,3].includes(selectedIndicator.code)){
+        console.log("🔎 Busco logValues en /api/log-values")
+        const d = await fetch(`/api/log-values`).then(
+          (res) => res.json()
+        ).then(res=>res.data.filter(elm=>elm.indicator_code===selectedIndicator.code ));
+        setLogValues(d);
+      }
       if (!d.error) {
         const response = d.data;
         const result = { ...governments };
@@ -185,53 +208,80 @@ export default function ScatterPlot() {
       .append("g")
       .attr("transform", `translate(${margin.left},${margin.top})`);
 
-    // Create scales
-    const xScale = d3
-      .scaleLinear()
-      .domain([0, d3.max(filteredData, (d) => d.x)])
-      .range([0, width]);
+    // Crear escala X
+    let xScale;
+    let useCustomLog = [1, 2, 3].includes(selectedIndicator.code) && logValues && logValues.length > 0;
+    // Filtrar bins por nivel seleccionado si corresponde
+    let filteredLogValues = logValues;
+    if (useCustomLog) {
+      filteredLogValues = logValues.filter(b => b.level == selectedNivel.value);
+      const bins = [...filteredLogValues].sort((a, b) => a.bin - b.bin);
+      const segmentWidth = width / bins.length;
+      xScale = getCustomLogScale(bins, width);
+      // Mostrar mínimo a la izquierda
+      svg
+        .append("text")
+        .attr("x", 0)
+        .attr("y", height + 20)
+        .attr("text-anchor", "start")
+        .style("font-family", chartStyles.fontFamily)
+        .style("font-size", "12px")
+        .style("color", chartStyles.textColor)
+        .text(formatAxisLabel(bins[0].min, selectedIndicator.unit_measure_id));
+      // Mostrar valores intermedios
+      bins.slice(1, -1).forEach((bin, i) => {
+        const xPos = (i + 1) * segmentWidth;
+        svg
+          .append("text")
+          .attr("x", xPos)
+          .attr("y", height + 20)
+          .attr("text-anchor", "start")
+          .style("font-family", chartStyles.fontFamily)
+          .style("font-size", "12px")
+          .style("color", chartStyles.textColor)
+          .text(formatAxisLabel(bin.min, selectedIndicator.unit_measure_id));
+      });
+      // Mostrar máximo con "+" donde empieza el último gap
+      const maxValue = bins[bins.length - 1].max || bins[bins.length - 1].min;
+      const lastBinStartX = (bins.length - 1) * segmentWidth;
+      svg
+        .append("text")
+        .attr("x", lastBinStartX)
+        .attr("y", height + 20)
+        .attr("text-anchor", "start")
+        .style("font-family", chartStyles.fontFamily)
+        .style("font-size", "12px")
+        .style("color", chartStyles.textColor)
+        .text(formatAxisLabel(maxValue, selectedIndicator.unit_measure_id) + "+");
+    } else {
+      xScale = d3
+        .scaleLinear()
+        .domain([0, d3.max(filteredData, (d) => d.x)])
+        .range([0, width]);
+      svg
+        .append("g")
+        .attr("transform", `translate(0,${height})`)
+        .call(
+          d3
+            .axisBottom(xScale)
+            .tickFormat((d) => formatAxisLabel(d, selectedIndicator.unit_measure_id))
+        )
+        .selectAll("text")
+        .style("text-anchor", "end")
+        .style("font-family", chartStyles.fontFamily)
+        .style("color", chartStyles.textColor)
+        .attr("dx", "-.8em")
+        .attr("dy", ".5em");
+      svg.selectAll(".domain, .tick line").remove();
+    }
 
+    // Remove X axis lines (ya hecho arriba para el caso lineal)
+
+    // Add Y axis
     const yScale = d3
       .scaleLinear()
       .domain([0, d3.max(filteredData, (d) => d.y)])
       .range([height, 0]);
-
-    // Format function for axis labels
-    const formatAxisLabel = (d, unitMeasureId) => {
-      if (unitMeasureId === "perc") return d;
-
-      // Abbreviate large numbers
-      if (d >= 1000000) {
-        const value = d / 1000000;
-        return Number.isInteger(value) ? value + "M" : value.toFixed(1) + "M";
-      }
-      if (d >= 1000) {
-        const value = d / 1000;
-        return Number.isInteger(value) ? value + "K" : value.toFixed(1) + "K";
-      }
-      return Number.isInteger(d) ? d : d.toFixed(1);
-    };
-
-    // Add X axis
-    svg
-      .append("g")
-      .attr("transform", `translate(0,${height})`)
-      .call(
-        d3
-          .axisBottom(xScale)
-          .tickFormat(formatAxisLabel, selectedIndicator.unit_measure_id)
-      )
-      .selectAll("text")
-      .style("text-anchor", "end")
-      .style("font-family", chartStyles.fontFamily)
-      .style("color", chartStyles.textColor)
-      .attr("dx", "-.8em")
-      .attr("dy", ".5em");
-
-    // Remove X axis lines
-    svg.selectAll(".domain, .tick line").remove();
-
-    // Add Y axis
     svg
       .append("g")
       .call(
@@ -245,14 +295,10 @@ export default function ScatterPlot() {
       .style("color", chartStyles.textColor)
       .attr("dx", "-.8em")
       .attr("dy", ".5em");
-
-    // Remove Y axis lines
     svg.selectAll(".domain, .tick line").remove();
 
     // Add center lines
-    // Vertical line
     const lineColor = chartStyles.dashLineColor;
-
     svg
       .append("line")
       .attr("x1", width / 2)
@@ -262,8 +308,6 @@ export default function ScatterPlot() {
       .attr("stroke", lineColor)
       .attr("stroke-width", 1)
       .attr("stroke-dasharray", "4,4");
-
-    // Horizontal line
     svg
       .append("line")
       .attr("x1", 0)
@@ -281,7 +325,7 @@ export default function ScatterPlot() {
       .data(filteredData)
       .enter()
       .append("circle")
-      .attr("cx", (d) => xScale(d.x))
+      .attr("cx", (d) => useCustomLog ? xScale(d.x) : xScale(d.x))
       .attr("cy", (d) => yScale(d.y))
       .attr("r", dotSize)
       .attr("fill", chartStyles.areaColor)
@@ -291,7 +335,7 @@ export default function ScatterPlot() {
       .on("mouseover", function (event, d) {
         const tooltipContent = {
           title: `${d.name}, ${d.completeName}`,
-          valueInd1: formatValue(d.x, indicator.unit_measure_id, lang, true),
+          valueInd1: formatValue(d.x, selectedIndicator.unit_measure_id, lang, true),
           valueInd2: formatValue(
             d.y,
             indicator.unit_measure_id,
@@ -328,7 +372,7 @@ export default function ScatterPlot() {
       .on("click", function (event, d) {
         const tooltipContent = {
           title: `${d.name}, ${d.completeName}`,
-            valueInd1: formatValue(d.x, selectedIndicator.unit_measure_id, lang, true),
+          valueInd1: formatValue(d.x, selectedIndicator.unit_measure_id, lang, true),
           valueInd2: formatValue(
             d.y,
             indicator.unit_measure_id,
@@ -351,7 +395,7 @@ export default function ScatterPlot() {
       .on("focus", function (event, d) {
         const tooltipContent = {
           title: `${d.name}, ${d.completeName}`,
-              valueInd1: formatValue(d.x, selectedIndicator.unit_measure_id, lang, true),
+          valueInd1: formatValue(d.x, selectedIndicator.unit_measure_id, lang, true),
           valueInd2: formatValue(
             d.y,
             indicator.unit_measure_id,
@@ -369,7 +413,7 @@ export default function ScatterPlot() {
       })
       .on("blur", function () {
         setTooltip(null);
-          d3.select(this).attr("r", dotSize).attr("r", dotSize).attr("stroke-width", 1);
+        d3.select(this).attr("r", dotSize).attr("r", dotSize).attr("stroke-width", 1);
       });
 
     // Add X axis label at the bottom
@@ -417,6 +461,7 @@ export default function ScatterPlot() {
     selectedIndicator,
     lang,
     countries,
+    logValues // importante para que se actualice si cambia
   ]);
 
   useEffect(() => {
@@ -584,4 +629,39 @@ function SelectIndicator({ selected, onChange, lang, options }) {
       </ListboxOptions>
     </Listbox>
   );
+}
+
+// Función para mapear valores a la escala logarítmica personalizada
+function getCustomLogScale(bins, width) {
+  if (!bins || bins.length === 0) return null;
+  // Calcular los límites de cada bin
+  const binEdges = bins.map((b, i) => ({
+    min: b.min,
+    max: b.max !== undefined ? b.max : null,
+    bin: b.bin,
+  }));
+  // El último bin puede no tener max, usar el máximo valor real
+  const lastMax = binEdges[binEdges.length - 1].max;
+  // Dividir el eje X en segmentos iguales por bin
+  const segmentWidth = width / bins.length;
+
+  // Función que mapea un valor a la posición X
+  return function (value) {
+    // Encontrar el bin correspondiente
+    let binIdx = binEdges.findIndex((b, i) => {
+      if (b.max === null) return value >= b.min;
+      return value >= b.min && value < b.max;
+    });
+    if (binIdx === -1) binIdx = binEdges.length - 1; // Si no encuentra, usar el último
+    const bin = binEdges[binIdx];
+    // Calcular la posición relativa dentro del bin
+    let rel = 0;
+    if (bin.max !== null && bin.max !== bin.min) {
+      rel = (value - bin.min) / (bin.max - bin.min);
+    }
+    // Si es el último bin (sin max), poner todos juntos al final
+    if (bin.max === null) rel = 0.5;
+    // Posición final
+    return binIdx * segmentWidth + rel * segmentWidth;
+  };
 }
