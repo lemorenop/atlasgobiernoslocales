@@ -34,7 +34,6 @@ export default function DotsChart() {
   const [data, setData] = useState(null);
   const [error, setError] = useState(false);
   const [logValues, setLogValues] = useState(null);
-
   const loadData = async () => {
     try {
       setIsLoading(true);
@@ -221,7 +220,6 @@ export default function DotsChart() {
           if (useCustomLog) {
             const bins = [...filteredLogValues].sort((a, b) => a.bin - b.bin);
             const segmentWidth = width / bins.length;
-
             // Mostrar mínimo a la izquierda
             svg
               .append("text")
