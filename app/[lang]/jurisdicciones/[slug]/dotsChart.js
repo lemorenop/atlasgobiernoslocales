@@ -10,6 +10,7 @@ import Info from "@/app/[lang]/components/icons/info";
 import Tooltip from "@/app/[lang]/components/tooltip";
 import Download from "@/app/[lang]/components/download";
 import ReloadButton from "@/app/[lang]/components/reloadButton";
+import { chartStyles } from "@/app/utils/chartStyles";
 const textColor = "#212529";
 
 export default function DotsChart() {
@@ -233,7 +234,7 @@ export default function DotsChart() {
                   .append("circle")
                   .attr("cx", x)
                   .attr("cy", y)
-                  .attr("r", 5)
+                  .attr("r", chartStyles.dotSize)
                   .attr("fill", "#55C7D5")
                   .attr("stroke", "#004A80")
                   .attr(
@@ -269,7 +270,7 @@ export default function DotsChart() {
                     });
                   })
                   .on("mouseout", function () {
-                    d3.select(this).attr("r", 5);
+                    d3.select(this).attr("r", chartStyles.dotSize);
                     setTooltip(null);
                   })
                   .attr("tabindex", 0)
@@ -283,7 +284,7 @@ export default function DotsChart() {
                     });
                   })
                   .on("blur", function () {
-                    d3.select(this).attr("r", 5);
+                    d3.select(this).attr("r", chartStyles.dotSize);
                     setTooltip(null);
                   });
               }

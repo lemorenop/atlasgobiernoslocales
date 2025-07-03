@@ -8,7 +8,7 @@ import {
 import Expand from "@/app/[lang]/components/icons/expand";
 import { useContext, useState, useEffect, useRef } from "react";
 import { IndicatorDataContext } from "./indicatorDataProvider";
-import { getTextById, formatValue } from "@/app/utils/textUtils";
+import { getTextById, formatValue,formatAxisLabel } from "@/app/utils/textUtils";
 import SelectCountrySwitch from "./selectCountrySwitch";
 import * as d3 from "d3";
 import Share from "@/app/[lang]/components/share";
@@ -17,21 +17,6 @@ import { chartStyles } from "@/app/utils/chartStyles";
 import Tooltip from "@/app/[lang]/components/tooltip";
 import Download from "../../components/download";
 import ReloadButton from "@/app/[lang]/components/reloadButton";
-const dotSize = 4;
-
-// Format function for axis labels
-const formatAxisLabel = (d, unitMeasureId) => {
-  if (unitMeasureId === "perc") return d;
-  if (d >= 1000000) {
-    const value = d / 1000000;
-    return Number.isInteger(value) ? value + "M" : value.toFixed(1) + "M";
-  }
-  if (d >= 1000) {
-    const value = d / 1000;
-    return Number.isInteger(value) ? value + "K" : value.toFixed(1) + "K";
-  }
-  return Number.isInteger(d) ? d : d.toFixed(1);
-};
 
 export default function ScatterPlot() {
   const { governments, lang, indicators, indicator, copy, countries, regions } =
@@ -94,6 +79,7 @@ export default function ScatterPlot() {
   const svgRef = useRef(null);
   const [error, setError] = useState(false);
   const [logValues, setLogValues] = useState(null);
+  const [logValuesY, setLogValuesY] = useState(null);
   async function loadData() {
     try {
       setIsLoading(true);
@@ -102,11 +88,22 @@ export default function ScatterPlot() {
         (res) => res.json()
       );
       if([1,2,3].includes(selectedIndicator.code)){
-        console.log("🔎 Busco logValues en /api/log-values")
+        console.log("🔎 Busco logValues en /api/log-values (X)")
         const d = await fetch(`/api/log-values`).then(
           (res) => res.json()
         ).then(res=>res.data.filter(elm=>elm.indicator_code===selectedIndicator.code ));
         setLogValues(d);
+      } else {
+        setLogValues(null);
+      }
+      if([1,2,3].includes(indicator.code)){
+        console.log("🔎 Busco logValues en /api/log-values (Y)")
+        const dY = await fetch(`/api/log-values`).then(
+          (res) => res.json()
+        ).then(res=>res.data.filter(elm=>elm.indicator_code===indicator.code ));
+        setLogValuesY(dY);
+      } else {
+        setLogValuesY(null);
       }
       if (!d.error) {
         const response = d.data;
@@ -211,8 +208,11 @@ export default function ScatterPlot() {
     // Crear escala X
     let xScale;
     let useCustomLog = [1, 2, 3].includes(selectedIndicator.code) && logValues && logValues.length > 0;
-    // Filtrar bins por nivel seleccionado si corresponde
     let filteredLogValues = logValues;
+    // Crear escala Y
+    let yScale;
+    let useCustomLogY = [1, 2, 3].includes(indicator.code) && logValuesY && logValuesY.length > 0;
+    let filteredLogValuesY = logValuesY;
     if (useCustomLog) {
       filteredLogValues = logValues.filter(b => b.level == selectedNivel.value);
       const bins = [...filteredLogValues].sort((a, b) => a.bin - b.bin);
@@ -278,24 +278,55 @@ export default function ScatterPlot() {
     // Remove X axis lines (ya hecho arriba para el caso lineal)
 
     // Add Y axis
-    const yScale = d3
-      .scaleLinear()
-      .domain([0, d3.max(filteredData, (d) => d.y)])
-      .range([height, 0]);
-    svg
-      .append("g")
-      .call(
-        d3
-          .axisLeft(yScale)
-          .tickFormat(formatAxisLabel, indicator.unit_measure_id)
-      )
-      .selectAll("text")
-      .style("text-anchor", "end")
-      .style("font-family", chartStyles.fontFamily)
-      .style("color", chartStyles.textColor)
-      .attr("dx", "-.8em")
-      .attr("dy", ".5em");
-    svg.selectAll(".domain, .tick line").remove();
+    if (useCustomLogY) {
+      filteredLogValuesY = logValuesY.filter(b => b.level == selectedNivel.value);
+      const binsY = [...filteredLogValuesY].sort((a, b) => a.bin - b.bin);
+      const segmentHeight = height / binsY.length;
+      yScale = getCustomLogScale(binsY, height);
+      // Mostrar mínimo abajo
+      svg
+        .append("text")
+        .attr("x", -10)
+        .attr("y", height)
+        .attr("text-anchor", "end")
+        .style("font-family", chartStyles.fontFamily)
+        .style("font-size", "12px")
+        .style("color", chartStyles.textColor)
+        .text(formatAxisLabel(binsY[0].min, indicator.unit_measure_id));
+      // Mostrar valores intermedios
+      binsY.slice(1).forEach((bin, i) => {
+        const yPos = height - (i + 1) * segmentHeight;
+        svg
+          .append("text")
+          .attr("x", -10)
+          .attr("y", yPos)
+          .attr("text-anchor", "end")
+          .style("font-family", chartStyles.fontFamily)
+          .style("font-size", "12px")
+          .style("color", chartStyles.textColor)
+          .text(formatAxisLabel(bin.min, indicator.unit_measure_id));
+      });
+     
+    } else {
+      yScale = d3
+        .scaleLinear()
+        .domain([0, d3.max(filteredData, (d) => d.y)])
+        .range([height, 0]);
+      svg
+        .append("g")
+        .call(
+          d3
+            .axisLeft(yScale)
+            .tickFormat(formatAxisLabel, indicator.unit_measure_id)
+        )
+        .selectAll("text")
+        .style("text-anchor", "end")
+        .style("font-family", chartStyles.fontFamily)
+        .style("color", chartStyles.textColor)
+        .attr("dx", "-.8em")
+        .attr("dy", ".5em");
+      svg.selectAll(".domain, .tick line").remove();
+    }
 
     // Add center lines
     const lineColor = chartStyles.dashLineColor;
@@ -326,8 +357,8 @@ export default function ScatterPlot() {
       .enter()
       .append("circle")
       .attr("cx", (d) => useCustomLog ? xScale(d.x) : xScale(d.x))
-      .attr("cy", (d) => yScale(d.y))
-      .attr("r", dotSize)
+      .attr("cy", (d) => useCustomLogY ? height - yScale(d.y) : yScale(d.y))
+      .attr("r", chartStyles.dotSize)
       .attr("fill", chartStyles.areaColor)
       .attr("stroke", chartStyles.blueColor)
       .attr("stroke-width", 1)
@@ -349,7 +380,7 @@ export default function ScatterPlot() {
           x: event.pageX,
           y: event.pageY,
         });
-        d3.select(this).attr("r", dotSize).attr("stroke-width", 2);
+        d3.select(this).attr("r", chartStyles.dotSize).attr("stroke-width", 2);
       })
       .on("mousemove", function (event, d) {
         const tooltipContent = {
@@ -389,7 +420,7 @@ export default function ScatterPlot() {
       })
       .on("mouseout", function () {
         setTooltip(null);
-        d3.select(this).attr("r", dotSize).attr("stroke-width", 1);
+        d3.select(this).attr("r", chartStyles.dotSize).attr("stroke-width", 1);
       })
       .attr("tabindex", 0)
       .on("focus", function (event, d) {
@@ -409,11 +440,11 @@ export default function ScatterPlot() {
           x: event.pageX,
           y: event.pageY,
         });
-        d3.select(this).attr("r", dotSize+2).attr("stroke-width", 2);
+        d3.select(this).attr("r", chartStyles.dotSize+2).attr("stroke-width", 2);
       })
       .on("blur", function () {
         setTooltip(null);
-        d3.select(this).attr("r", dotSize).attr("r", dotSize).attr("stroke-width", 1);
+        d3.select(this).attr("r", chartStyles.dotSize).attr("r", chartStyles.dotSize).attr("stroke-width", 1);
       });
 
     // Add X axis label at the bottom
@@ -461,7 +492,8 @@ export default function ScatterPlot() {
     selectedIndicator,
     lang,
     countries,
-    logValues // importante para que se actualice si cambia
+    logValues,
+    logValuesY
   ]);
 
   useEffect(() => {

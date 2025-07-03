@@ -43,8 +43,28 @@ export function formatValue(value, unit_measure_id, lang, showUnit = true) {
     }
   };
 
-  if((value || value===0) && !isNaN(value))return unit_measure_id === "perc"
-    ? (Number.isInteger(value) ? value : value.toFixed(2)) + (showUnit ? "%" : "")
-    : (value.toLocaleString(lang === "es" || lang === "pt" ? "pt" : "en")) + (showUnit ? unitLabel() : "")
-    return unitLabel();
+  if ((value || value === 0) && !isNaN(value))
+    return unit_measure_id === "perc"
+      ? (Number.isInteger(value) ? value : value.toFixed(2)) +
+          (showUnit ? "%" : "")
+      : value.toLocaleString(lang === "es" || lang === "pt" ? "pt" : "en") +
+          (showUnit ? unitLabel() : "");
+  return unitLabel();
 }
+
+// Format function for axis labels
+export const formatAxisLabel = (d, unitMeasureId) => {
+  if (unitMeasureId === "perc") return d;
+  if (d || d === 0) {
+    if (d >= 1000000) {
+      const value = d / 1000000;
+      return Number.isInteger(value) ? value + "M" : value.toFixed(1) + "M";
+    }
+    if (d >= 1000) {
+      const value = d / 1000;
+      return Number.isInteger(value) ? value + "K" : value.toFixed(1) + "K";
+    }
+    return Number.isInteger(d) ? d : d.toFixed(1);
+  }
+  return;
+};

@@ -8,6 +8,7 @@ export const chartStyles = {
   areaColor: "#55C7D5",
   blueColor:"#1774AD",
   cyanColor:"#55C7D5",
-  lightCyanColor:"#55C7D54D"
+  lightCyanColor:"#55C7D54D",
+  dotSize:4
  
 };

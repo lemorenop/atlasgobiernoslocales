@@ -68,7 +68,7 @@ export default async function Jurisdiction({ params }) {
 
     const yearPoblacion = years.year_population;
     const yearIndicators = years.year_indicators;
-    const indicators = indicatorsAll.map((elm) => {
+    const indicators = indicatorsAll.filter(elm=>elm.code!==25).map((elm) => {
       const unit = unitMeasures.find((unit) => unit.id === elm.unit_measure_id);
       elm.unit = unit;
       return { ...elm };

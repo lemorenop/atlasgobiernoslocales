@@ -9,7 +9,11 @@ import {
   useCallback,
 } from "react";
 import { IndicatorDataContext } from "./indicatorDataProvider";
-import { getTextById, formatValue } from "@/app/utils/textUtils";
+import {
+  getTextById,
+  formatValue,
+  formatAxisLabel,
+} from "@/app/utils/textUtils";
 import * as d3 from "d3";
 import { chartStyles } from "@/app/utils/chartStyles";
 import Loader from "@/app/[lang]/components/loader";
@@ -22,34 +26,42 @@ export default function DistributionChart() {
     useContext(IndicatorDataContext);
   const [isLoading, setIsLoading] = useState(true);
   const [tooltip, setTooltip] = useState(null);
+  const [ranges, setRanges] = useState(null);
+  const logIndicator =
+    indicator.code === 1 || indicator.code === 2 || indicator.code === 3;
+  const percRanges = [
+    { bin: 0, min: 0, max: 10 },
+    { bin: 1, min: 11, max: 20 },
+    { bin: 2, min: 21, max: 30 },
+    { bin: 3, min: 31, max: 40 },
+    { bin: 4, min: 41, max: 50 },
+    { bin: 5, min: 51, max: 60 },
+    { bin: 6, min: 61, max: 70 },
+    { bin: 7, min: 71, max: 80 },
+    { bin: 8, min: 81, max: 90 },
+    { bin: 9, min: 91, max: 100 },
+  ];
   const svgRef = useRef();
-  // Function to create value ranges
-  const createValueRanges = () => {
-    const ranges = [];
-    // Create ranges from 0 to 90
-    for (let i = 0; i < 0.9; i += 0.1) {
-      ranges.push({
-        min: i,
-        max: i + 0.1,
-        label: `${(i * 100).toFixed(0)}-${((i + 0.1) * 100).toFixed(0)}`,
-      });
-    }
-    // Add the final range for 90-100
-    ranges.push({
-      min: 0.9,
-      max: 1.0,
-      label: "90-100",
-    });
-    return ranges;
-  };
-
+  async function getLogs() {
+    console.log("🔎 Busco logValues en /api/log-values");
+    const d = await fetch(`/api/log-values`)
+      .then((res) => res.json())
+      .then((res) =>
+        res.data.filter((elm) => elm.indicator_code === indicator.code)
+      );
+    setRanges(d);
+  }
+  useEffect(() => {
+    if ([1, 2, 3].includes(indicator.code)) {
+      getLogs();
+    } else setRanges(percRanges);
+  }, []);
   // Process data to get distribution by country and level
   const data = useMemo(() => {
-    if (!governments) return {};
+    if (!governments || !ranges) return {};
 
-    const ranges = createValueRanges();
     const result = {};
-
+    const gaps = ranges;
     // Group jurisdictions by country and level
     Object.values(governments).forEach((jurisdiction) => {
       if (
@@ -68,7 +80,7 @@ export default function DistributionChart() {
           ? 2
           : jurisdiction.nivel;
 
-      const value = Math.min(jurisdiction.value, 1);
+      const value = jurisdiction.value;
 
       // Initialize country and level if not exists
       if (!result[countryCode]) {
@@ -86,15 +98,25 @@ export default function DistributionChart() {
       // Increment total for this country and level
       result[countryCode][level].total++;
 
-      // Find the appropriate range for this value
-      const range = ranges.find((r) => value >= r.min && value <= r.max);
-      if (range) {
-        const rangeKey = range.label;
-        result[countryCode][level].ranges[rangeKey] =
-          (result[countryCode][level].ranges[rangeKey] || 0) + 1;
-      }
-    });
+      // Find the appropriate range for this value (convert from 0-1 to 0-100)
+      const valuePercent = logIndicator ? value : value * 100;
+      const gap = gaps.find((g) => {
+        return (
+          valuePercent >= g.min &&
+          (g.max && logIndicator
+            ? valuePercent < g.max
+            : g.max
+            ? valuePercent <= g.max
+            : true) &&
+          (g.level ? g.level == level : true)
+        );
+      });
 
+      let rangeKey = `${gap.bin}`;
+
+      result[countryCode][level].ranges[rangeKey] =
+        (result[countryCode][level].ranges[rangeKey] || 0) + 1;
+    });
     // Calculate percentages for each range
     Object.keys(result).forEach((countryCode) => {
       ["1", "2"].forEach((level) => {
@@ -109,7 +131,7 @@ export default function DistributionChart() {
     });
 
     return result;
-  }, [governments]);
+  }, [governments,ranges]);
   const [selectedCountries, setSelectedCountries] = useState([
     {
       name_es: "Todos",
@@ -124,26 +146,15 @@ export default function DistributionChart() {
   });
 
   const getChartData = useCallback(() => {
-    if (!data) return [];
+    if (!data || !ranges) return [];
 
     const countriesToShow = selectedCountries.some((c) => c.iso3 === "all")
       ? countries
       : selectedCountries;
 
-    // Get all possible ranges
-    const allRanges = [
-      "0-10",
-      "10-20",
-      "20-30",
-      "30-40",
-      "40-50",
-      "50-60",
-      "60-70",
-      "70-80",
-      "80-90",
-      "90-100",
-    ];
-
+    const rangePerLevel = ranges.filter((r) =>
+      r.level ? r.level === parseInt(selectedNivel.value) : true
+    );
     return countriesToShow
       .map((country) => {
         const countryData = data[country.iso3]?.[selectedNivel.value];
@@ -152,11 +163,10 @@ export default function DistributionChart() {
           return null;
 
         // Create an object with all ranges, using the actual values or 0
-        const rangeValues = allRanges.reduce((acc, range) => {
-          acc[range] = countryData.ranges[range] || 0;
+        const rangeValues = rangePerLevel.reduce((acc, range) => {
+          acc[`${range.bin}`] = countryData.ranges[`${range.bin}`] || 0;
           return acc;
         }, {});
-
         return {
           country: country[`name_${lang}`],
           countryCode: country.iso3,
@@ -164,7 +174,7 @@ export default function DistributionChart() {
         };
       })
       .filter(Boolean);
-  }, [data, selectedCountries, selectedNivel, countries, lang]);
+  }, [data, selectedCountries, selectedNivel, countries, lang, ranges]);
 
   // Get available countries for the selected level
   const getAvailableCountries = useCallback(() => {
@@ -194,8 +204,10 @@ export default function DistributionChart() {
   }, [getChartData]);
 
   useEffect(() => {
-    if (!getChartData().length || !svgRef.current) return;
+    const chartData = getChartData();
+    if (!chartData.length || !svgRef.current) return;
     setIsLoading(false);
+
     // Clear previous chart
     d3.select(svgRef.current).selectAll("*").remove();
     const isMobile = svgRef.current.clientWidth < 600;
@@ -206,9 +218,10 @@ export default function DistributionChart() {
       bottom: 40,
       left: isMobile ? 50 : 150,
     };
+    const countryHeight = 40;
+    const rowSpacing = 3; // Espaciado entre filas
     const width = svgRef.current.clientWidth - margin.left - margin.right;
-    const height = getChartData().length * 40 + margin.top + margin.bottom;
-
+    const height = chartData.length * (countryHeight + rowSpacing) + margin.top + margin.bottom; 
     // Create SVG
     const svg = d3
       .select(svgRef.current)
@@ -219,44 +232,37 @@ export default function DistributionChart() {
       .append("g")
       .attr("transform", `translate(${margin.left},${margin.top})`);
     // Create scales
-
+   const currentRanges = ranges.filter((r) =>
+    r.level ? r.level === parseInt(selectedNivel.value) : true
+  );
     const x = d3
       .scaleBand()
-      .domain([
-        "0-10",
-        "10-20",
-        "20-30",
-        "30-40",
-        "40-50",
-        "50-60",
-        "60-70",
-        "70-80",
-        "80-90",
-        "90-100",
-      ])
+      .domain(
+        currentRanges
+          .map((r) => r.bin)
+      )
       .range([0, width])
       .padding(0.1);
 
-    // Create line generator
-    const line = d3
-      .line()
-      .x((d) => x(d.range) + x.bandwidth() / 2)
-      .y((d) => d.value)
-      .curve(d3.curveMonotoneX);
-
     // Add single X axis at the bottom
     g.append("g")
-      .attr("transform", `translate(0,${height - margin.bottom})`)
+      .attr("transform", `translate(0,${height - margin.bottom-10})`)
       .call(
         d3.axisBottom(x).tickFormat((d, i) => {
-          // Show only 0, 50, and 100 at their corresponding positions
-          if (d === "0-10") return "0%";
-          if (d === "40-50") return "50%";
-          if (d === "90-100") return "100%";
-          return "";
+          // Show all range labels
+          const range = currentRanges.find((r) => r.bin === d);
+          return `${!range.max && logIndicator ? "+" : ""}${formatAxisLabel(
+            range.min,
+            indicator.unit_measure_id
+          )}${
+            range.max
+              ? `-${formatAxisLabel(range.max, indicator.unit_measure_id)}`
+              : ""
+          }${!logIndicator ? "%" : ""}`;
         })
       )
       .selectAll("text")
+      .attr("transform", `rotate(${logIndicator ? -15 : 0}, 0, 0)`)
       .style("text-anchor", "middle")
       .style("font-family", chartStyles.fontFamily)
       .style("color", chartStyles.textColor)
@@ -266,24 +272,28 @@ export default function DistributionChart() {
     g.selectAll(".domain, .tick line").remove();
 
     // Create a group for each country
-    getChartData().forEach((country, i) => {
-      const countryHeight = 40;
+    chartData.forEach((country, i) => {
+     
       const countryGroup = g
         .append("g")
-        .attr("transform", `translate(0,${i * countryHeight})`);
+        .attr("transform", `translate(0,${i * (countryHeight + rowSpacing)})`);
+      // Create scales for this country
+      const y = d3
+        .scaleLinear()
+        .domain([0, maxValue])
+        .range([countryHeight, 0]);
 
       // Add dotted line between countries (except for the first country)
-      if (i > 0) {
-        countryGroup
-          .append("line")
-          .attr("x1", 0)
-          .attr("y1", 0)
-          .attr("x2", width)
-          .attr("y2", 0)
-          .attr("stroke", chartStyles.lightCyanColor)
-          .attr("stroke-width", 1)
-          .attr("stroke-dasharray", "4,4");
-      }
+
+      countryGroup
+        .append("line")
+        .attr("x1", 0)
+        .attr("y1", y(0))
+        .attr("x2", width)
+        .attr("y2", y(0))
+        .attr("stroke", chartStyles.lightCyanColor)
+        .attr("stroke-width", 1)
+        .attr("stroke-dasharray", "4,4");
 
       // Add vertical dotted lines for each X tick
       x.domain().forEach((tick) => {
@@ -299,32 +309,14 @@ export default function DistributionChart() {
           .attr("stroke-dasharray", "4,4");
       });
 
-      // Create scales for this country
-      const y = d3
-        .scaleLinear()
-        .domain([0, maxValue])
-        .range([countryHeight, 0]);
-
-      // Create area generator for this country
-      const clickArea = d3
-        .area()
-        .x((d) => x(d.range) + x.bandwidth() / 2)
-        .y0((d) => y(0))
-        .y1((d) => y(maxValue))
-        .curve(d3.curveMonotoneX);
-      const startArea = d3
-        .area()
-        .x((d) => x(d.range))
-        .y0((d) => y(0))
-        .y1((d) => y(0))
-        .curve(d3.curveMonotoneX);
-      const area = d3
-        .area()
-        .x((d) => x(d.range) + x.bandwidth() / 2)
-        .y0((d) => y(0))
-        .y1((d) => d.value)
-        .curve(d3.curveMonotoneX);
-
+      // Transform data for this country
+      const countryData = Object.entries(country)
+        .filter(([key]) => key !== "country" && key !== "countryCode")
+        .map(([range, value]) => ({
+          range,
+          value: y(value),
+          originalValue: value,
+        }));
       // Add country name
       const countryNameText = countryGroup
         .append("text")
@@ -356,105 +348,77 @@ export default function DistributionChart() {
         countryNameText.text(country.country);
       }
 
-      // Transform data for this country
-      const countryData = Object.entries(country)
-        .filter(([key]) => key !== "country" && key !== "countryCode")
-        .map(([range, value]) => ({
-          range,
-          value: y(value),
-          originalValue: value,
-        }));
-      function handleTooltip(event, d) {
-        d3.select(`#${country.countryCode}`).attr(
-          "stroke",
-          chartStyles.blueColor
-        );
-        const xPos = d3.pointer(event)[0];
-        const range = x.domain().find((range) => {
-          const rangeX = x(range);
-          const rangeEnd = rangeX + x.bandwidth();
-          return xPos >= rangeX && xPos < rangeEnd;
-        });
+      countryData.forEach((d) => {
+        const range = ranges.find((r) => r.bin === parseInt(d.range));
+        const tooltipContent = {
+          title: country.country,
+          range: `${!range.max && logIndicator ? "+" : ""}${formatAxisLabel(
+            range.min,
+            indicator.unit_measure_id
+          )}${
+            range.max
+              ? `-${formatAxisLabel(range.max, indicator.unit_measure_id)}`
+              : ""
+          }${!logIndicator ? "%" : ""}`,
+          value: formatValue(d.originalValue, "perc", lang),
+        };
+        // Área de interacción invisible (más ancha para facilitar hover)
+        countryGroup
+          .append("rect")
+          .attr("x", x(parseInt(d.range)) - 2)
+          .attr("y", 0)
+          .attr("width", x.bandwidth() + 4)
+          .attr("height", countryHeight)
+          .attr("fill", "transparent")
+          .style("cursor", "pointer")
+          .on("mouseover", (event) => {
+            // Resaltar la barra correspondiente
+            d3.select(event.target.parentNode)
+              .select(`rect[data-range="${d.bin}"]`)
+              .attr("stroke", chartStyles.blueColor);
 
-        if (range) {
-          const value = countryData.find((d) => d.range === range);
-          const tooltipContent = {
-            title: country.country,
-            range: range,
-            value: formatValue(
-              value.originalValue,
-              indicator.unit_measure_id,
-              lang
-            ),
-          };
-          setTooltip({
-            ...tooltipContent,
-            x: event.pageX,
-            y: event.pageY,
+            setTooltip({
+              ...tooltipContent,
+              x: event.pageX,
+              y: event.pageY + 3,
+            });
+          })
+          .on("mousemove", (event) => {
+            setTooltip({
+              ...tooltipContent,
+              x: event.pageX,
+              y: event.pageY + 3,
+            });
+          })
+          .on("mouseout", function () {
+            // Restaurar el color de la barra
+            d3.select(event.target.parentNode)
+              .select(`rect[data-range="${d.range}"]`)
+              .attr("stroke", chartStyles.cyanColor);
+            setTooltip(null);
           });
-        }
-      }
-      // Add the area
-      countryGroup
-        .append("path")
-        .datum(countryData)
-        .attr("fill", chartStyles.lightCyanColor)
-        .style("cursor", "pointer")
-        .attr("d", startArea)
-        .transition()
-        .duration(750)
-        .ease(d3.easeQuadInOut)
-        .attr("d", area);
 
-      // Add the line on top
-      countryGroup
-        .append("path")
-        .datum(countryData)
-        .attr("id", country.countryCode)
-        .attr("fill", "none")
-        .attr("stroke", chartStyles.cyanColor)
-        .attr("stroke-width", 2)
-        .attr("d", line)
-        .attr("id", country.countryCode)
-        .style("cursor", "pointer")
-        .attr("stroke-dasharray", function () {
-          return this.getTotalLength();
-        })
-        .attr("stroke-dashoffset", function () {
-          return this.getTotalLength();
-        })
-        .transition()
-        .duration(1000)
-        .ease(d3.easeLinear)
-        .attr("stroke-dashoffset", 0);
-      // if (isMobile)
-      countryGroup
-        .append("path")
-        .attr("class", "click-area")
-        .datum(countryData)
-        .attr("fill", "transparent")
-        .style("cursor", "pointer")
-        .attr("d", clickArea)
-        .on("mouseover", handleTooltip)
-        .on("mousemove", handleTooltip)
-        .on("mouseout", function () {
-          d3.select(`#${country.countryCode}`).attr(
-            "stroke",
-            chartStyles.cyanColor
-          );
-          setTooltip(null);
-        })
-        .on("click", function (event, d) {
-          // Remove selected class from all paths
-          d3.selectAll("path.click-area[stroke]").attr("stroke", "transparent");
-
-          // Add selected class to clicked path and change color
-          d3.select(this).attr("stroke", chartStyles.blueColor);
-
-          handleTooltip(event, d);
-        });
+        // Barra visual
+        countryGroup
+          .append("rect")
+          .attr("data-range", d.range)
+          .attr("x", x(parseInt(d.range)))
+          .attr("y", y(0))
+          .attr("width", x.bandwidth())
+          .attr("height", 0)
+          .attr("fill", chartStyles.cyanColor)
+          .attr("stroke", chartStyles.cyanColor)
+          .attr("stroke-width", 1)
+          .style("pointer-events", "none")
+          .transition()
+          .duration(1000)
+          .delay((d, i) => i * 100) // Stagger the animations
+          .ease(d3.easeQuadOut)
+          .attr("y", d.value)
+          .attr("height", y(0) - d.value);
+      });
     });
-  }, [getChartData, maxValue]);
+  }, [getChartData, maxValue,selectedNivel]);
 
   // Hide tooltip on scroll
   useEffect(() => {
@@ -468,7 +432,6 @@ export default function DistributionChart() {
       window.removeEventListener("scroll", handleScroll);
     };
   }, []);
-
   return (
     <div
       className="flex flex-col gap-xl px-l md:px-[160px]"
@@ -478,7 +441,6 @@ export default function DistributionChart() {
         <h2 className="text-navy text-h2 text-center font-bold [&_span]:text-cyan">
           {getTextById(copy, "distribution_title", lang, [
             ,
-           
             {
               id: "indicator_name",
               replace: indicator[`name_${lang}`],
@@ -547,7 +509,9 @@ export default function DistributionChart() {
         <div className="max-sm:w-full md:w-80">
           <Download
             disabled={isLoading}
-            downloadName={`${indicator[`name_${lang}`]}-distribution-${selectedNivel.name}`}
+            downloadName={`${indicator[`name_${lang}`]}-distribution-${
+              selectedNivel.name
+            }`}
             lang={lang}
             copy={copy}
             refImage={"distribution-chart"}
