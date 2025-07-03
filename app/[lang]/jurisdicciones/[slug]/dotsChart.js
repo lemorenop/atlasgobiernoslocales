@@ -2,7 +2,7 @@
 import Select from "@/app/[lang]/components/select";
 import { JurisdictionDataContext } from "./jurisdictionDataProvider";
 import { useContext, useState, useEffect, useRef } from "react";
-import { getTextById, formatValue } from "@/app/utils/textUtils";
+import { getTextById, formatValue, formatAxisLabel } from "@/app/utils/textUtils";
 import * as d3 from "d3";
 import Loader from "@/app/[lang]/components/loader";
 import Share from "@/app/[lang]/components/share";
@@ -29,6 +29,7 @@ export default function DotsChart() {
   const svgRef = useRef(null);
   const [data, setData] = useState(null);
   const [error, setError] = useState(false);
+  const [logValues, setLogValues] = useState(null);
   
   const loadData = async () => {
     try {
@@ -71,9 +72,29 @@ export default function DotsChart() {
     }
   };
 
+  const loadLogValues = async () => {
+    if ([1, 2, 3].includes(selectedIndicator.code)) {
+      console.log("🔎 Busco logValues en /api/log-values");
+      try {
+        const response = await fetch(`/api/log-values`).then((res) => res.json());
+        const filteredLogValues = response.data.filter(elm => elm.indicator_code === selectedIndicator.code);
+        setLogValues(filteredLogValues);
+      } catch (error) {
+        console.error("Error loading log values:", error);
+        setLogValues(null);
+      }
+    } else {
+      setLogValues(null);
+    }
+  };
+
   useEffect(() => {
     loadData();
   }, [lang, government]);
+
+  useEffect(() => {
+    loadLogValues();
+  }, [selectedIndicator]);
 
   useEffect(() => {
     if (data) {
@@ -129,39 +150,34 @@ export default function DotsChart() {
             (d) => d.government_id === government.id
           )?.value;
           setValues({ maxValue, minValue, value });
-          // Create bins for grouping
-          const binSize = isPercentage ? 10 : (maxValue - minValue) / 10;
-          const bins = d3.range(
-            Math.floor(minValue / binSize) * binSize,
-            Math.ceil(maxValue / binSize) * binSize + binSize,
-            binSize
-          );
-
-          // Group data into bins
-          const groupedData = bins
-            .map((bin, i) => {
-              const nextBin = bins[i + 1];
-              if (!nextBin) return null;
-              return {
-                bin,
-                nextBin,
-                governments: processedData.filter(
-                  (d) => d.value >= bin && d.value < nextBin
-                ),
-              };
-            })
-            .filter((d) => d !== null);
 
           // Create scales
-          const xScale = d3
-            .scaleLinear()
-            .domain([bins[0], bins[bins.length - 1]])
-            .range([0, width]);
+          let xScale;
+          let useCustomLog = [1, 2, 3].includes(selectedIndicator.code) && logValues && logValues.length > 0;
+          let filteredLogValues = logValues;
 
-          const yScale = d3
-            .scaleLinear()
-            .domain([0, d3.max(groupedData, (d) => d.governments.length)])
-            .range([height, 0]);
+          if (useCustomLog) {
+            filteredLogValues = logValues.filter(b => b.level == government.level);
+            xScale = getCustomLogScale(filteredLogValues, width);
+          } else {
+            xScale = d3
+              .scaleLinear()
+              .domain([minValue, maxValue])
+              .range([0, width]);
+          }
+
+          // Agrupa por valor redondeado para evitar superposición exacta
+          const valueGroups = d3.groups(processedData, d => Math.round(d.value * 1000) / 1000);
+          const jitterWidth = 300; // altura máxima del jitter
+          const points = [];
+          valueGroups.forEach(group => {
+            const [value, items] = group;
+            items.forEach((item, i) => {
+              // Distribuye los puntos verticalmente centrados
+              const y = height / 2 + ((i - (items.length - 1) / 2) * (jitterWidth / items.length));
+              points.push({ ...item, x: useCustomLog ? xScale(item.value) : xScale(item.value), y });
+            });
+          });
 
           // Format number for axis labels
           const formatNumber = (d) => {
@@ -182,113 +198,143 @@ export default function DotsChart() {
           };
 
           // Add X axis
-          svg
-            .append("g")
-            .attr("transform", `translate(0,${height})`)
-            .call(d3.axisBottom(xScale).tickFormat(formatNumber))
-            .selectAll("text")
-            .style("text-anchor", "end")
-            .style("font-size", "12px")
-            .style("color", textColor)
-            .style("font-family", "Raleway");
-          // Remove the line and ticks from X axis
-          svg.selectAll(".domain, .tick line").remove();
+          if (useCustomLog) {
+            const bins = [...filteredLogValues].sort((a, b) => a.bin - b.bin);
+            const segmentWidth = width / bins.length;
+            
+            // Mostrar mínimo a la izquierda
+            svg
+              .append("text")
+              .attr("x", 0)
+              .attr("y", height + 20)
+              .attr("text-anchor", "start")
+              .style("font-family", chartStyles.fontFamily)
+              .style("font-size", "12px")
+              .style("color", chartStyles.textColor)
+              .text(formatAxisLabel(bins[0].min, selectedIndicator.unit_measure_id));
+            
+            // Mostrar valores intermedios
+            bins.slice(1, -1).forEach((bin, i) => {
+              const xPos = (i + 1) * segmentWidth;
+              svg
+                .append("text")
+                .attr("x", xPos)
+                .attr("y", height + 20)
+                .attr("text-anchor", "start")
+                .style("font-family", chartStyles.fontFamily)
+                .style("font-size", "12px")
+                .style("color", chartStyles.textColor)
+                .text(formatAxisLabel(bin.min, selectedIndicator.unit_measure_id));
+            });
+            
+            // Mostrar máximo con "+" donde empieza el último gap
+            const maxValue = bins[bins.length - 1].max || bins[bins.length - 1].min;
+            const lastBinStartX = (bins.length - 1) * segmentWidth;
+            svg
+              .append("text")
+              .attr("x", lastBinStartX)
+              .attr("y", height + 20)
+              .attr("text-anchor", "start")
+              .style("font-family", chartStyles.fontFamily)
+              .style("font-size", "12px")
+              .style("color", chartStyles.textColor)
+              .text(formatAxisLabel(maxValue, selectedIndicator.unit_measure_id) + "+");
+          } else {
+            svg
+              .append("g")
+              .attr("transform", `translate(0,${height})`)
+              .call(d3.axisBottom(xScale).tickFormat(formatNumber))
+              .selectAll("text")
+              .style("text-anchor", "end")
+              .style("font-size", "12px")
+              .style("color", textColor)
+              .style("font-family", "Raleway");
+            // Remove the line and ticks from X axis
+            svg.selectAll(".domain, .tick line").remove();
+          }
 
           // Add Y axis with no labels and no line
           svg
             .append("g")
-            .call(d3.axisLeft(yScale).tickFormat(""))
+            .call(d3.axisLeft(d3.scaleLinear().range([height, 0])).tickFormat(""))
             .selectAll(".domain, .tick line")
             .remove();
 
-          // Add dots with improved stacking
-          groupedData.forEach((group, i) => {
-            const x =
-              xScale(group.bin) +
-              (xScale(group.nextBin) - xScale(group.bin)) / 2;
-            const binWidth = xScale(group.nextBin) - xScale(group.bin);
-
-            // Sort governments by value within each group
-            const sortedGovernments = [...group.governments].sort(
-              (a, b) => a.value - b.value
+          // Add dots (beeswarm/jitter)
+          points.forEach((point) => {
+            const jurisdiction = data.governments.find(
+              (g) => g.id === point.government_id
             );
-
-            sortedGovernments.forEach((gov, j) => {
-              const y = yScale(j + 1);
-              const jurisdiction = data.governments.find(
-                (g) => g.id === gov.government_id
+            if (jurisdiction) {
+              const jurisdictionName = jurisdiction.name;
+              const value = formatValue(
+                point.value,
+                selectedIndicator.unit_measure_id,
+                lang,
+                true
               );
-              if (jurisdiction) {
-                const jurisdictionName = jurisdiction.name;
-                const value = formatValue(
-                  gov.value,
-                  selectedIndicator.unit_measure_id,
-                  lang,
-                  true
-                );
-                const tooltipContent = {
-                  title: jurisdictionName,
-                  valueGov: value,
-                };
-                svg
-                  .append("circle")
-                  .attr("cx", x)
-                  .attr("cy", y)
-                  .attr("r", chartStyles.dotSize)
-                  .attr("fill", "#55C7D5")
-                  .attr("stroke", "#004A80")
-                  .attr(
-                    "stroke-width",
-                    gov.government_id === government.id ? 2 : 0
-                  )
-                  .attr("cursor", "pointer")
-                  .on("mouseover", function (event) {
-                    d3.select(this).attr("r", 6);
-                    setTooltip({
-                      ...tooltipContent,
-                      government_id: gov.government_id,
-                      x: event.pageX,
-                      y: event.pageY,
-                    });
-                  })
-                  .on("click", function (event) {
-                    d3.select(this).attr("r", 6);
-                    setTooltip({
-                      ...tooltipContent,
-                      government_id: gov.government_id,
-                      x: event.pageX,
-                      y: event.pageY,
-                    });
-                  })
-                  .on("mousemove", function (event) {
-                    d3.select(this).attr("r", 6);
-                    setTooltip({
-                      ...tooltipContent,
-                      government_id: gov.government_id,
-                      x: event.pageX,
-                      y: event.pageY,
-                    });
-                  })
-                  .on("mouseout", function () {
-                    d3.select(this).attr("r", chartStyles.dotSize);
-                    setTooltip(null);
-                  })
-                  .attr("tabindex", 0)
-                  .on("focus", function (event) {
-                    d3.select(this).attr("r", 6);
-                    setTooltip({
-                      ...tooltipContent,
-                      government_id: gov.government_id,
-                      x: event.pageX,
-                      y: event.pageY,
-                    });
-                  })
-                  .on("blur", function () {
-                    d3.select(this).attr("r", chartStyles.dotSize);
-                    setTooltip(null);
+              const tooltipContent = {
+                title: jurisdictionName,
+                valueGov: value,
+              };
+              svg
+                .append("circle")
+                .attr("cx", point.x)
+                .attr("cy", point.y)
+                .attr("r", chartStyles.dotSize)
+                .attr("fill", "#55C7D5")
+                .attr("stroke", "#004A80")
+                .attr(
+                  "stroke-width",
+                  point.government_id === government.id ? 2 : .5
+                )
+                .attr("cursor", "pointer")
+                .on("mouseover", function (event) {
+                  d3.select(this).attr("r", 6);
+                  setTooltip({
+                    ...tooltipContent,
+                    government_id: point.government_id,
+                    x: event.pageX,
+                    y: event.pageY,
                   });
-              }
-            });
+                })
+                .on("click", function (event) {
+                  d3.select(this).attr("r", 6);
+                  setTooltip({
+                    ...tooltipContent,
+                    government_id: point.government_id,
+                    x: event.pageX,
+                    y: event.pageY,
+                  });
+                })
+                .on("mousemove", function (event) {
+                  d3.select(this).attr("r", 6);
+                  setTooltip({
+                    ...tooltipContent,
+                    government_id: point.government_id,
+                    x: event.pageX,
+                    y: event.pageY,
+                  });
+                })
+                .on("mouseout", function () {
+                  d3.select(this).attr("r", chartStyles.dotSize);
+                  setTooltip(null);
+                })
+                .attr("tabindex", 0)
+                .on("focus", function (event) {
+                  d3.select(this).attr("r", 6);
+                  setTooltip({
+                    ...tooltipContent,
+                    government_id: point.government_id,
+                    x: event.pageX,
+                    y: event.pageY,
+                  });
+                })
+                .on("blur", function () {
+                  d3.select(this).attr("r", chartStyles.dotSize);
+                  setTooltip(null);
+                });
+            }
           });
 
           // Add X axis label
@@ -307,7 +353,7 @@ export default function DotsChart() {
         setIsLoading(false);
       }
     }
-  }, [selectedIndicator, data, svgRef]);
+  }, [selectedIndicator, data, svgRef, logValues]);
 
   useEffect(() => {
     let timeoutId;
@@ -520,4 +566,39 @@ export default function DotsChart() {
       </div>
     </div>
   );
+}
+
+// Función para mapear valores a la escala logarítmica personalizada
+function getCustomLogScale(bins, width) {
+  if (!bins || bins.length === 0) return null;
+  // Calcular los límites de cada bin
+  const binEdges = bins.map((b, i) => ({
+    min: b.min,
+    max: b.max !== undefined ? b.max : null,
+    bin: b.bin,
+  }));
+  // El último bin puede no tener max, usar el máximo valor real
+  const lastMax = binEdges[binEdges.length - 1].max;
+  // Dividir el eje X en segmentos iguales por bin
+  const segmentWidth = width / bins.length;
+
+  // Función que mapea un valor a la posición X
+  return function (value) {
+    // Encontrar el bin correspondiente
+    let binIdx = binEdges.findIndex((b, i) => {
+      if (b.max === null) return value >= b.min;
+      return value >= b.min && value < b.max;
+    });
+    if (binIdx === -1) binIdx = binEdges.length - 1; // Si no encuentra, usar el último
+    const bin = binEdges[binIdx];
+    // Calcular la posición relativa dentro del bin
+    let rel = 0;
+    if (bin.max !== null && bin.max !== bin.min) {
+      rel = (value - bin.min) / (bin.max - bin.min);
+    }
+    // Si es el último bin (sin max), poner todos juntos al final
+    if (bin.max === null) rel = 0.5;
+    // Posición final
+    return binIdx * segmentWidth + rel * segmentWidth;
+  };
 }
