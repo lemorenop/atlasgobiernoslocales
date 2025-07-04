@@ -31,15 +31,15 @@ export default function DistributionChart() {
     indicator.code === 1 || indicator.code === 2 || indicator.code === 3;
   const percRanges = [
     { bin: 0, min: 0, max: 10 },
-    { bin: 1, min: 11, max: 20 },
-    { bin: 2, min: 21, max: 30 },
-    { bin: 3, min: 31, max: 40 },
-    { bin: 4, min: 41, max: 50 },
-    { bin: 5, min: 51, max: 60 },
-    { bin: 6, min: 61, max: 70 },
-    { bin: 7, min: 71, max: 80 },
-    { bin: 8, min: 81, max: 90 },
-    { bin: 9, min: 91, max: 100 },
+    { bin: 1, min: 10, max: 20 },
+    { bin: 2, min: 20, max: 30 },
+    { bin: 3, min: 30, max: 40 },
+    { bin: 4, min: 40, max: 50 },
+    { bin: 5, min: 50, max: 60 },
+    { bin: 6, min: 60, max: 70 },
+    { bin: 7, min: 70, max: 80 },
+    { bin: 8, min: 80, max: 90 },
+    { bin: 9, min: 90, max: 100 },
   ];
   const svgRef = useRef();
   async function getLogs() {
@@ -61,7 +61,9 @@ export default function DistributionChart() {
     if (!governments || !ranges) return {};
 
     const result = {};
+    
     const gaps = ranges;
+    console.log(gaps)
     // Group jurisdictions by country and level
     Object.values(governments).forEach((jurisdiction) => {
       if (
@@ -100,15 +102,13 @@ export default function DistributionChart() {
 
       // Find the appropriate range for this value (convert from 0-1 to 0-100)
       const valuePercent = logIndicator ? value : value * 100;
+      console.log(valuePercent)
       const gap = gaps.find((g) => {
-        return (
-          valuePercent >= g.min &&
-          (g.max && logIndicator
-            ? valuePercent < g.max
-            : g.max
-            ? valuePercent <= g.max
-            : true) &&
-          (g.level ? g.level == level : true)
+       
+        if(logIndicator) return valuePercent >= g.min && valuePercent < g.max && g.level == level
+        else return (
+          (g.min===0?valuePercent >= g.min:valuePercent > g.min) && valuePercent <= g.max
+          
         );
       });
 
@@ -252,7 +252,7 @@ export default function DistributionChart() {
           // Show all range labels
           const range = currentRanges.find((r) => r.bin === d);
           return `${!range.max && logIndicator ? "+" : ""}${formatAxisLabel(
-            range.min,
+            logIndicator?range.min:range.min===0?0:range.min+1,
             indicator.unit_measure_id
           )}${
             range.max
