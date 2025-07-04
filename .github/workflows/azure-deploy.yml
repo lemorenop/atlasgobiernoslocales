@@ -23,10 +23,24 @@ jobs:
         with:
           node-version: "20.x"
 
-      - name: Build app with Next.js
+      - name: Build app with Next.js - Producción
+        if: github.ref == 'refs/heads/main'
         env:
           NEXT_PUBLIC_MAPBOX_TOKEN: ${{ secrets.NEXT_PUBLIC_MAPBOX_TOKEN }}
           NEXT_PUBLIC_MAPBOX_STYLE_TOKEN: ${{ secrets.NEXT_PUBLIC_MAPBOX_STYLE_TOKEN }}
+          NEXT_PUBLIC_URL: https://atlasgobiernoslocales.caf.com
+        run: |
+          npm install
+          npm run build
+          cp -r .next/static .next/standalone/.next/static
+          cp -r public .next/standalone/         
+
+      - name: Build app with Next.js - Testing
+        if: github.ref == 'refs/heads/segunda-etapa'
+        env:
+          NEXT_PUBLIC_MAPBOX_TOKEN: ${{ secrets.NEXT_PUBLIC_MAPBOX_TOKEN }}
+          NEXT_PUBLIC_MAPBOX_STYLE_TOKEN: ${{ secrets.NEXT_PUBLIC_MAPBOX_STYLE_TOKEN }}
+          NEXT_PUBLIC_URL: https://azapp-reportered-cr-01.azurewebsites.net
         run: |
           npm install
           npm run build
