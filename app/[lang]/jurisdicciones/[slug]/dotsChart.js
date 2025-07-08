@@ -26,6 +26,8 @@ export default function DotsChart() {
     country,
     tooltipInfo,
   } = useContext(JurisdictionDataContext);
+  console.log(government.level_name);
+  // console.log(levelPerCountry);
   const [tooltip, setTooltip] = useState(null);
   const [selectedIndicator, setSelectedIndicator] = useState(indicators[0]);
   const [isLoading, setIsLoading] = useState(true);
@@ -455,6 +457,14 @@ export default function DotsChart() {
         <h2 className="text-navy text-h2 text-center font-bold [&_span]:text-cyan">
           {title}
         </h2>
+        <p className="text-black  text-center [&_span]:text-cyan [&_span]:font-bold">
+          {getTextById(jurisdictionsCopy, "dots_chart_intro", lang, [
+            { id: "level_name", replace: government.level_name },
+            { id: "country_name", replace: country[`name_${lang}`] },
+            { id: "jurisdiction_name", replace: government.name },
+            { id: "indicator_name", replace: selectedIndicator[`name_${lang}`] },
+          ])}
+        </p>
         <p className="text-black  text-center [&_span]:text-cyan [&_span]:font-bold">
           {subtitle}
         </p>

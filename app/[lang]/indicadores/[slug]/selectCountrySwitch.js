@@ -12,6 +12,7 @@ export default function SelectCountrySwitch({
   options,
   multiple,
   label,
+  defaultOpt=1
 }) {
   const { copy, lang, levelPerCountry } = useContext(IndicatorDataContext);
 
@@ -154,7 +155,7 @@ export default function SelectCountrySwitch({
         },
       ];
       setNiveles(options);
-      if (!multiple) setSelectedNivel(options[1]);
+      if (!multiple) setSelectedNivel(options[defaultOpt]);
     }
   }, [selectedCountry]);
   return (

@@ -17,12 +17,13 @@ import { chartStyles } from "@/app/utils/chartStyles";
 import Tooltip from "@/app/[lang]/components/tooltip";
 import Download from "../../components/download";
 import ReloadButton from "@/app/[lang]/components/reloadButton";
+import Info from "../../components/icons/info";
 
 export default function ScatterPlot() {
   const { governments, lang, indicators, indicator, copy, countries, regions } =
     useContext(IndicatorDataContext);
   const [selectedIndicator, setSelectedIndicator] = useState(
-    indicator.code===1 ? indicators[0] : indicators.find(elm=>elm.code===1)
+    indicator.code===1 ? indicators.find(elm=>elm.code===3) : indicators.find(elm=>elm.code===1)
   );
 
   const [scatterData, setSatterData] = useState(null);
@@ -71,8 +72,8 @@ export default function ScatterPlot() {
 
   const [noData, setNoData] = useState(false);
   const [selectedNivel, setSelectedNivel] = useState({
-    name: getTextById(copy, "switch_local", lang),
-    value: "2",
+    name: getTextById(copy, "switch_region", lang),
+    value: "1",
   });
   const [tooltip, setTooltip] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
@@ -507,6 +508,7 @@ export default function ScatterPlot() {
       window.removeEventListener("scroll", handleScroll);
     };
   }, []);
+  const tooltipInfo=getTextById(copy,"tooltip_info",lang)
   return (
     <div className="flex flex-col gap-xl px-l md:px-[160px] " id="scatter-plot">
       <div className="flex flex-col gap-[24px] md:max-w-[80%] mx-auto">
@@ -535,6 +537,7 @@ export default function ScatterPlot() {
           setSelectedCountry={setSelectedCountry}
           selectedNivel={selectedNivel}
           setSelectedNivel={setSelectedNivel}
+          defaultOpt={0}
           options={[
             {
               options: [
@@ -559,6 +562,46 @@ export default function ScatterPlot() {
           ]}
         />
       </div>
+      <div className="flex justify-end gap-s -mb-m">
+            <button
+              onClick={(event) => {
+                setTooltip({
+                  title: tooltipInfo,
+                  x: event.pageX, // Adjust for scrolling
+                  y: event.pageY, // Adjust for scrolling
+                });
+                // }
+              }}
+              onMouseOver={(event) => {
+                setTooltip({
+                  title: tooltipInfo,
+                  x: event.pageX - 50, // Adjust for scrolling
+                  y: event.pageY, // Adjust for scrolling
+                });
+                // }
+              }}
+              onMouseOut={() => {
+                setTooltip(null);
+              }}
+              onBlur={() => {
+                setTooltip(null);
+              }}
+              onFocus={(event) => {
+                setTooltip({
+                  title: tooltipInfo,
+                  x: event.pageX, // Adjust for scrolling
+                  y: event.pageY, // Adjust for scrolling
+                });
+                // }
+              }}
+            >
+              <Info
+                className={
+                  "w-4 h-4 fill-black hover:fill-blue-CAF cursor-pointer"
+                }
+              />
+            </button>
+          </div>
       <div className="overflow-x-auto bg-[#55C7D51A] border-1 border-[#55C7D54D] p-m relative">
         {isLoading ? (
           <div className="flex justify-center items-center h-[400px]">
@@ -611,16 +654,16 @@ export default function ScatterPlot() {
           <>
             <p className="font-bold pb-xs">{tooltip.title}</p>
             <div className="flex flex-col gap-xs">
-              <div className="flex items-center gap-xs">
+           {tooltip.valueInd1&&   <div className="flex items-center gap-xs">
                 <p>
                   {selectedIndicator[`name_${lang}`]}: {tooltip.valueInd1}
                 </p>
-              </div>
-              <div className="flex items-center gap-xs">
+              </div>}
+           {tooltip.valueInd2&&   <div className="flex items-center gap-xs">
                 <p>
                   {indicator[`name_${lang}`]}: {tooltip.valueInd2}
                 </p>
-              </div>
+              </div>}
             </div>
           </>
         </Tooltip>

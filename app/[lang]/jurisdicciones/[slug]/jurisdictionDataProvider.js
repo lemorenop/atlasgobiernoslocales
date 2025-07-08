@@ -16,7 +16,7 @@ export default function JurisdictionDataProvider({
   government,
   country,
   tooltipInfo,
-  jurisdictionData,
+  jurisdictionData, 
 }) {
 
   const [mapRef, setMapRef] = useState(null);

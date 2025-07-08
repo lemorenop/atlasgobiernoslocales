@@ -20,6 +20,7 @@ import Loader from "@/app/[lang]/components/loader";
 import Share from "@/app/[lang]/components/share";
 import Tooltip from "@/app/[lang]/components/tooltip";
 import Download from "@/app/[lang]/components/download";
+import Info from "../../components/icons/info";
 
 export default function DistributionChart() {
   const { governments, countries, copy, lang, regions, indicator } =
@@ -61,9 +62,8 @@ export default function DistributionChart() {
     if (!governments || !ranges) return {};
 
     const result = {};
-    
+
     const gaps = ranges;
-    console.log(gaps)
     // Group jurisdictions by country and level
     Object.values(governments).forEach((jurisdiction) => {
       if (
@@ -102,16 +102,19 @@ export default function DistributionChart() {
 
       // Find the appropriate range for this value (convert from 0-1 to 0-100)
       const valuePercent = logIndicator ? value : value * 100;
-      console.log(valuePercent)
       const gap = gaps.find((g) => {
-       
-        if(logIndicator) return valuePercent >= g.min && valuePercent < g.max && g.level == level
-        else return (
-          (g.min===0?valuePercent >= g.min:valuePercent > g.min) && valuePercent <= g.max
-          
-        );
+        if (logIndicator)
+          return (
+            valuePercent >= g.min &&
+            (g.max ? valuePercent < g.max : true) &&
+            g.level == level
+          );
+        else
+          return (
+            (g.min === 0 ? valuePercent >= g.min : valuePercent > g.min) &&
+            valuePercent <= g.max
+          );
       });
-
       let rangeKey = `${gap.bin}`;
 
       result[countryCode][level].ranges[rangeKey] =
@@ -131,7 +134,7 @@ export default function DistributionChart() {
     });
 
     return result;
-  }, [governments,ranges]);
+  }, [governments, ranges]);
   const [selectedCountries, setSelectedCountries] = useState([
     {
       name_es: "Todos",
@@ -221,7 +224,10 @@ export default function DistributionChart() {
     const countryHeight = 40;
     const rowSpacing = 3; // Espaciado entre filas
     const width = svgRef.current.clientWidth - margin.left - margin.right;
-    const height = chartData.length * (countryHeight + rowSpacing) + margin.top + margin.bottom; 
+    const height =
+      chartData.length * (countryHeight + rowSpacing) +
+      margin.top +
+      margin.bottom;
     // Create SVG
     const svg = d3
       .select(svgRef.current)
@@ -232,27 +238,24 @@ export default function DistributionChart() {
       .append("g")
       .attr("transform", `translate(${margin.left},${margin.top})`);
     // Create scales
-   const currentRanges = ranges.filter((r) =>
-    r.level ? r.level === parseInt(selectedNivel.value) : true
-  );
+    const currentRanges = ranges.filter((r) =>
+      r.level ? r.level === parseInt(selectedNivel.value) : true
+    );
     const x = d3
       .scaleBand()
-      .domain(
-        currentRanges
-          .map((r) => r.bin)
-      )
+      .domain(currentRanges.map((r) => r.bin))
       .range([0, width])
-      .padding(0.1);
+      .padding(0.3);
 
     // Add single X axis at the bottom
     g.append("g")
-      .attr("transform", `translate(0,${height - margin.bottom-10})`)
+      .attr("transform", `translate(0,${height - margin.bottom - 10})`)
       .call(
         d3.axisBottom(x).tickFormat((d, i) => {
           // Show all range labels
           const range = currentRanges.find((r) => r.bin === d);
           return `${!range.max && logIndicator ? "+" : ""}${formatAxisLabel(
-            logIndicator?range.min:range.min===0?0:range.min+1,
+            logIndicator ? range.min : range.min === 0 ? 0 : range.min + 1,
             indicator.unit_measure_id
           )}${
             range.max
@@ -273,7 +276,6 @@ export default function DistributionChart() {
 
     // Create a group for each country
     chartData.forEach((country, i) => {
-     
       const countryGroup = g
         .append("g")
         .attr("transform", `translate(0,${i * (countryHeight + rowSpacing)})`);
@@ -418,7 +420,7 @@ export default function DistributionChart() {
           .attr("height", y(0) - d.value);
       });
     });
-  }, [getChartData, maxValue,selectedNivel]);
+  }, [getChartData, maxValue, selectedNivel]);
 
   // Hide tooltip on scroll
   useEffect(() => {
@@ -432,6 +434,8 @@ export default function DistributionChart() {
       window.removeEventListener("scroll", handleScroll);
     };
   }, []);
+  const tooltipInfo=getTextById(copy,"tooltip_info",lang)
+
   return (
     <div
       className="flex flex-col gap-xl px-l md:px-[160px]"
@@ -488,6 +492,46 @@ export default function DistributionChart() {
           multiple={true}
         />
       </div>
+      <div className="flex justify-end gap-s -mb-m">
+            <button
+              onClick={(event) => {
+                setTooltip({
+                  title: tooltipInfo,
+                  x: event.pageX, // Adjust for scrolling
+                  y: event.pageY, // Adjust for scrolling
+                });
+                // }
+              }}
+              onMouseOver={(event) => {
+                setTooltip({
+                  title: tooltipInfo,
+                  x: event.pageX - 50, // Adjust for scrolling
+                  y: event.pageY, // Adjust for scrolling
+                });
+                // }
+              }}
+              onMouseOut={() => {
+                setTooltip(null);
+              }}
+              onBlur={() => {
+                setTooltip(null);
+              }}
+              onFocus={(event) => {
+                setTooltip({
+                  title: tooltipInfo,
+                  x: event.pageX, // Adjust for scrolling
+                  y: event.pageY, // Adjust for scrolling
+                });
+                // }
+              }}
+            >
+              <Info
+                className={
+                  "w-4 h-4 fill-black hover:fill-blue-CAF cursor-pointer"
+                }
+              />
+            </button>
+          </div>
       <div className="overflow-x-auto bg-[#55C7D51A] border-1 border-[#55C7D54D] p-m relative">
         <div className="w-full">
           {isLoading && (

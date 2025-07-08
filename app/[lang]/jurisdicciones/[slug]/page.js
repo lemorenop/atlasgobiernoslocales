@@ -45,20 +45,22 @@ export default async function Jurisdiction({ params }) {
       indicatorsAll,
       government,
       unitMeasures,
-      jurisdictionData,
+      jurisdictionData,levelPerCountry
     ] = await Promise.all([
       fetchData("jurisdictionsCopy", lang),
       fetchData("indicators", lang),
       getGovernments(lang, slug).then((data) => data[0]),
       fetchData("unitMeasures", lang),
       getJurisdictionData(slug),
+      fetchData("levelPerCountry", lang),
     ]);
     if (
       !jurisdictionsCopy ||
       !indicatorsAll ||
       !government ||
       !unitMeasures ||
-      !jurisdictionData
+      !jurisdictionData ||
+      !levelPerCountry
     )
       return notFound();
     const [country, years] = await Promise.all([
@@ -80,9 +82,12 @@ export default async function Jurisdiction({ params }) {
     const tooltipInfo = getTextById(jurisdictionsCopy, "tooltip_info", lang, [
       { id: "year", replace: yearPoblacion },
     ]);
-
+    const level = levelPerCountry.find(
+      (elm) => elm.id === government.level_per_country_id && elm.country_iso3 === government.country_iso3
+    );
     government["level"] =
       government.level_per_country_id?.split("_")[0] || null;
+    government["level_name"] = level[`name_${lang}`];
 
     return (
       <>
@@ -138,9 +143,4 @@ export default async function Jurisdiction({ params }) {
     console.error("❌ Error loading jurisdiction data:", error);
     return notFound();
   }
-
-  // if (government) {
-  //   //if government y meter todo dentro de un promise
-
-  // } else return notFound();
 }

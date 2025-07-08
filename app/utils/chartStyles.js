@@ -9,6 +9,6 @@ export const chartStyles = {
   blueColor:"#1774AD",
   cyanColor:"#55C7D5",
   lightCyanColor:"#55C7D54D",
-  dotSize:4
+  dotSize:2.5
  
 };
