@@ -312,7 +312,9 @@ export default function DotsChart() {
             .remove();
 
           // Add dots (beeswarm/jitter)
+          let govPoint={}
           points.forEach((point) => {
+          if(point.government_id=== government.id) return govPoint=point
             const jurisdiction = data.governments.find(
               (g) => g.id === point.government_id
             );
@@ -387,7 +389,73 @@ export default function DotsChart() {
                 });
             }
           });
-
+          const jurisdictionName = government.name;
+          const govValue = formatValue(
+            govPoint.value,
+            selectedIndicator.unit_measure_id,
+            lang,
+            true
+          );
+          const tooltipContent = {
+            title: jurisdictionName,
+            valueGov: govValue,
+          };
+          svg
+                .append("circle")
+                .attr("cx", govPoint.x)
+                .attr("cy", govPoint.y)
+                .attr("r", chartStyles.dotSize*3)
+                .attr("fill", "#55C7D5")
+                .attr("stroke", "#004A80")
+                .attr(
+                  "stroke-width",2
+                )
+                .attr("cursor", "pointer")
+                .on("mouseover", function (event) {
+                  d3.select(this).attr("r", chartStyles.dotSize*4);
+                  setTooltip({
+                    ...tooltipContent,
+                    government_id: govPoint.government_id,
+                    x: event.pageX,
+                    y: event.pageY,
+                  });
+                })
+                .on("click", function (event) {
+                  d3.select(this).attr("r",chartStyles.dotSize*4);
+                  setTooltip({
+                    ...tooltipContent,
+                    government_id: govPoint.government_id,
+                    x: event.pageX,
+                    y: event.pageY,
+                  });
+                })
+                .on("mousemove", function (event) {
+                  d3.select(this).attr("r", chartStyles.dotSize*4);
+                  setTooltip({
+                    ...tooltipContent,
+                    government_id: govPoint.government_id,
+                    x: event.pageX,
+                    y: event.pageY,
+                  });
+                })
+                .on("mouseout", function () {
+                  d3.select(this).attr("r", chartStyles.dotSize*3);
+                  setTooltip(null);
+                })
+                .attr("tabindex", 0)
+                .on("focus", function (event) {
+                  d3.select(this).attr("r", chartStyles.dotSize*4);
+                  setTooltip({
+                    ...tooltipContent,
+                    government_id: govPoint.government_id,
+                    x: event.pageX,
+                    y: event.pageY,
+                  });
+                })
+                .on("blur", function () {
+                  d3.select(this).attr("r", chartStyles.dotSize*3);
+                  setTooltip(null);
+                });
           // Add X axis label
           svg
             .append("text")

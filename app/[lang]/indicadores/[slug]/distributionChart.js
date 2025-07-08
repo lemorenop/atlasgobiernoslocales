@@ -28,9 +28,8 @@ export default function DistributionChart() {
   const [isLoading, setIsLoading] = useState(true);
   const [tooltip, setTooltip] = useState(null);
   const [ranges, setRanges] = useState(null);
-  const [downloadFnCsv,setDownloadFnCsv]=useState(null)
-  
-  
+  const [downloadFnCsv, setDownloadFnCsv] = useState(null);
+
   const logIndicator =
     indicator.code === 1 || indicator.code === 2 || indicator.code === 3;
   const percRanges = [
@@ -182,24 +181,26 @@ export default function DistributionChart() {
       })
       .filter(Boolean);
   }, [data, selectedCountries, selectedNivel, countries, lang, ranges]);
-  useEffect(()=>{
+  useEffect(() => {
     const createCsvData = () => {
       const chartData = getChartData();
       if (!chartData.length || !ranges) return [];
-      
+
       const currentRanges = ranges.filter((r) =>
         r.level ? r.level === parseInt(selectedNivel.value) : true
       );
-      
-      return chartData.map(country => {
-        const transformedCountry = {
-          country: country.country
-        };
-        
+
+      return chartData.map((country) => {
+        const transformedCountry = {};
+        transformedCountry[lang === "en" ? "Country" : "País"] =
+          country.country;
+
         // Transformar cada bin en un rango min-max
-        currentRanges.forEach(range => {
+        currentRanges.forEach((range) => {
           const binKey = `${range.bin}`;
-          const rangeLabel = `${!range.max && logIndicator ? "+" : ""}${formatAxisLabel(
+          const rangeLabel = `${
+            !range.max && logIndicator ? "+" : ""
+          }${formatAxisLabel(
             logIndicator ? range.min : range.min === 0 ? 0 : range.min + 1,
             indicator.unit_measure_id
           )}${
@@ -207,16 +208,18 @@ export default function DistributionChart() {
               ? `-${formatAxisLabel(range.max, indicator.unit_measure_id)}`
               : ""
           }${!logIndicator ? "%" : ""}`;
-          
-                     transformedCountry[rangeLabel] = `${(country[binKey] || 0).toFixed(1)}%`;
+
+          transformedCountry[rangeLabel] = `${(country[binKey] || 0).toFixed(
+            1
+          )}%`;
         });
-        
+
         return transformedCountry;
       });
     };
-    
+
     setDownloadFnCsv(() => createCsvData);
-  },[getChartData, ranges, selectedNivel, logIndicator, indicator])
+  }, [getChartData, ranges, selectedNivel, logIndicator, indicator]);
   // Get available countries for the selected level
   const getAvailableCountries = useCallback(() => {
     if (!data) return [];
@@ -471,7 +474,7 @@ export default function DistributionChart() {
       window.removeEventListener("scroll", handleScroll);
     };
   }, []);
-  const tooltipInfo=getTextById(copy,"tooltip_info",lang)
+  const tooltipInfo = getTextById(copy, "tooltip_info", lang);
 
   return (
     <div
@@ -530,45 +533,43 @@ export default function DistributionChart() {
         />
       </div>
       <div className="flex justify-end gap-s -mb-m">
-            <button
-              onClick={(event) => {
-                setTooltip({
-                  title: tooltipInfo,
-                  x: event.pageX, // Adjust for scrolling
-                  y: event.pageY, // Adjust for scrolling
-                });
-                // }
-              }}
-              onMouseOver={(event) => {
-                setTooltip({
-                  title: tooltipInfo,
-                  x: event.pageX - 50, // Adjust for scrolling
-                  y: event.pageY, // Adjust for scrolling
-                });
-                // }
-              }}
-              onMouseOut={() => {
-                setTooltip(null);
-              }}
-              onBlur={() => {
-                setTooltip(null);
-              }}
-              onFocus={(event) => {
-                setTooltip({
-                  title: tooltipInfo,
-                  x: event.pageX, // Adjust for scrolling
-                  y: event.pageY, // Adjust for scrolling
-                });
-                // }
-              }}
-            >
-              <Info
-                className={
-                  "w-4 h-4 fill-black hover:fill-blue-CAF cursor-pointer"
-                }
-              />
-            </button>
-          </div>
+        <button
+          onClick={(event) => {
+            setTooltip({
+              title: tooltipInfo,
+              x: event.pageX, // Adjust for scrolling
+              y: event.pageY, // Adjust for scrolling
+            });
+            // }
+          }}
+          onMouseOver={(event) => {
+            setTooltip({
+              title: tooltipInfo,
+              x: event.pageX - 50, // Adjust for scrolling
+              y: event.pageY, // Adjust for scrolling
+            });
+            // }
+          }}
+          onMouseOut={() => {
+            setTooltip(null);
+          }}
+          onBlur={() => {
+            setTooltip(null);
+          }}
+          onFocus={(event) => {
+            setTooltip({
+              title: tooltipInfo,
+              x: event.pageX, // Adjust for scrolling
+              y: event.pageY, // Adjust for scrolling
+            });
+            // }
+          }}
+        >
+          <Info
+            className={"w-4 h-4 fill-black hover:fill-blue-CAF cursor-pointer"}
+          />
+        </button>
+      </div>
       <div className="overflow-x-auto bg-[#55C7D51A] border-1 border-[#55C7D54D] p-m relative">
         <div className="w-full">
           {isLoading && (
@@ -606,23 +607,25 @@ export default function DistributionChart() {
           <>
             <p className="font-bold pb-xs">{tooltip.title}</p>
             <div className="flex items-center gap-xs">
-              <p>
-                {getTextById(copy, "distribution_tooltip", lang, [
-                  ,
-                  {
-                    id: "range",
-                    replace: tooltip.range,
-                  },
-                  {
-                    id: "value",
-                    replace: tooltip.value,
-                  },
-                  {
-                    id: "indicator_name",
-                    replace: indicator[`name_${lang}`],
-                  },
-                ])}
-              </p>
+              {tooltip.value && (
+                <p>
+                  {getTextById(copy, "distribution_tooltip", lang, [
+                    ,
+                    {
+                      id: "range",
+                      replace: tooltip.range,
+                    },
+                    {
+                      id: "value",
+                      replace: tooltip.value,
+                    },
+                    {
+                      id: "indicator_name",
+                      replace: indicator[`name_${lang}`],
+                    },
+                  ])}
+                </p>
+              )}
             </div>
           </>
         </Tooltip>
