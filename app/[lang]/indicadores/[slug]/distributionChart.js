@@ -605,7 +605,7 @@ export default function DistributionChart() {
       {tooltip && (
         <Tooltip tooltip={tooltip}>
           <>
-            <p className="font-bold pb-xs">{tooltip.title}</p>
+            <p className={`${tooltip.value?"font-bold pb-xs":''}`}>{tooltip.title}</p>
             <div className="flex items-center gap-xs">
               {tooltip.value && (
                 <p>

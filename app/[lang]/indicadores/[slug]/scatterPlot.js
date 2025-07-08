@@ -8,7 +8,11 @@ import {
 import Expand from "@/app/[lang]/components/icons/expand";
 import { useContext, useState, useEffect, useRef } from "react";
 import { IndicatorDataContext } from "./indicatorDataProvider";
-import { getTextById, formatValue,formatAxisLabel } from "@/app/utils/textUtils";
+import {
+  getTextById,
+  formatValue,
+  formatAxisLabel,
+} from "@/app/utils/textUtils";
 import SelectCountrySwitch from "./selectCountrySwitch";
 import * as d3 from "d3";
 import Share from "@/app/[lang]/components/share";
@@ -23,7 +27,9 @@ export default function ScatterPlot() {
   const { governments, lang, indicators, indicator, copy, countries, regions } =
     useContext(IndicatorDataContext);
   const [selectedIndicator, setSelectedIndicator] = useState(
-    indicator.code===1 ? indicators.find(elm=>elm.code===3) : indicators.find(elm=>elm.code===1)
+    indicator.code === 1
+      ? indicators.find((elm) => elm.code === 3)
+      : indicators.find((elm) => elm.code === 1)
   );
 
   const [scatterData, setSatterData] = useState(null);
@@ -52,14 +58,9 @@ export default function ScatterPlot() {
     // Usar los datos filtrados actuales
     const rows = currentData.map((data) => {
       const value1 = data.y;
-      const value2 = data.x
+      const value2 = data.x;
 
-      return [
-        `${data.name}-${data.completeName}`,
-        data.id,
-        value1,
-        value2,
-      ];
+      return [`${data.name}-${data.completeName}`, data.id, value1, value2];
     });
 
     return [headers, ...rows];
@@ -79,24 +80,30 @@ export default function ScatterPlot() {
   async function loadData() {
     try {
       setIsLoading(true);
-      console.log(`🔎 Busco data en /api/indicators/${selectedIndicator.code}`)
+      console.log(`🔎 Busco data en /api/indicators/${selectedIndicator.code}`);
       const d = await fetch(`/api/indicators/${selectedIndicator.code}`).then(
         (res) => res.json()
       );
-      if([1,2,3].includes(selectedIndicator.code)){
-        console.log("🔎 Busco logValues en /api/log-values (X)")
-        const d = await fetch(`/api/log-values`).then(
-          (res) => res.json()
-        ).then(res=>res.data.filter(elm=>elm.indicator_code===selectedIndicator.code ));
+      if ([1, 2, 3].includes(selectedIndicator.code)) {
+        console.log("🔎 Busco logValues en /api/log-values (X)");
+        const d = await fetch(`/api/log-values`)
+          .then((res) => res.json())
+          .then((res) =>
+            res.data.filter(
+              (elm) => elm.indicator_code === selectedIndicator.code
+            )
+          );
         setLogValues(d);
       } else {
         setLogValues(null);
       }
-      if([1,2,3].includes(indicator.code)){
-        console.log("🔎 Busco logValues en /api/log-values (Y)")
-        const dY = await fetch(`/api/log-values`).then(
-          (res) => res.json()
-        ).then(res=>res.data.filter(elm=>elm.indicator_code===indicator.code ));
+      if ([1, 2, 3].includes(indicator.code)) {
+        console.log("🔎 Busco logValues en /api/log-values (Y)");
+        const dY = await fetch(`/api/log-values`)
+          .then((res) => res.json())
+          .then((res) =>
+            res.data.filter((elm) => elm.indicator_code === indicator.code)
+          );
         setLogValuesY(dY);
       } else {
         setLogValuesY(null);
@@ -115,7 +122,9 @@ export default function ScatterPlot() {
 
         setSatterData(result);
       } else {
-        console.log(`Error buscando data en /api/indicators/${selectedIndicator.code}`)
+        console.log(
+          `Error buscando data en /api/indicators/${selectedIndicator.code}`
+        );
         setError(true);
         setIsLoading(false);
         setSatterData();
@@ -130,8 +139,6 @@ export default function ScatterPlot() {
     }
   }
   useEffect(() => {
-   
-
     if (governments) loadData();
   }, [selectedIndicator, governments]);
   useEffect(() => {
@@ -203,14 +210,20 @@ export default function ScatterPlot() {
 
     // Crear escala X
     let xScale;
-    let useCustomLog = [1, 2, 3].includes(selectedIndicator.code) && logValues && logValues.length > 0;
+    let useCustomLog =
+      [1, 2, 3].includes(selectedIndicator.code) &&
+      logValues &&
+      logValues.length > 0;
     let filteredLogValues = logValues;
     // Crear escala Y
     let yScale;
-    let useCustomLogY = [1, 2, 3].includes(indicator.code) && logValuesY && logValuesY.length > 0;
+    let useCustomLogY =
+      [1, 2, 3].includes(indicator.code) && logValuesY && logValuesY.length > 0;
     let filteredLogValuesY = logValuesY;
     if (useCustomLog) {
-      filteredLogValues = logValues.filter(b => b.level == selectedNivel.value);
+      filteredLogValues = logValues.filter(
+        (b) => b.level == selectedNivel.value
+      );
       const bins = [...filteredLogValues].sort((a, b) => a.bin - b.bin);
       const segmentWidth = width / bins.length;
       xScale = getCustomLogScale(bins, width);
@@ -248,7 +261,9 @@ export default function ScatterPlot() {
         .style("font-family", chartStyles.fontFamily)
         .style("font-size", "12px")
         .style("color", chartStyles.textColor)
-        .text(formatAxisLabel(maxValue, selectedIndicator.unit_measure_id) + "+");
+        .text(
+          formatAxisLabel(maxValue, selectedIndicator.unit_measure_id) + "+"
+        );
     } else {
       xScale = d3
         .scaleLinear()
@@ -260,7 +275,9 @@ export default function ScatterPlot() {
         .call(
           d3
             .axisBottom(xScale)
-            .tickFormat((d) => formatAxisLabel(d, selectedIndicator.unit_measure_id))
+            .tickFormat((d) =>
+              formatAxisLabel(d, selectedIndicator.unit_measure_id)
+            )
         )
         .selectAll("text")
         .style("text-anchor", "end")
@@ -275,7 +292,9 @@ export default function ScatterPlot() {
 
     // Add Y axis
     if (useCustomLogY) {
-      filteredLogValuesY = logValuesY.filter(b => b.level == selectedNivel.value);
+      filteredLogValuesY = logValuesY.filter(
+        (b) => b.level == selectedNivel.value
+      );
       const binsY = [...filteredLogValuesY].sort((a, b) => a.bin - b.bin);
       const segmentHeight = height / binsY.length;
       yScale = getCustomLogScale(binsY, height);
@@ -302,7 +321,6 @@ export default function ScatterPlot() {
           .style("color", chartStyles.textColor)
           .text(formatAxisLabel(bin.min, indicator.unit_measure_id));
       });
-     
     } else {
       yScale = d3
         .scaleLinear()
@@ -352,8 +370,8 @@ export default function ScatterPlot() {
       .data(filteredData)
       .enter()
       .append("circle")
-      .attr("cx", (d) => useCustomLog ? xScale(d.x) : xScale(d.x))
-      .attr("cy", (d) => useCustomLogY ? height - yScale(d.y) : yScale(d.y))
+      .attr("cx", (d) => (useCustomLog ? xScale(d.x) : xScale(d.x)))
+      .attr("cy", (d) => (useCustomLogY ? height - yScale(d.y) : yScale(d.y)))
       .attr("r", chartStyles.dotSize)
       .attr("fill", chartStyles.areaColor)
       .attr("stroke", chartStyles.blueColor)
@@ -362,13 +380,13 @@ export default function ScatterPlot() {
       .on("mouseover", function (event, d) {
         const tooltipContent = {
           title: `${d.name}, ${d.completeName}`,
-          valueInd1: formatValue(d.x, selectedIndicator.unit_measure_id, lang, true),
-          valueInd2: formatValue(
-            d.y,
-            indicator.unit_measure_id,
+          valueInd1: formatValue(
+            d.x,
+            selectedIndicator.unit_measure_id,
             lang,
             true
           ),
+          valueInd2: formatValue(d.y, indicator.unit_measure_id, lang, true),
           government_id: d.id,
         };
         setTooltip({
@@ -381,13 +399,13 @@ export default function ScatterPlot() {
       .on("mousemove", function (event, d) {
         const tooltipContent = {
           title: `${d.name}, ${d.completeName}`,
-          valueInd1: formatValue(d.x, selectedIndicator.unit_measure_id, lang, true),
-          valueInd2: formatValue(
-            d.y,
-            indicator.unit_measure_id,
+          valueInd1: formatValue(
+            d.x,
+            selectedIndicator.unit_measure_id,
             lang,
             true
           ),
+          valueInd2: formatValue(d.y, indicator.unit_measure_id, lang, true),
           government_id: d.id,
         };
         setTooltip({
@@ -399,13 +417,13 @@ export default function ScatterPlot() {
       .on("click", function (event, d) {
         const tooltipContent = {
           title: `${d.name}, ${d.completeName}`,
-          valueInd1: formatValue(d.x, selectedIndicator.unit_measure_id, lang, true),
-          valueInd2: formatValue(
-            d.y,
-            indicator.unit_measure_id,
+          valueInd1: formatValue(
+            d.x,
+            selectedIndicator.unit_measure_id,
             lang,
             true
           ),
+          valueInd2: formatValue(d.y, indicator.unit_measure_id, lang, true),
           government_id: d.id,
         };
         setTooltip({
@@ -422,13 +440,13 @@ export default function ScatterPlot() {
       .on("focus", function (event, d) {
         const tooltipContent = {
           title: `${d.name}, ${d.completeName}`,
-          valueInd1: formatValue(d.x, selectedIndicator.unit_measure_id, lang, true),
-          valueInd2: formatValue(
-            d.y,
-            indicator.unit_measure_id,
+          valueInd1: formatValue(
+            d.x,
+            selectedIndicator.unit_measure_id,
             lang,
             true
           ),
+          valueInd2: formatValue(d.y, indicator.unit_measure_id, lang, true),
           government_id: d.id,
         };
         setTooltip({
@@ -436,11 +454,16 @@ export default function ScatterPlot() {
           x: event.pageX,
           y: event.pageY,
         });
-        d3.select(this).attr("r", chartStyles.dotSize+2).attr("stroke-width", 2);
+        d3.select(this)
+          .attr("r", chartStyles.dotSize + 2)
+          .attr("stroke-width", 2);
       })
       .on("blur", function () {
         setTooltip(null);
-        d3.select(this).attr("r", chartStyles.dotSize).attr("r", chartStyles.dotSize).attr("stroke-width", 1);
+        d3.select(this)
+          .attr("r", chartStyles.dotSize)
+          .attr("r", chartStyles.dotSize)
+          .attr("stroke-width", 1);
       });
 
     // Add X axis label at the bottom
@@ -470,7 +493,7 @@ export default function ScatterPlot() {
       .style("color", chartStyles.textColor)
       .attr(
         "transform",
-        `translate(${-margin.left+10}, ${height / 2}) rotate(-90)`
+        `translate(${-margin.left + 10}, ${height / 2}) rotate(-90)`
       )
       .text(
         `${indicator[`name_${lang}`]} ${
@@ -489,7 +512,7 @@ export default function ScatterPlot() {
     lang,
     countries,
     logValues,
-    logValuesY
+    logValuesY,
   ]);
 
   useEffect(() => {
@@ -503,7 +526,7 @@ export default function ScatterPlot() {
       window.removeEventListener("scroll", handleScroll);
     };
   }, []);
-  const tooltipInfo=getTextById(copy,"tooltip_info",lang)
+  const tooltipInfo = getTextById(copy, "tooltip_info", lang);
   return (
     <div className="flex flex-col gap-xl px-l md:px-[160px] " id="scatter-plot">
       <div className="flex flex-col gap-[24px] md:max-w-[80%] mx-auto">
@@ -558,56 +581,50 @@ export default function ScatterPlot() {
         />
       </div>
       <div className="flex justify-end gap-s -mb-m">
-            <button
-              onClick={(event) => {
-                setTooltip({
-                  title: tooltipInfo,
-                  x: event.pageX, // Adjust for scrolling
-                  y: event.pageY, // Adjust for scrolling
-                });
-                // }
-              }}
-              onMouseOver={(event) => {
-                setTooltip({
-                  title: tooltipInfo,
-                  x: event.pageX - 50, // Adjust for scrolling
-                  y: event.pageY, // Adjust for scrolling
-                });
-                // }
-              }}
-              onMouseOut={() => {
-                setTooltip(null);
-              }}
-              onBlur={() => {
-                setTooltip(null);
-              }}
-              onFocus={(event) => {
-                setTooltip({
-                  title: tooltipInfo,
-                  x: event.pageX, // Adjust for scrolling
-                  y: event.pageY, // Adjust for scrolling
-                });
-                // }
-              }}
-            >
-              <Info
-                className={
-                  "w-4 h-4 fill-black hover:fill-blue-CAF cursor-pointer"
-                }
-              />
-            </button>
-          </div>
+        <button
+          onClick={(event) => {
+            setTooltip({
+              title: tooltipInfo,
+              x: event.pageX, // Adjust for scrolling
+              y: event.pageY, // Adjust for scrolling
+            });
+            // }
+          }}
+          onMouseOver={(event) => {
+            setTooltip({
+              title: tooltipInfo,
+              x: event.pageX - 50, // Adjust for scrolling
+              y: event.pageY, // Adjust for scrolling
+            });
+            // }
+          }}
+          onMouseOut={() => {
+            setTooltip(null);
+          }}
+          onBlur={() => {
+            setTooltip(null);
+          }}
+          onFocus={(event) => {
+            setTooltip({
+              title: tooltipInfo,
+              x: event.pageX, // Adjust for scrolling
+              y: event.pageY, // Adjust for scrolling
+            });
+            // }
+          }}
+        >
+          <Info
+            className={"w-4 h-4 fill-black hover:fill-blue-CAF cursor-pointer"}
+          />
+        </button>
+      </div>
       <div className="overflow-x-auto bg-[#55C7D51A] border-1 border-[#55C7D54D] p-m relative">
         {isLoading ? (
           <div className="flex justify-center items-center h-[400px]">
             <Loader className="w-10 h-10  min-w-10 min-h-10 [&_span]:w-full [&_span]:h-full" />
           </div>
         ) : error ? (
-          <ReloadButton
-            onClick={loadData}
-            copy={copy}
-            lang={lang}
-          />
+          <ReloadButton onClick={loadData} copy={copy} lang={lang} />
         ) : (
           <div className="w-full h-[400px]">
             <svg ref={svgRef}></svg>
@@ -632,7 +649,7 @@ export default function ScatterPlot() {
         </div>
         <div className="max-sm:w-full md:w-80">
           <Download
-            disabled={error || isLoading?true: false }
+            disabled={error || isLoading ? true : false}
             chartDataFunction={getScatterPlotDataForCSV}
             downloadName={`${selectedIndicator[`name_${lang}`]}-${
               indicator[`name_${lang}`]
@@ -647,18 +664,22 @@ export default function ScatterPlot() {
       {tooltip && (
         <Tooltip tooltip={tooltip}>
           <>
-            <p className="font-bold pb-xs">{tooltip.title}</p>
+            <p className={`${tooltip.valueInd1||tooltip.valueInd2?"font-bold pb-xs":''}`}>{tooltip.title}</p>
             <div className="flex flex-col gap-xs">
-           {tooltip.valueInd1&&   <div className="flex items-center gap-xs">
-                <p>
-                  {selectedIndicator[`name_${lang}`]}: {tooltip.valueInd1}
-                </p>
-              </div>}
-           {tooltip.valueInd2&&   <div className="flex items-center gap-xs">
-                <p>
-                  {indicator[`name_${lang}`]}: {tooltip.valueInd2}
-                </p>
-              </div>}
+              {tooltip.valueInd1 && (
+                <div className="flex items-center gap-xs">
+                  <p>
+                    {selectedIndicator[`name_${lang}`]}: {tooltip.valueInd1}
+                  </p>
+                </div>
+              )}
+              {tooltip.valueInd2 && (
+                <div className="flex items-center gap-xs">
+                  <p>
+                    {indicator[`name_${lang}`]}: {tooltip.valueInd2}
+                  </p>
+                </div>
+              )}
             </div>
           </>
         </Tooltip>
