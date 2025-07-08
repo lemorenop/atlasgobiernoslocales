@@ -15,7 +15,8 @@ export default function Download({
   refImage,
   buttonId,
   downloadName,
-  chartDataFunction,disabled=false
+  chartDataFunction,
+  disabled = false,
 }) {
   const options = [
     {
@@ -36,7 +37,10 @@ export default function Download({
       id: "download_current_data",
       name: getTextById(copy, "download_current_data", lang),
       handleClick: () =>
-        handleChartDataDownload(chartDataFunction, downloadName || "chart-data"),
+        handleChartDataDownload(
+          chartDataFunction,
+          downloadName || "chart-data"
+        ),
     });
   }
   return (

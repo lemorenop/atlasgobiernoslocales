@@ -43,7 +43,7 @@ export default function RadarChart({
 
     // Crear la fila de encabezados
     const headers = [
-      lang === "es" ? "Gobierno" : lang === "en" ? "Government" : "Governo",
+      lang === "es" ? "Jurisdicciones" : lang === "en" ? "Jurisdictions" : "Jurisdição",
     ];
     const indicatorNames = indicatorsID.map((id) => {
       const indicator = indicators.find((ind) => ind.code === id);

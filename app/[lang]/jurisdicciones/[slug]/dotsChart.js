@@ -26,8 +26,6 @@ export default function DotsChart() {
     country,
     tooltipInfo,
   } = useContext(JurisdictionDataContext);
-  console.log(government.level_name);
-  // console.log(levelPerCountry);
   const [tooltip, setTooltip] = useState(null);
   const [selectedIndicator, setSelectedIndicator] = useState(indicators[0]);
   const [isLoading, setIsLoading] = useState(true);
@@ -52,7 +50,6 @@ export default function DotsChart() {
         )
       );
 
-      // const codes = governmentsModule.map((elm) => elm.id);
       const url = `/api/govs-by-country?countryCode=${government.country_iso3}&level=${government.level}&lang=${lang}`;
 
       console.log("🔎 Busco la data en /api/govs-by-country");
@@ -74,7 +71,7 @@ export default function DotsChart() {
       setIsLoading(false);
     }
   };
-
+  const [downloadFnCsv, setDownloadFnCsv] = useState(null);
   const loadLogValues = async () => {
     if ([1, 2, 3].includes(selectedIndicator.code)) {
       console.log("🔎 Busco logValues en /api/log-values");
@@ -102,7 +99,6 @@ export default function DotsChart() {
   useEffect(() => {
     loadLogValues();
   }, [selectedIndicator]);
-
   useEffect(() => {
     if (data) {
       setIsLoading(true);
@@ -111,6 +107,31 @@ export default function DotsChart() {
           (elm) =>
             elm.indicator_code === selectedIndicator.code && elm.value !== null
         );
+
+        // Función para crear datos CSV
+        const createCsvData = () => {
+          if (!currentData.length || !data.governments) return [];
+
+          return currentData.map((item) => {
+            const jurisdiction = data.governments.find(
+              (g) => g.id === item.government_id
+            );
+            const obj = {
+              id: item.government_id,
+            };
+            obj[
+              lang === "es"
+                ? "Jurisdicciones"
+                : lang === "en"
+                ? "Jurisdictions"
+                : "Jurisdiçoes"
+            ] = `${jurisdiction.name} ${jurisdiction.completeName}`;
+            obj[`${selectedIndicator[`name_${lang}`]}`] =  item.value;
+            return obj;
+          });
+        };
+
+        setDownloadFnCsv(() => createCsvData);
         d3.select(svgRef.current).selectAll("*").remove();
         if (!currentData.length || !svgRef.current || !selectedIndicator) {
           setIsLoading(false);
@@ -462,7 +483,10 @@ export default function DotsChart() {
             { id: "level_name", replace: government.level_name },
             { id: "country_name", replace: country[`name_${lang}`] },
             { id: "jurisdiction_name", replace: government.name },
-            { id: "indicator_name", replace: selectedIndicator[`name_${lang}`] },
+            {
+              id: "indicator_name",
+              replace: selectedIndicator[`name_${lang}`],
+            },
           ])}
         </p>
         <p className="text-black  text-center [&_span]:text-cyan [&_span]:font-bold">
@@ -590,6 +614,7 @@ export default function DotsChart() {
         </div>
         <div className="max-sm:w-full md:w-80">
           <Download
+            chartDataFunction={downloadFnCsv}
             disabled={isLoading || error ? true : false}
             downloadName={`${country[`name_${lang}`]}-${
               selectedIndicator[`name_${lang}`]

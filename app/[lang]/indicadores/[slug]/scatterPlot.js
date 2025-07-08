@@ -44,24 +44,19 @@ export default function ScatterPlot() {
     // Crear la fila de encabezados
     const headers = [
       lang === "es" ? "Gobierno" : lang === "en" ? "Government" : "Governo",
-      lang === "es" ? "País" : lang === "en" ? "Country" : "País",
+      "id",
       indicator[`name_${lang}`],
       selectedIndicator[`name_${lang}`],
     ];
 
     // Usar los datos filtrados actuales
     const rows = currentData.map((data) => {
-      const value1 = formatValue(data.x, indicator.unit_measure_id, lang, true);
-      const value2 = formatValue(
-        data.y,
-        selectedIndicator.unit_measure_id,
-        lang,
-        true
-      );
+      const value1 = data.y;
+      const value2 = data.x
 
       return [
         `${data.name}-${data.completeName}`,
-        data.countryName,
+        data.id,
         value1,
         value2,
       ];

@@ -28,6 +28,9 @@ export default function DistributionChart() {
   const [isLoading, setIsLoading] = useState(true);
   const [tooltip, setTooltip] = useState(null);
   const [ranges, setRanges] = useState(null);
+  const [downloadFnCsv,setDownloadFnCsv]=useState(null)
+  
+  
   const logIndicator =
     indicator.code === 1 || indicator.code === 2 || indicator.code === 3;
   const percRanges = [
@@ -52,6 +55,7 @@ export default function DistributionChart() {
       );
     setRanges(d);
   }
+
   useEffect(() => {
     if ([1, 2, 3].includes(indicator.code)) {
       getLogs();
@@ -178,7 +182,41 @@ export default function DistributionChart() {
       })
       .filter(Boolean);
   }, [data, selectedCountries, selectedNivel, countries, lang, ranges]);
-
+  useEffect(()=>{
+    const createCsvData = () => {
+      const chartData = getChartData();
+      if (!chartData.length || !ranges) return [];
+      
+      const currentRanges = ranges.filter((r) =>
+        r.level ? r.level === parseInt(selectedNivel.value) : true
+      );
+      
+      return chartData.map(country => {
+        const transformedCountry = {
+          country: country.country
+        };
+        
+        // Transformar cada bin en un rango min-max
+        currentRanges.forEach(range => {
+          const binKey = `${range.bin}`;
+          const rangeLabel = `${!range.max && logIndicator ? "+" : ""}${formatAxisLabel(
+            logIndicator ? range.min : range.min === 0 ? 0 : range.min + 1,
+            indicator.unit_measure_id
+          )}${
+            range.max
+              ? `-${formatAxisLabel(range.max, indicator.unit_measure_id)}`
+              : ""
+          }${!logIndicator ? "%" : ""}`;
+          
+                     transformedCountry[rangeLabel] = `${(country[binKey] || 0).toFixed(1)}%`;
+        });
+        
+        return transformedCountry;
+      });
+    };
+    
+    setDownloadFnCsv(() => createCsvData);
+  },[getChartData, ranges, selectedNivel, logIndicator, indicator])
   // Get available countries for the selected level
   const getAvailableCountries = useCallback(() => {
     if (!data) return [];
@@ -205,7 +243,6 @@ export default function DistributionChart() {
     // Round up to the next multiple of 5 for cleaner axis
     return Math.ceil(max / 5) * 5;
   }, [getChartData]);
-
   useEffect(() => {
     const chartData = getChartData();
     if (!chartData.length || !svgRef.current) return;
@@ -552,6 +589,7 @@ export default function DistributionChart() {
         </div>
         <div className="max-sm:w-full md:w-80">
           <Download
+            chartDataFunction={downloadFnCsv}
             disabled={isLoading}
             downloadName={`${indicator[`name_${lang}`]}-distribution-${
               selectedNivel.name
