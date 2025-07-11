@@ -192,13 +192,21 @@ export async function getCountries(lang, iso3) {
  * @returns {Promise<Array>} - Array of government objects
  */
 export async function getGovernments(lang, slug) {
-  console.log("🧘‍♀️ getGovernments");
+  const startTime = performance.now();
+  console.log("🧘‍♀️ getGovernments - Iniciando...");
+  
   const csvUrl = csv.governments;
-  return fetchWithCache(
+  const result = await fetchWithCache(
     `governments_${lang}_${slug}`,
     () => fetchAndParseCSV(csvUrl, lang, slug, "id"),
     lang
   );
+  
+  const endTime = performance.now();
+  const duration = endTime - startTime;
+  console.log(`⏱️ getGovernments completado en ${duration.toFixed(2)}ms`);
+  
+  return result;
 }
 
 export async function getGovernmentsByCountry(lang, codes, countryCode, level) {
@@ -299,16 +307,26 @@ export async function getGovernmentsData(lang = "es") {
 }
 
 export async function getJurisdictionData(slug) {
-  console.log("🧘‍♀️ getJurisdictionData");
+  const startTime = performance.now();
+  console.log("🧘‍♀️ getJurisdictionData - Iniciando...");
+  
   const csvUrl = csv.allData;
   try {
-    const d= await fetchWithCache(
+    const result = await fetchWithCache(
       `jurisdictionData_${slug}`,
       () => fetchAndParseDataCSV(csvUrl, slug),
       "es"
     );
-    return d
+    
+    const endTime = performance.now();
+    const duration = endTime - startTime;
+    console.log(`⏱️ getJurisdictionData completado en ${duration.toFixed(2)}ms`);
+    
+    return result;
   } catch (error) {
+    const endTime = performance.now();
+    const duration = endTime - startTime;
+    console.log(`❌ getJurisdictionData falló después de ${duration.toFixed(2)}ms`);
     throw new Error(`❌ Error en getJurisdictionData:`, error);
   }
 }
