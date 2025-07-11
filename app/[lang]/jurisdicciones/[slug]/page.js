@@ -1,5 +1,4 @@
 import Hero from "@/app/[lang]/jurisdicciones/[slug]/hero";
-import RadarChart from "@/app/[lang]/jurisdicciones/[slug]/radarChart";
 import { getTextById } from "@/app/utils/textUtils";
 import {
   getGovernments,
@@ -14,27 +13,6 @@ import DotsChart from "./dotsChart";
 import Comparative from "./comparative";
 import RadarChartContainer from "./radarChartContainer";
 import { notFound } from "next/navigation";
-
-// export async function generateMetadata({ params }) {
-//   const { lang, slug } = await params;
-//   const copy = await fetchData("metadataCopy", lang);
-//   if (slug) {
-//     const jurisdiction = await getGovernments(lang, slug).then(
-//       (data) => data[0]
-//     );
-//     return {
-//       title: `${jurisdiction.name} | ${getTextById(copy, "title", lang)}`,
-//       description: getTextById(copy, "description", lang),
-//       alternates: {
-//         canonical: `${process.env.NEXT_PUBLIC_URL}/${lang}/indicadores/${slug}`,
-//       },
-//     };
-//   } else
-//     return {
-//       title: getTextById(copy, "title", lang),
-//       description: getTextById(copy, "description", lang),
-//     };
-// }
 
 export default async function Jurisdiction({ params }) {
   const { lang, slug } = await params;

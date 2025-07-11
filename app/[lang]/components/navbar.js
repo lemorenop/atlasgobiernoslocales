@@ -7,10 +7,20 @@ import SearchBox from "./searchBox";
 import { fetchData } from "@/app/utils/dataFetchers";
 import NavbarLink from "./navbarLink";
 
+let navbarCopyCached = { es: [], en: [], pt: [] };
+let homeCopyCached = { es: [], en: [], pt: [] };
+
+async function getCachedData(obj, lang, func) {
+  if (obj[lang].length === 0) {
+    obj[lang] = await func();
+  }
+  return obj[lang];
+}
+
 export default async function Navbar({ lang }) {
   const [navbarCopy, homeCopyData] = await Promise.all([
-    fetchData("navbarCopy", lang),
-    fetchData("homeCopy", lang),
+    getCachedData(navbarCopyCached, lang, () => fetchData("navbarCopy", lang)),
+    getCachedData(homeCopyCached, lang, () => fetchData("homeCopy", lang)),
   ]);
 
   const menuItems = [

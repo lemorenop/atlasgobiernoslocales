@@ -9,7 +9,16 @@ import NavbarDialogs from "./navbarDialogs";
 import SearchBox from "./searchBox";
 import { fetchData } from "@/app/utils/dataFetchers";
 import FooterDownload from "./footerDownload";
+let footerCopyCached = { es: [], en: [], pt: [] };
+let navbarCopyCached = { es: [], en: [], pt: [] };
+let homeCopyCached = { es: [], en: [], pt: [] };
 
+async function getCachedData(obj, lang, func) {
+  if (obj[lang].length === 0) {
+    obj[lang] = await func();
+  } 
+  return obj[lang];
+}
 const socialMedia = {
   instagram: () => <Instagram className="w-6 h-6 fill-blue-CAF" />,
   x: () => <X className="w-6 h-6 fill-blue-CAF" />,
@@ -20,9 +29,9 @@ const socialMedia = {
 
 export default async function Footer({ lang }) {
   const [footerCopy, navbarCopy, homeCopyData] = await Promise.all([
-    fetchData("footerCopy", lang),
-    fetchData("navbarCopy", lang),
-    fetchData("homeCopy", lang),
+    getCachedData(footerCopyCached, lang, () => fetchData("footerCopy", lang)),
+    getCachedData(navbarCopyCached, lang, () => fetchData("navbarCopy", lang)),
+    getCachedData(homeCopyCached, lang, () => fetchData("homeCopy", lang)),
   ]);
 
   function findLink(id, lang) {

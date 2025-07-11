@@ -1,15 +1,23 @@
-// import Indicator from "../../_singleIndicator/page";
 import { fetchData } from "@/app/utils/dataFetchers";
 import Hero from "./hero";
 import { getCountries } from "@/app/utils/dataFetchers";
 import MapContainer from "./mapContainer";
-
+import { notFound } from "next/navigation";
 import IndicatorDataProvider from "./indicatorDataProvider";
 import ScatterPlot from "./scatterPlot";
 import DistributionChart from "./distributionChart";
+let indicatorsCached = { es: [], en: [], pt: [] };
+let copyCached = { es: [], en: [], pt: [] };
+let countriesCached = { es: [], en: [], pt: [] };
+let levelPerCountryCached = { es: [], en: [], pt: [] };
+let regionsCached = { es: [], en: [], pt: [] };
 
 export async function generateStaticParams() {
-  const slugs = (await fetchData("indicators", "es")).filter((elm) => elm.slug);
+  const slugs = (
+    await getCachedData(indicatorsCached, "es", () =>
+      fetchData("indicators", "es")
+    )
+  ).filter((elm) => elm.slug);
   const locales = ["es", "en", "pt"];
   const params = [];
 
@@ -21,18 +29,48 @@ export async function generateStaticParams() {
   return params;
 }
 
+async function getCachedData(obj, lang, func, key) {
+  if (obj[lang].length === 0) {
+    obj[lang] = await func();
+  }
+  return obj[lang];
+}
 export default async function Indicator({ params }) {
   const { lang, slug } = await params;
+  console.log("-------- Indicator Page ", lang, "/", slug, " --------");
   try {
     const [indicators, copy, countries, levelPerCountry, regions] =
       await Promise.all([
-        fetchData("indicators", lang).then((res) =>
-          res.sort((a, b) => (a.code < 4 ? 1 : -1))
+        getCachedData(
+          indicatorsCached,
+          lang,
+          () => fetchData("indicators", lang),
+          "indicators"
+        ).then((res) => res.sort((a, b) => (a.code < 4 ? 1 : -1))),
+        getCachedData(
+          copyCached,
+          lang,
+          () => fetchData("indicatorsCopy", lang),
+          "copy"
         ),
-        fetchData("indicatorsCopy", lang),
-        getCountries(lang),
-        fetchData("levelPerCountry", lang),
-        fetchData("regions", lang).then((res) => {
+        getCachedData(
+          countriesCached,
+          lang,
+          () => getCountries(lang),
+          "countries"
+        ),
+        getCachedData(
+          levelPerCountryCached,
+          lang,
+          () => fetchData("levelPerCountry", lang),
+          "levelPerCountry"
+        ),
+        getCachedData(
+          regionsCached,
+          lang,
+          () => fetchData("regions", lang),
+          "regions"
+        ).then((res) => {
           return res.map((elm) => {
             elm.iso3 = elm.id;
             return elm;
