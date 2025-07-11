@@ -9,16 +9,16 @@ export async function GET(req) {
   const nivel = searchParams.get("nivel") || "";
 
   try {
-    const searchIndexByLocale = await getSearchIndexByLocale();
+    const searchIndex = await getSearchIndexByLocale(false, lang);
 
-    if (query && query !== "" && searchIndexByLocale?.[lang]) {
+    if (query && query !== "" && searchIndex) {
       const indexParams = {
         limit: 30,
         enrich: true,
         // index:"name"
       };
       
-      const searchResults = await searchIndexByLocale[lang].search(
+      const searchResults = await searchIndex.search(
         query,
         indexParams
       ); 

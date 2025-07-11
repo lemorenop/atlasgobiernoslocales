@@ -5,12 +5,11 @@
   "main": "index.js",
   "scripts": {
     "dev": "next dev",
-    "build": "npm run build:search-index && next build",
+    "build": "next build",
     "start": "next start",
     "lint": "next lint",
     "build:es": "node scripts/createIndex.js",
-    "build:data": "node scripts/createIndex.js",
-    "build:search-index": "node scripts/buildSearchIndex.js"
+    "build:data": "node scripts/createIndex.js"
   },
   "dependencies": {
     "@headlessui/react": "^2.2.1",
