@@ -6,7 +6,7 @@ import { JurisdictionDataContext } from "./jurisdictionDataProvider";
 import { useContext, useState, useCallback, useMemo } from "react";
 
 export default function RadarChartContainer({ yearIndicators }) {
-  const { government, jurisdictionsCopy, lang, country } = useContext(
+  const { government, jurisdictionsCopy, lang, country,jurisdictionData } = useContext(
     JurisdictionDataContext
   );
   const [downloadFunction, setDownloadFunction] = useState(null);

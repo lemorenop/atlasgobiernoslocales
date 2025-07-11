@@ -1,16 +1,29 @@
 "use client";
 import Image from "next/image";
 import { getTextById } from "@/app/utils/textUtils";
-import { useContext } from "react";
+import { useContext, useState, useEffect } from "react";
 import { JurisdictionDataContext } from "./jurisdictionDataProvider";
 import MapGoverment from "./mapGoverment";
 import Share from "../../components/share";
 import { downloadImage } from "@/app/utils/downloadHandlers";
 import Arrow from "@/app/[lang]/components/icons/arrow";
 import Loader from "@/app/[lang]/components/loader";
-export default function Hero({ yearPoblacion, data }) {
-  const { indicators, jurisdictionsCopy, government, lang, mapRef } =
-    useContext(JurisdictionDataContext);
+export default function Hero({ yearPoblacion }) {
+  const {
+    indicators,
+    jurisdictionsCopy,
+    government,
+    lang,
+    mapRef,
+    jurisdictionData,
+  } = useContext(JurisdictionDataContext);
+  const [loading, setLoading] = useState(true);
+  useEffect(() => {
+    if (jurisdictionData) {
+      setLoading(false);
+    }
+  }, [jurisdictionData]);
+  const data = jurisdictionData;
   const toLocaleString = (value) => {
     const divisor = lang === "es" || lang === "pt" ? "." : ",";
 
@@ -20,7 +33,7 @@ export default function Hero({ yearPoblacion, data }) {
     return value.toLocaleString(lang === "es" || lang === "pt" ? "es" : "en");
   };
   const indicatorsHero = [1, 26, 2, 3];
-  const pobData = data.find((item) => item.indicator_code === 1).value;
+  const pobData = data?.find((item) => item.indicator_code === 1).value;
   return (
     jurisdictionsCopy && (
       <div className="flex flex-col md:grid md:grid-cols-12 bg-navy h-full flex-grow">
@@ -40,9 +53,14 @@ export default function Hero({ yearPoblacion, data }) {
             style={{
               borderColor: "rgba(255, 255, 255, 0.40)",
             }}
-            className="grid grid-cols-2 gap-m py-m border-y-1"
+            className="grid grid-cols-2 gap-m py-m border-y-1 relative min-h-[280px]"
           >
-            {indicators &&
+            {loading ? (
+              <div className="max-md:hidden absolute top-0 bottom-0 transform right-0 left-0 m-auto w-fit h-fit">
+              <span className="horizontal-loader"></span>
+            </div>
+            ) : (
+              indicators &&
               data &&
               indicatorsHero
                 .map((elm) => {
@@ -50,7 +68,7 @@ export default function Hero({ yearPoblacion, data }) {
                   return indicator;
                 })
                 .map((ind) => {
-                  const value = data.find(
+                  const value = data?.find(
                     (item) => item.indicator_code === ind.code
                   )?.value;
 
@@ -77,25 +95,32 @@ export default function Hero({ yearPoblacion, data }) {
                           <br />
                           <span className="font-bold description">
                             {toLocaleString(value)}
-                          {ind.code!==1?  <sup className="text-[10px]">
-                              {fullInd.unit?.unit ? fullInd.unit?.unit : ""}
-                            </sup>:
-                            <span className="text-[10px]">{" "}{fullInd.unit?.unit}</span>
-                            }
+                            {ind.code !== 1 ? (
+                              <sup className="text-[10px]">
+                                {fullInd.unit?.unit ? fullInd.unit?.unit : ""}
+                              </sup>
+                            ) : (
+                              <span className="text-[10px]">
+                                {" "}
+                                {fullInd.unit?.unit}
+                              </span>
+                            )}
                           </span>
                         </p>
                       </div>
                     )
                   );
-                })}{" "}
+                })
+            )}{" "}
             <p className="text-right caption uppercase col-span-2">
-              {yearPoblacion && pobData
-                ? `${getTextById(
-                    jurisdictionsCopy,
-                    "year_data",
-                    lang
-                  )}: ${yearPoblacion}`
-                : `${getTextById(jurisdictionsCopy, "no_pop_data", lang)}`}{" "}
+              {!loading &&
+                (yearPoblacion && pobData
+                  ? `${getTextById(
+                      jurisdictionsCopy,
+                      "year_data",
+                      lang
+                    )}: ${yearPoblacion}`
+                  : `${getTextById(jurisdictionsCopy, "no_pop_data", lang)}`)}
             </p>
           </div>
           <Share
@@ -108,13 +133,19 @@ export default function Hero({ yearPoblacion, data }) {
           <button
             id="download-gov"
             onClick={() =>
-              downloadImage("main", [
-                {
-                  type: "map",
-                  image: mapRef,
-                  container: "map-gov",
-                },
-              ],'download-gov',`${government.name} - ${government[`description_${lang}`]}`,lang)
+              downloadImage(
+                "main",
+                [
+                  {
+                    type: "map",
+                    image: mapRef,
+                    container: "map-gov",
+                  },
+                ],
+                "download-gov",
+                `${government.name} - ${government[`description_${lang}`]}`,
+                lang
+              )
             }
             className="w-full md:w-fit  remove-from-capture cursor-pointer  inline-flex items-center gap-s  bg-white text-blue-CAF font-bold  px-3 focus:outline-none  data-[focus]:outline-1 data-[focus]:outline-white border-1 hover:border-white  border-black hover:bg-navy hover:text-white transition-all duration-300  justify-between data-[open]:rotate-0 py-s description  group"
           >

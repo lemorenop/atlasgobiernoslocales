@@ -585,14 +585,14 @@ export default function RadarChart({
   return (
     <div className="flex flex-col lg:col-span-8 min-h-[400px] md:min-h-[600px] max-h-screen">
       <div className="radar-chart-container h-full relative grow">
-        {chartCreated && isLoading && (
+        { isLoading && (
           <div className="absolute top-0 left-0 w-full h-full opacity-50 z-10 bg-white">
             <Loader className="w-full h-full [&_span]:w-[48px] [&_span]:h-[48px]" />
           </div>
         )}
-        {!chartCreated && isLoading && (
+        {/* {!chartCreated && isLoading && (
           <Loader className="w-full h-full [&_span]:w-[48px] [&_span]:h-[48px]" />
-        )}
+        )} */}
         {error && !isLoading && (
           <ReloadButton
             copy={jurisdictionsCopy}

@@ -23,13 +23,14 @@ export default async function Jurisdiction({ params }) {
       indicatorsAll,
       government,
       unitMeasures,
-      jurisdictionData,levelPerCountry
+      // jurisdictionData,
+      levelPerCountry
     ] = await Promise.all([
       fetchData("jurisdictionsCopy", lang),
       fetchData("indicators", lang),
       getGovernments(lang, slug).then((data) => data[0]),
       fetchData("unitMeasures", lang),
-      getJurisdictionData(slug),
+      // getJurisdictionData(slug),
       fetchData("levelPerCountry", lang),
     ]);
     if (
@@ -37,7 +38,7 @@ export default async function Jurisdiction({ params }) {
       !indicatorsAll ||
       !government ||
       !unitMeasures ||
-      !jurisdictionData ||
+      // !jurisdictionData ||
       !levelPerCountry
     )
       return notFound();
@@ -54,9 +55,9 @@ export default async function Jurisdiction({ params }) {
       return { ...elm };
     });
     const indicatorsID = [21, 5, 7, 8, 13, 19, 10, 11, 12, 17, 20];
-    const existRadarData = jurisdictionData.some(
-      (elm) => indicatorsID.includes(elm.indicator_code) && elm.value !== null
-    );
+    // const existRadarData = jurisdictionData.some(
+    //   (elm) => indicatorsID.includes(elm.indicator_code) && elm.value !== null
+    // );
     const tooltipInfo = getTextById(jurisdictionsCopy, "tooltip_info", lang, [
       { id: "year", replace: yearPoblacion },
     ]);
@@ -81,14 +82,16 @@ export default async function Jurisdiction({ params }) {
             jurisdictionsCopy={jurisdictionsCopy}
             government={government}
             tooltipInfo={tooltipInfo}
-            jurisdictionData={jurisdictionData}
+            // jurisdictionData={jurisdictionData}
           >
-            <Hero data={jurisdictionData} yearPoblacion={yearPoblacion} />
+            <Hero 
+            // data={jurisdictionData} 
+            yearPoblacion={yearPoblacion} />
 
             <div className="">
               <StickyBar />
               <div className=" md:py-[80px] grid lg:grid-cols-12 gap-xl max-md:py-[48px] max-w-[1440px] mx-auto">
-                {existRadarData && (
+                
                   <>
                     <div
                       className="col-span-12  px-l md:px-[80px]"
@@ -106,7 +109,7 @@ export default async function Jurisdiction({ params }) {
                       <DotsChart />
                     </div>
                   </>
-                )}
+                
 
                 <div className="col-span-12 px-l md:px-[80px]" id="comparative">
                   <Comparative yearIndicators={yearIndicators} />

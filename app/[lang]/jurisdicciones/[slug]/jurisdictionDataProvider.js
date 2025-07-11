@@ -16,11 +16,19 @@ export default function JurisdictionDataProvider({
   government,
   country,
   tooltipInfo,
-  jurisdictionData, 
+  // jurisdictionData,
 }) {
-
   const [mapRef, setMapRef] = useState(null);
-
+  const [jurisdictionData, setJurisdictionData] = useState(null);
+  async function getData() {
+    const data = await fetch(`/api/gov-data?slug=${slug}`)
+      .then((res) => res.json())
+      .then((res) => res.data);
+    setJurisdictionData(data);
+  }
+  useEffect(() => {
+    getData();
+  }, []);
 
   return (
     <JurisdictionDataContext.Provider
