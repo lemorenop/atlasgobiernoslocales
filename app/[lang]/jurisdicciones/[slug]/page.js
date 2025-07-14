@@ -23,14 +23,12 @@ export default async function Jurisdiction({ params }) {
       indicatorsAll,
       government,
       unitMeasures,
-      // jurisdictionData,
       levelPerCountry
     ] = await Promise.all([
       fetchData("jurisdictionsCopy", lang),
       fetchData("indicators", lang),
       getGovernments(lang, slug).then((data) => data[0]),
       fetchData("unitMeasures", lang),
-      // getJurisdictionData(slug),
       fetchData("levelPerCountry", lang),
     ]);
     if (
@@ -38,7 +36,6 @@ export default async function Jurisdiction({ params }) {
       !indicatorsAll ||
       !government ||
       !unitMeasures ||
-      // !jurisdictionData ||
       !levelPerCountry
     )
       return notFound();
@@ -54,10 +51,7 @@ export default async function Jurisdiction({ params }) {
       elm.unit = unit;
       return { ...elm };
     });
-    const indicatorsID = [21, 5, 7, 8, 13, 19, 10, 11, 12, 17, 20];
-    // const existRadarData = jurisdictionData.some(
-    //   (elm) => indicatorsID.includes(elm.indicator_code) && elm.value !== null
-    // );
+   
     const tooltipInfo = getTextById(jurisdictionsCopy, "tooltip_info", lang, [
       { id: "year", replace: yearPoblacion },
     ]);
@@ -82,10 +76,8 @@ export default async function Jurisdiction({ params }) {
             jurisdictionsCopy={jurisdictionsCopy}
             government={government}
             tooltipInfo={tooltipInfo}
-            // jurisdictionData={jurisdictionData}
           >
             <Hero 
-            // data={jurisdictionData} 
             yearPoblacion={yearPoblacion} />
 
             <div className="">

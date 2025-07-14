@@ -41,7 +41,9 @@ const csv = {
     "https://docs.google.com/spreadsheets/d/e/2PACX-1vTshMm_LWq6GwRRjSxuq1DyflJGr8eC-d0cO0zIBFc6sDJZ_TiDZu-JhLrxusIaAw/pub?gid=328536948&single=true&output=csv",
   metadataCopy:
     "https://docs.google.com/spreadsheets/d/e/2PACX-1vR88Y20j7R16cecEBrgZw4jK3Vg5kI0DoPMfIGzxgu6IxvBHCynnYarfS-5eKFgyg/pub?gid=1840611032&single=true&output=csv",
-    logValues:"https://docs.google.com/spreadsheets/d/e/2PACX-1vTshMm_LWq6GwRRjSxuq1DyflJGr8eC-d0cO0zIBFc6sDJZ_TiDZu-JhLrxusIaAw/pub?gid=1734716137&single=true&output=csv"
+  logValues:
+    "https://docs.google.com/spreadsheets/d/e/2PACX-1vTshMm_LWq6GwRRjSxuq1DyflJGr8eC-d0cO0zIBFc6sDJZ_TiDZu-JhLrxusIaAw/pub?gid=1734716137&single=true&output=csv",
+  BRA: "https://docs.google.com/spreadsheets/d/e/2PACX-1vR1Ko-1SJ1XuopgxsKvRD4nWFjohd_SXKuStP6ZlV5LbOx5t02bn0KBDPdi2Schi903j5i_lwzbQaDd/pub?gid=108024715&single=true&output=csv", // COPY DE DATA
 };
 
 /**
@@ -52,15 +54,15 @@ const csv = {
  */
 async function fetchWithCache(cacheKey, fetchFn, lang) {
   // Check if data is in cache
-  const cachedData = getFromCache(`${cacheKey}_${lang}`);
-  if (cachedData) {
-    return cachedData;
-  }
+  // const cachedData = getFromCache(`${cacheKey}_${lang}`);
+  // if (cachedData) {
+  //   return cachedData;
+  // }
   try {
     // Fetch data
     const data = await fetchFn();
     // Store in cache with language
-    setInCache(`${cacheKey}_${lang}`, data, 0);
+    // setInCache(`${cacheKey}_${lang}`, data, 0);
     return data.error ? data.data : data;
   } catch (error) {
     console.error(`❌ Error in fetchWithCache for key ${cacheKey}:`, error);
@@ -74,8 +76,74 @@ async function fetchWithCache(cacheKey, fetchFn, lang) {
  * @param {string} lang - Language suffix
  * @returns {Promise<Array>} - Parsed CSV data
  */
-async function fetchAndParseCSV(csvUrl, lang, id, filterID) {
+async function fetchAndParseCSV(csvUrl, lang, id, filterID, csvName) {
+  // guardamos en cache el csv orignal
+  const cachedData = getFromCache(`${csvUrl}`);
+  function filterData(data) {
+    const filteredResults = [];
+
+    data.forEach((elm) => {
+      // Si hay un filtro y el elemento no coincide, lo saltamos
+      if (filterID && id && elm[filterID] !== id) {
+        return;
+      }
+
+      const filteredObj = {};
+      const languageSuffixes = ["_pt", "_en", "_es"];
+
+      for (const [key, value] of Object.entries(elm)) {
+        // Si la propiedad no termina en _idioma, la mantenemos
+        if (!languageSuffixes.some((suffix) => key.endsWith(suffix))) {
+          filteredObj[key] = value;
+        } else {
+          // Si termina en _idioma, solo la mantenemos si coincide con el lang actual
+          const currentSuffix = `_${lang}`;
+          if (key.endsWith(currentSuffix)) {
+            filteredObj[key] = value;
+          }
+        }
+      }
+      filteredResults.push(filteredObj);
+    });
+    return filteredResults;
+  }
+
+  if (cachedData) {
+    console.log("Busco el CSV en cache ", csvName);
+    // const results = {data:cachedData};
+    return new Promise((resolve, reject) => {
+      const filteredResults = filterData(cachedData);
+
+      // results.data.forEach((elm) => {
+      //   // Si hay un filtro y el elemento no coincide, lo saltamos
+      //   if (filterID && id && elm[filterID] !== id) {
+      //     return;
+      //   }
+
+      //   const filteredObj = {};
+      //   const languageSuffixes = ["_pt", "_en", "_es"];
+
+      //   for (const [key, value] of Object.entries(elm)) {
+      //     // Si la propiedad no termina en _idioma, la mantenemos
+      //     if (!languageSuffixes.some((suffix) => key.endsWith(suffix))) {
+      //       filteredObj[key] = value;
+      //     } else {
+      //       // Si termina en _idioma, solo la mantenemos si coincide con el lang actual
+      //       const currentSuffix = `_${lang}`;
+      //       if (key.endsWith(currentSuffix)) {
+      //         filteredObj[key] = value;
+      //       }
+      //     }
+      //   }
+      //   filteredResults.push(filteredObj);
+      // });
+
+      resolve(filteredResults);
+    });
+  }
+  //
   try {
+    console.log("Busco el CSV por primera vez ", csvName);
     const response = await fetch(csvUrl);
     const csvText = await response.text();
     return new Promise((resolve, reject) => {
@@ -84,31 +152,32 @@ async function fetchAndParseCSV(csvUrl, lang, id, filterID) {
         skipEmptyLines: true,
         dynamicTyping: true,
         complete: (results) => {
-          const filteredResults = [];
+          // const filteredResults = [];
+          setInCache(`${csvUrl}`, results.data, 0);
+          const filteredResults = filterData(results.data);
+          // results.data.forEach((elm) => {
+          //   // Si hay un filtro y el elemento no coincide, lo saltamos
+          //   if (filterID && id && elm[filterID] !== id) {
+          //     return;
+          //   }
 
-          results.data.forEach((elm) => {
-            // Si hay un filtro y el elemento no coincide, lo saltamos
-            if (filterID && id && elm[filterID] !== id) {
-              return;
-            }
+          //   const filteredObj = {};
+          //   const languageSuffixes = ["_pt", "_en", "_es"];
 
-            const filteredObj = {};
-            const languageSuffixes = ["_pt", "_en", "_es"];
-
-            for (const [key, value] of Object.entries(elm)) {
-              // Si la propiedad no termina en _idioma, la mantenemos
-              if (!languageSuffixes.some((suffix) => key.endsWith(suffix))) {
-                filteredObj[key] = value;
-              } else {
-                // Si termina en _idioma, solo la mantenemos si coincide con el lang actual
-                const currentSuffix = `_${lang}`;
-                if (key.endsWith(currentSuffix)) {
-                  filteredObj[key] = value;
-                }
-              }
-            }
-            filteredResults.push(filteredObj);
-          });
+          //   for (const [key, value] of Object.entries(elm)) {
+          //     // Si la propiedad no termina en _idioma, la mantenemos
+          //     if (!languageSuffixes.some((suffix) => key.endsWith(suffix))) {
+          //       filteredObj[key] = value;
+          //     } else {
+          //       // Si termina en _idioma, solo la mantenemos si coincide con el lang actual
+          //       const currentSuffix = `_${lang}`;
+          //       if (key.endsWith(currentSuffix)) {
+          //         filteredObj[key] = value;
+          //       }
+          //     }
+          //   }
+          //   filteredResults.push(filteredObj);
+          // });
 
           resolve(filteredResults);
         },
@@ -124,8 +193,19 @@ async function fetchAndParseCSV(csvUrl, lang, id, filterID) {
   }
 }
 
-async function fetchAndParseDataCSV(csvUrl, code) {
+async function fetchAndParseDataCSV(csvUrl, code,csvName) {
+  const cachedData = getFromCache(csvUrl);
+  function filterData(data) {
+    return data.filter((elm) => elm.government_id === code);
+  }
+  if (cachedData) {
+    console.log("Busco el CSV en cache ", csvName);
+    return new Promise((resolve, reject) => {
+      resolve(filterData(cachedData));
+    });
+  }
   try {
+    console.log("Busco el CSV por primera vez ", csvName);
     const response = await fetch(csvUrl);
     const csvText = await response.text();
     return new Promise((resolve, reject) => {
@@ -134,7 +214,8 @@ async function fetchAndParseDataCSV(csvUrl, code) {
         skipEmptyLines: true,
         dynamicTyping: true,
         complete: (results) => {
-          resolve(results.data.filter((elm) => elm.government_id === code));
+          setInCache(`${csvUrl}`, results.data, 0);
+          resolve(filterData(results.data));
         },
         error: (error) => {
           console.error(`Error parsing CSV from ${csvUrl}:`, error);
@@ -144,8 +225,6 @@ async function fetchAndParseDataCSV(csvUrl, code) {
     });
   } catch (error) {
     throw new Error(`Error fetching data from ${csvUrl}:`, error);
-    // console.error(`Error fetching data from ${csvUrl}:`, error);
-    // return [];
   }
 }
 
@@ -157,10 +236,11 @@ async function fetchAndParseDataCSV(csvUrl, code) {
 export async function fetchData(key, lang) {
   console.log("🧘‍♀️ fetchData ", key);
   const csvUrl = csv[key];
+
   try {
     const d = await fetchWithCache(
       `${key}_${lang}`,
-      () => fetchAndParseCSV(csvUrl, lang),
+      () => fetchAndParseCSV(csvUrl, lang,null,null,key),
       lang
     );
     return d;
@@ -179,7 +259,7 @@ export async function getCountries(lang, iso3) {
   try {
     return fetchWithCache(
       `countries_${lang}_${iso3}`,
-      () => fetchAndParseCSV(csvUrl, lang, iso3, "iso3"),
+      () => fetchAndParseCSV(csvUrl, lang, iso3, "iso3","countries"),
       lang
     );
   } catch (error) {
@@ -194,18 +274,18 @@ export async function getCountries(lang, iso3) {
 export async function getGovernments(lang, slug) {
   const startTime = performance.now();
   console.log("🧘‍♀️ getGovernments - Iniciando...");
-  
+
   const csvUrl = csv.governments;
   const result = await fetchWithCache(
     `governments_${lang}_${slug}`,
-    () => fetchAndParseCSV(csvUrl, lang, slug, "id"),
+    () => fetchAndParseCSV(csvUrl, lang, slug, "id", "governments"),
     lang
   );
-  
+
   const endTime = performance.now();
   const duration = endTime - startTime;
   console.log(`⏱️ getGovernments completado en ${duration.toFixed(2)}ms`);
-  
+
   return result;
 }
 
@@ -213,7 +293,13 @@ export async function getGovernmentsByCountry(lang, codes, countryCode, level) {
   try {
     console.log("🧘‍♀️ getGovsByCountry");
     const csvUrl = csv.allData;
-    const csvParsed = await fetchAndParseCSV(csvUrl, lang);
+    const csvParsed = await fetchAndParseCSV(
+      csvUrl,
+      lang,
+      null,
+      null,
+      "allData"
+    );
     const governments = csvParsed.filter((elm) =>
       codes.includes(elm.government_id)
     );
@@ -235,7 +321,11 @@ export async function getGovernmentsByCountry(lang, codes, countryCode, level) {
 export async function getAllData() {
   console.log("🧘‍♀️ getAllData");
   const csvUrl = csv.allData;
-  return fetchWithCache("allData", () => fetchAndParseCSV(csvUrl), "es");
+  return fetchWithCache(
+    "allData",
+    () => fetchAndParseCSV(csvUrl, "es", null, null, "allData"),
+    "es"
+  );
 }
 
 /**
@@ -247,7 +337,7 @@ export async function getYearData(lang, id) {
   const csvUrl = csv.yearData;
   return fetchWithCache(
     `yearData_${lang}_${id}`,
-    () => fetchAndParseCSV(csvUrl, lang, id, "country_iso3"),
+    () => fetchAndParseCSV(csvUrl, lang, id, "country_iso3", "yearData"),
     lang
   );
 }
@@ -261,7 +351,7 @@ export async function getNationalAverages() {
   const csvUrl = csv.nationalAverages;
   return fetchWithCache(
     "nationalAverages",
-    () => fetchAndParseCSV(csvUrl),
+    () => fetchAndParseCSV(csvUrl, "es", null, null, "nationalAverages"),
     "es"
   );
 }
@@ -309,24 +399,28 @@ export async function getGovernmentsData(lang = "es") {
 export async function getJurisdictionData(slug) {
   const startTime = performance.now();
   console.log("🧘‍♀️ getJurisdictionData - Iniciando...");
-  
+
   const csvUrl = csv.allData;
   try {
     const result = await fetchWithCache(
       `jurisdictionData_${slug}`,
-      () => fetchAndParseDataCSV(csvUrl, slug),
+      () => fetchAndParseDataCSV(csvUrl, slug,"allData"),
       "es"
     );
-    
+
     const endTime = performance.now();
     const duration = endTime - startTime;
-    console.log(`⏱️ getJurisdictionData completado en ${duration.toFixed(2)}ms`);
-    
+    console.log(
+      `⏱️ getJurisdictionData completado en ${duration.toFixed(2)}ms`
+    );
+
     return result;
   } catch (error) {
     const endTime = performance.now();
     const duration = endTime - startTime;
-    console.log(`❌ getJurisdictionData falló después de ${duration.toFixed(2)}ms`);
+    console.log(
+      `❌ getJurisdictionData falló después de ${duration.toFixed(2)}ms`
+    );
     throw new Error(`❌ Error en getJurisdictionData:`, error);
   }
 }
@@ -335,7 +429,7 @@ export async function getIndicatorData(slug) {
   const csvUrl = csv.allData;
   const allData = await fetchWithCache(
     `allData`,
-    () => fetchAndParseCSV(csvUrl),
+    () => fetchAndParseCSV(csvUrl, "es", null, null, "allData"),
     "es"
   );
   // Filtrar los datos por el ID del indicador
