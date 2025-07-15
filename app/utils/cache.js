@@ -15,17 +15,22 @@ const cache = {
  * Obtiene un valor del caché si existe y no ha expirado
  * @param {string} key - Clave del valor a obtener
  * @returns {any|null} - Valor almacenado o null si no existe o ha expirado
+ *
+ * Si el TTL es Infinity, el valor nunca expira.
  */
 export function getFromCache(key) {
   const timestamp = cache.timestamps[key];
   const ttl = cache.ttls[key] || cache.defaultTTL;
   const now = Date.now();
-  
+
+  // Si el TTL es Infinity, nunca expira
+  if (ttl === Infinity) {
+    return cache.data[key];
+  }
   // Si no existe en caché o ha expirado, devolver null
   if (!timestamp || now - timestamp > ttl) {
     return null;
   }
-  
   return cache.data[key];
 }
 
