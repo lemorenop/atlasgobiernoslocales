@@ -284,7 +284,9 @@ export const handleChartDataDownload = (
   }
 
   const csv = Papa.unparse(chartData);
-  const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
+  // Agregar BOM para compatibilidad con Excel
+  const csvWithBom = '\uFEFF' + csv;
+  const blob = new Blob([csvWithBom], { type: "text/csv;charset=utf-8;" });
   const link = document.createElement("a");
   const url = URL.createObjectURL(blob);
 

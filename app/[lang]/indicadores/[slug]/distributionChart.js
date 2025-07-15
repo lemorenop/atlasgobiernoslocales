@@ -29,7 +29,7 @@ export default function DistributionChart() {
   const [tooltip, setTooltip] = useState(null);
   const [ranges, setRanges] = useState(null);
   const [downloadFnCsv, setDownloadFnCsv] = useState(null);
-
+  const [noData, setNoData] = useState(false);
   const logIndicator =
     indicator.code === 1 || indicator.code === 2 || indicator.code === 3;
   const percRanges = [
@@ -152,8 +152,10 @@ export default function DistributionChart() {
   });
 
   const getChartData = useCallback(() => {
-    if (!data || !ranges) return [];
-
+    if (Object.keys(data).length === 0 || !ranges) {
+      return null;
+    }
+    setIsLoading(true);
     const countriesToShow = selectedCountries.some((c) => c.iso3 === "all")
       ? countries
       : selectedCountries;
@@ -184,6 +186,7 @@ export default function DistributionChart() {
   useEffect(() => {
     const createCsvData = () => {
       const chartData = getChartData();
+
       if (!chartData.length || !ranges) return [];
 
       const currentRanges = ranges.filter((r) =>
@@ -235,7 +238,7 @@ export default function DistributionChart() {
 
   // Find the maximum value for scaling
   const maxValue = useMemo(() => {
-    if (!getChartData().length) return 100;
+    if (!getChartData()) return 100;
     const max = Math.max(
       ...getChartData().flatMap((country) =>
         Object.entries(country)
@@ -248,7 +251,16 @@ export default function DistributionChart() {
   }, [getChartData]);
   useEffect(() => {
     const chartData = getChartData();
-    if (!chartData.length || !svgRef.current) return;
+    if (!svgRef.current || !chartData) return;
+    if (chartData.length === 0) {
+      setNoData(true);
+      setIsLoading(false);
+      d3.select(svgRef.current).selectAll("*").remove();
+      d3.select(svgRef.current).attr("height", 0);
+      return;
+    }
+
+    setNoData(false);
     setIsLoading(false);
 
     // Clear previous chart
@@ -577,6 +589,9 @@ export default function DistributionChart() {
               <Loader className="w-10 h-10  min-w-10 min-h-10 [&_span]:w-full [&_span]:h-full" />
             </div>
           )}
+          {noData && (
+            <p className=" text-center">{getTextById(copy, "no_data", lang)}</p>
+          )}
           <svg ref={svgRef} className="w-full"></svg>
         </div>
       </div>
@@ -605,7 +620,9 @@ export default function DistributionChart() {
       {tooltip && (
         <Tooltip tooltip={tooltip}>
           <>
-            <p className={`${tooltip.value?"font-bold pb-xs":''}`}>{tooltip.title}</p>
+            <p className={`${tooltip.value ? "font-bold pb-xs" : ""}`}>
+              {tooltip.title}
+            </p>
             <div className="flex items-center gap-xs">
               {tooltip.value && (
                 <p>

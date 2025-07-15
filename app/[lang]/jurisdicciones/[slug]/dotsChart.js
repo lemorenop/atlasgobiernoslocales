@@ -15,7 +15,6 @@ import Tooltip from "@/app/[lang]/components/tooltip";
 import Download from "@/app/[lang]/components/download";
 import ReloadButton from "@/app/[lang]/components/reloadButton";
 import { chartStyles } from "@/app/utils/chartStyles";
-const textColor = "#212529";
 
 export default function DotsChart() {
   const {
@@ -186,12 +185,25 @@ export default function DotsChart() {
             logValues &&
             logValues.length > 0;
           let filteredLogValues = logValues;
+          let minLogValue, maxLogValue; // <-- Declarar aquí
 
           if (useCustomLog) {
-            filteredLogValues = logValues.filter(
-              (b) => b.level == government.level
-            );
-            xScale = getCustomLogScale(filteredLogValues, width);
+            // --- ORIGINAL: escala por cortes (getCustomLogScale) ---
+            // filteredLogValues = logValues.filter(
+            //   (b) => b.level == government.level
+            // );
+            // xScale = getCustomLogScale(filteredLogValues, width);
+            // --- FIN ORIGINAL ---
+
+            // --- OPCIONAL: escala logarítmica estándar ---
+            // Para probar la escala logarítmica, descomentar este bloque y comentar el original de arriba
+            const logData = processedData.filter(d => d.value > 0);
+            minLogValue = d3.min(logData, d => d.value); // <-- Asignar aquí
+            maxLogValue = d3.max(logData, d => d.value); // <-- Asignar aquí
+            xScale = d3.scaleLog()
+              .domain([minLogValue, maxLogValue])
+              .range([0, width]);
+            // --- FIN OPCIONAL ---
           } else {
             xScale = d3
               .scaleLinear()
@@ -199,26 +211,35 @@ export default function DotsChart() {
               .range([0, width]);
           }
 
-          // Agrupa por valor redondeado para evitar superposición exacta
-          const valueGroups = d3.groups(
-            processedData,
-            (d) => Math.round(d.value * 1000) / 1000
-          );
-          const jitterWidth = 300; // altura máxima del jitter
-          const points = [];
-          valueGroups.forEach((group) => {
-            const [value, items] = group;
-            items.forEach((item, i) => {
-              // Distribuye los puntos verticalmente centrados
-              const y =
-                height / 2 +
-                (i - (items.length - 1) / 2) * (jitterWidth / items.length);
-              points.push({
-                ...item,
-                x: useCustomLog ? xScale(item.value) : xScale(item.value),
-                y,
-              });
-            });
+          // --- NUEVO: Jitter aleatorio dependiente de densidad ---
+          // 1. Calcular bins (histograma) sobre el eje X
+          const numBins = Math.max(10, Math.floor(Math.sqrt(processedData.length)));
+          const xValues = processedData.map(d => useCustomLog ? xScale(d.value) : xScale(d.value));
+          const bins = d3.bin()
+            .domain([0, width])
+            .thresholds(numBins)(xValues);
+
+          // 2. Para cada bin, calcular la cantidad de puntos (densidad)
+          //    y asignar un jitter máximo proporcional a la densidad
+          const maxJitter = height * 0.8; // altura máxima de la nube
+          const minJitter = 30; // altura mínima para zonas poco densas
+          const maxBinLength = d3.max(bins, b => b.length) || 1;
+
+          // 3. Para cada punto, asignar jitter aleatorio según densidad local
+          const points = processedData.map((item, idx) => {
+            const x = useCustomLog ? xScale(item.value) : xScale(item.value);
+            // Buscar el bin correspondiente
+            const binIdx = bins.findIndex(b => x >= b.x0 && x < b.x1);
+            const bin = bins[binIdx] || bins[0];
+            const density = bin.length / maxBinLength; // 0..1
+            const jitterRange = minJitter + density * (maxJitter - minJitter);
+            // Jitter aleatorio centrado en height/2
+            const y = height / 2 + (Math.random() - 0.5) * jitterRange;
+            return {
+              ...item,
+              x,
+              y,
+            };
           });
 
           // Format number for axis labels
@@ -241,53 +262,79 @@ export default function DotsChart() {
 
           // Add X axis
           if (useCustomLog) {
+            // --- ORIGINAL: eje X por cortes ---
             const bins = [...filteredLogValues].sort((a, b) => a.bin - b.bin);
-            const segmentWidth = width / bins.length;
+            // const segmentWidth = width / bins.length;
             // Mostrar mínimo a la izquierda
-            svg
-              .append("text")
-              .attr("x", 0)
-              .attr("y", height + 20)
-              .attr("text-anchor", "start")
-              .style("font-family", chartStyles.fontFamily)
-              .style("font-size", "12px")
-              .style("color", chartStyles.textColor)
-              .text(
-                formatAxisLabel(bins[0].min, selectedIndicator.unit_measure_id)
-              );
-
+            // svg
+            //   .append("text")
+            //   .attr("x", 0)
+            //   .attr("y", height + 20)
+            //   .attr("text-anchor", "end")
+            //   .style("font-family", chartStyles.fontFamily)
+            //   .style("font-size", "12px")
+            //   .style("color", chartStyles.textColor)
+            //   .text(
+            //     formatAxisLabel(bins[0].min, selectedIndicator.unit_measure_id)
+            //   );
             // Mostrar valores intermedios
-            bins.slice(1, -1).forEach((bin, i) => {
-              const xPos = (i + 1) * segmentWidth;
-              svg
-                .append("text")
-                .attr("x", xPos)
-                .attr("y", height + 20)
-                .attr("text-anchor", "start")
-                .style("font-family", chartStyles.fontFamily)
-                .style("font-size", "12px")
-                .style("color", chartStyles.textColor)
-                .text(
-                  formatAxisLabel(bin.min, selectedIndicator.unit_measure_id)
-                );
-            });
-
+            // bins.slice(1, -1).forEach((bin, i) => {
+            //   const xPos = (i + 1) * segmentWidth;
+            //   svg
+            //     .append("text")
+            //     .attr("x", xPos)
+            //     .attr("y", height + 20)
+            //     .attr("text-anchor", "start")
+            //     .style("font-family", chartStyles.fontFamily)
+            //     .style("font-size", "12px")
+            //     .style("color", chartStyles.textColor)
+            //     .text(
+            //       formatAxisLabel(bin.min, selectedIndicator.unit_measure_id)
+            //     );
+            // });
             // Mostrar máximo con "+" donde empieza el último gap
-            const maxValue =
-              bins[bins.length - 1].max || bins[bins.length - 1].min;
-            const lastBinStartX = (bins.length - 1) * segmentWidth;
+            // const maxValue =
+            //   bins[bins.length - 1].max || bins[bins.length - 1].min;
+            // const lastBinStartX = (bins.length - 1) * segmentWidth;
+            // svg
+            //   .append("text")
+            //   .attr("x", lastBinStartX)
+            //   .attr("y", height + 20)
+            //   .attr("text-anchor", "start")
+            //   .style("font-family", chartStyles.fontFamily)
+            //   .style("font-size", "12px")
+            //   .style("color", chartStyles.textColor)
+            //   .text(
+            //     formatAxisLabel(maxValue, selectedIndicator.unit_measure_id) +
+            //       "+"
+            //   );
+            // --- FIN ORIGINAL ---
+
+            // --- OPCIONAL: eje X logarítmico estándar ---
+            // Para probar el eje logarítmico, descomentar este bloque y comentar el original de arriba
+            // Calcular los ticks como potencias de 10 dentro del dominio
+            // (esto reemplaza el uso de xScale.ticks() que puede dar valores no deseados)
+            const logMin = Math.ceil(Math.log10(minLogValue));
+            const logMax = Math.floor(Math.log10(maxLogValue));
+            const tickValues = [];
+            for (let exp = logMin; exp <= logMax; exp++) {
+              tickValues.push(Math.pow(10, exp));
+            }
             svg
-              .append("text")
-              .attr("x", lastBinStartX)
-              .attr("y", height + 20)
-              .attr("text-anchor", "start")
-              .style("font-family", chartStyles.fontFamily)
+              .append("g")
+              .attr("transform", `translate(0,${height})`)
+              .call(
+                d3.axisBottom(xScale)
+                  .tickValues(tickValues)
+                  .tickFormat(d3.format(".0s"))
+              )
+              .selectAll("text")
+              .style("text-anchor", "end")
               .style("font-size", "12px")
               .style("color", chartStyles.textColor)
-              .text(
-                formatAxisLabel(maxValue, selectedIndicator.unit_measure_id) +
-                  "+"
-              );
+              .style("font-family", "Raleway");
+            svg.selectAll(".domain, .tick line").remove();
+            // --- FIN OPCIONAL ---
           } else {
             svg
               .append("g")
@@ -296,7 +343,7 @@ export default function DotsChart() {
               .selectAll("text")
               .style("text-anchor", "end")
               .style("font-size", "12px")
-              .style("color", textColor)
+              .style("color", chartStyles.textColor)
               .style("font-family", "Raleway");
             // Remove the line and ticks from X axis
             svg.selectAll(".domain, .tick line").remove();
@@ -462,7 +509,7 @@ export default function DotsChart() {
             .attr("text-anchor", "middle")
             .attr("x", width / 2)
             .attr("y", height + margin.bottom - 10)
-            .style("color", textColor)
+            .style("color", chartStyles.textColor)
             .style("font-family", "Raleway")
             .text(selectedIndicator.name);
         }
