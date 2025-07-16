@@ -20,10 +20,10 @@ import Loader from "@/app/[lang]/components/loader";
 import Share from "@/app/[lang]/components/share";
 import Tooltip from "@/app/[lang]/components/tooltip";
 import Download from "@/app/[lang]/components/download";
-import Info from "../../components/icons/info";
+import Info from "@/app/[lang]/components/icons/info";
 
 export default function DistributionChart() {
-  const { governments, countries, copy, lang, regions, indicator } =
+  const { governments, countries, copy, lang, regions, indicator, logValues } =
     useContext(IndicatorDataContext);
   const [isLoading, setIsLoading] = useState(true);
   const [tooltip, setTooltip] = useState(null);
@@ -32,6 +32,7 @@ export default function DistributionChart() {
   const [noData, setNoData] = useState(false);
   const logIndicator =
     indicator.code === 1 || indicator.code === 2 || indicator.code === 3;
+  // Rango original de 10 en 10
   const percRanges = [
     { bin: 0, min: 0, max: 10 },
     { bin: 1, min: 10, max: 20 },
@@ -44,22 +45,43 @@ export default function DistributionChart() {
     { bin: 8, min: 80, max: 90 },
     { bin: 9, min: 90, max: 100 },
   ];
-  const svgRef = useRef();
-  async function getLogs() {
-    console.log("🔎 Busco logValues en /api/log-values");
-    const d = await fetch(`/api/log-values`)
-      .then((res) => res.json())
-      .then((res) =>
-        res.data.filter((elm) => elm.indicator_code === indicator.code)
-      );
-    setRanges(d);
+
+  // Nueva función para generar rangos: 0-2, 2-5, 5-8, ..., 23-26, 26+
+  function getCustomRanges() {
+    const ranges = [];
+    let bin = 0;
+    let min = 0;
+    let max = 2;
+    // Primer rango: 0-2
+    ranges.push({ bin, min, max });
+    bin++;
+    min = 2;
+    // Siguientes rangos de a 3: 2-5, 5-8, ..., 23-26
+    while (max < 26) {
+      let nextMax = min + 3;
+      if (nextMax > 26) nextMax = 26;
+      ranges.push({ bin, min, max: nextMax });
+      bin++;
+      min = nextMax;
+      max = nextMax;
+    }
+    // Último rango: 26+
+    ranges.push({ bin, min: 26, max: null });
+    return ranges;
   }
+  const svgRef = useRef();
 
   useEffect(() => {
     if ([1, 2, 3].includes(indicator.code)) {
-      getLogs();
-    } else setRanges(percRanges);
-  }, []);
+      setRanges(
+        logValues.filter((elm) => elm.indicator_code === indicator.code)
+      );
+    } else if (!logIndicator && indicator.max !== 100) {
+      setRanges(getCustomRanges());
+    } else {
+      setRanges(percRanges);
+    }
+  }, [logValues]);
   // Process data to get distribution by country and level
   const data = useMemo(() => {
     if (!governments || !ranges) return {};
@@ -112,11 +134,12 @@ export default function DistributionChart() {
             (g.max ? valuePercent < g.max : true) &&
             g.level == level
           );
-        else
+        else {
           return (
             (g.min === 0 ? valuePercent >= g.min : valuePercent > g.min) &&
-            valuePercent <= g.max
+            (g.max ? valuePercent <= g.max : true)
           );
+        }
       });
       let rangeKey = `${gap.bin}`;
 
@@ -201,16 +224,13 @@ export default function DistributionChart() {
         // Transformar cada bin en un rango min-max
         currentRanges.forEach((range) => {
           const binKey = `${range.bin}`;
-          const rangeLabel = `${
-            !range.max && logIndicator ? "+" : ""
-          }${formatAxisLabel(
-            logIndicator ? range.min : range.min === 0 ? 0 : range.min + 1,
-            indicator.unit_measure_id
-          )}${
-            range.max
-              ? `-${formatAxisLabel(range.max, indicator.unit_measure_id)}`
-              : ""
-          }${!logIndicator ? "%" : ""}`;
+          const isCustom = !logIndicator && indicator.max !== 100;
+          const rangeLabel = getRangeLabel(
+            range,
+            indicator.unit_measure_id,
+            !logIndicator,
+            isCustom
+          );
 
           transformedCountry[rangeLabel] = `${(country[binKey] || 0).toFixed(
             1
@@ -306,14 +326,14 @@ export default function DistributionChart() {
         d3.axisBottom(x).tickFormat((d, i) => {
           // Show all range labels
           const range = currentRanges.find((r) => r.bin === d);
-          return `${!range.max && logIndicator ? "+" : ""}${formatAxisLabel(
-            logIndicator ? range.min : range.min === 0 ? 0 : range.min + 1,
-            indicator.unit_measure_id
-          )}${
-            range.max
-              ? `-${formatAxisLabel(range.max, indicator.unit_measure_id)}`
-              : ""
-          }${!logIndicator ? "%" : ""}`;
+          // Detectar si es custom (rango especial)
+          const isCustom = !logIndicator && indicator.max !== 100;
+          return getRangeLabel(
+            range,
+            indicator.unit_measure_id,
+            !logIndicator,
+            isCustom
+          );
         })
       )
       .selectAll("text")
@@ -350,18 +370,18 @@ export default function DistributionChart() {
         .attr("stroke-dasharray", "4,4");
 
       // Add vertical dotted lines for each X tick
-      x.domain().forEach((tick) => {
-        const xPos = x(tick) + x.bandwidth() / 2;
-        countryGroup
-          .append("line")
-          .attr("x1", xPos)
-          .attr("y1", 0)
-          .attr("x2", xPos)
-          .attr("y2", countryHeight)
-          .attr("stroke", chartStyles.lightCyanColor)
-          .attr("stroke-width", 1)
-          .attr("stroke-dasharray", "4,4");
-      });
+      // x.domain().forEach((tick) => {
+      //   const xPos = x(tick) + x.bandwidth() / 2;
+      //   countryGroup
+      //     .append("line")
+      //     .attr("x1", xPos)
+      //     .attr("y1", 0)
+      //     .attr("x2", xPos)
+      //     .attr("y2", countryHeight)
+      //     .attr("stroke", chartStyles.lightCyanColor)
+      //     .attr("stroke-width", 1)
+      //     .attr("stroke-dasharray", "4,4");
+      // });
 
       // Transform data for this country
       const countryData = Object.entries(country)
@@ -406,14 +426,12 @@ export default function DistributionChart() {
         const range = ranges.find((r) => r.bin === parseInt(d.range));
         const tooltipContent = {
           title: country.country,
-          range: `${!range.max && logIndicator ? "+" : ""}${formatAxisLabel(
-            range.min,
-            indicator.unit_measure_id
-          )}${
-            range.max
-              ? `-${formatAxisLabel(range.max, indicator.unit_measure_id)}`
-              : ""
-          }${!logIndicator ? "%" : ""}`,
+          range: getRangeLabel(
+            range,
+            indicator.unit_measure_id,
+            !logIndicator,
+            !logIndicator && indicator.max !== 100
+          ),
           value: formatValue(d.originalValue, "perc", lang),
         };
         // Área de interacción invisible (más ancha para facilitar hover)
@@ -649,4 +667,20 @@ export default function DistributionChart() {
       )}
     </div>
   );
+}
+
+// Función utilitaria para mostrar la etiqueta del rango
+function getRangeLabel(range, unit_measure_id, isPercent, isCustom) {
+  // isCustom: true si es el rango especial 0-2, 2-5, ...
+  if (isCustom && range.max === null && range.min === 26) {
+    // Último rango: +27%
+    return `+27${isPercent ? "%" : ""}`;
+  }
+  // Rango normal
+  return `${!range.max && !isCustom ? "+" : ""}${formatAxisLabel(
+    isCustom ? range.min : range.min === 0 ? 0 : range.min + 1,
+    unit_measure_id
+  )}${range.max ? `-${formatAxisLabel(range.max, unit_measure_id)}` : ""}${
+    isPercent ? "%" : ""
+  }`;
 }

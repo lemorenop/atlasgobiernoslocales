@@ -24,8 +24,16 @@ import ReloadButton from "@/app/[lang]/components/reloadButton";
 import Info from "../../components/icons/info";
 
 export default function ScatterPlot() {
-  const { governments, lang, indicators, indicator, copy, countries, regions } =
-    useContext(IndicatorDataContext);
+  const {
+    governments,
+    lang,
+    indicators,
+    indicator,
+    copy,
+    countries,
+    regions,
+    logValues,
+  } = useContext(IndicatorDataContext);
   const [selectedIndicator, setSelectedIndicator] = useState(
     indicator.code === 1
       ? indicators.find((elm) => elm.code === 3)
@@ -49,8 +57,18 @@ export default function ScatterPlot() {
 
     // Crear la fila de encabezados
     const headers = [
-      lang === "es" ? "Gobierno" : lang === "en" ? "Government" : "Governo",
+      lang === "es"
+        ? "Jurisdicciones"
+        : lang === "en"
+        ? "Jurisdictions"
+        : "Jurisdiçoes",
+      lang === "es"
+        ? "Nivel de gobierno"
+        : lang === "pt"
+        ? "Nível de governo"
+        : "level of government",
       "id",
+
       indicator[`name_${lang}`],
       selectedIndicator[`name_${lang}`],
     ];
@@ -60,7 +78,7 @@ export default function ScatterPlot() {
       const value1 = data.y;
       const value2 = data.x;
 
-      return [`${data.name}-${data.completeName}`, data.id, value1, value2];
+      return [data.name, data.completeName, data.id, value1, value2];
     });
 
     return [headers, ...rows];
@@ -75,35 +93,28 @@ export default function ScatterPlot() {
   const [isLoading, setIsLoading] = useState(true);
   const svgRef = useRef(null);
   const [error, setError] = useState(false);
-  const [logValues, setLogValues] = useState(null);
+  const [logValuesInd, setLogValuesInd] = useState(null);
   const [logValuesY, setLogValuesY] = useState(null);
   async function loadData() {
     try {
       setIsLoading(true);
-      console.log(`🔎 Busco data en /api/indicators/${selectedIndicator.code}`);
       const d = await fetch(`/api/indicators/${selectedIndicator.code}`).then(
         (res) => res.json()
       );
       if ([1, 2, 3].includes(selectedIndicator.code)) {
-        console.log("🔎 Busco logValues en /api/log-values (X)");
-        const d = await fetch(`/api/log-values`)
-          .then((res) => res.json())
-          .then((res) =>
-            res.data.filter(
-              (elm) => elm.indicator_code === selectedIndicator.code
-            )
-          );
-        setLogValues(d);
+        const d = logValues.filter(
+          (elm) => elm.indicator_code === selectedIndicator.code
+        );
+
+        setLogValuesInd(d);
       } else {
-        setLogValues(null);
+        setLogValuesInd(null);
       }
       if ([1, 2, 3].includes(indicator.code)) {
-        console.log("🔎 Busco logValues en /api/log-values (Y)");
-        const dY = await fetch(`/api/log-values`)
-          .then((res) => res.json())
-          .then((res) =>
-            res.data.filter((elm) => elm.indicator_code === indicator.code)
-          );
+        const dY = logValues.filter(
+          (elm) => elm.indicator_code === indicator.code
+        );
+
         setLogValuesY(dY);
       } else {
         setLogValuesY(null);
@@ -139,8 +150,8 @@ export default function ScatterPlot() {
     }
   }
   useEffect(() => {
-    if (governments) loadData();
-  }, [selectedIndicator, governments]);
+    if (governments && logValues) loadData();
+  }, [selectedIndicator, governments,logValues]);
   useEffect(() => {
     if (!scatterData || !svgRef.current) return;
 
@@ -212,19 +223,29 @@ export default function ScatterPlot() {
     let xScale;
     let useCustomLog =
       [1, 2, 3].includes(selectedIndicator.code) &&
-      logValues &&
-      logValues.length > 0;
-    let filteredLogValues = logValues;
+      logValuesInd &&
+      logValuesInd.length > 0;
+    let filteredLogValues = logValuesInd;
     // Crear escala Y
     let yScale;
     let useCustomLogY =
       [1, 2, 3].includes(indicator.code) && logValuesY && logValuesY.length > 0;
     let filteredLogValuesY = logValuesY;
     if (useCustomLog) {
-      filteredLogValues = logValues.filter(
+      filteredLogValues = logValuesInd.filter(
         (b) => b.level == selectedNivel.value
       );
       const bins = [...filteredLogValues].sort((a, b) => a.bin - b.bin);
+      // Calcula el máximo real de los datos para X
+      const maxX = d3.max(filteredData, (d) => d.x);
+      // Si el último bin no tiene max, asígnale el máximo real SOLO para la escala
+      if (
+        bins.length &&
+        (bins[bins.length - 1].max === undefined ||
+          bins[bins.length - 1].max === null)
+      ) {
+        bins[bins.length - 1] = { ...bins[bins.length - 1], max: maxX };
+      }
       const segmentWidth = width / bins.length;
       xScale = getCustomLogScale(bins, width);
       // Mostrar mínimo a la izquierda
@@ -236,7 +257,12 @@ export default function ScatterPlot() {
         .style("font-family", chartStyles.fontFamily)
         .style("font-size", "12px")
         .style("color", chartStyles.textColor)
-        .text(formatAxisLabel(bins[0].min, selectedIndicator.unit_measure_id));
+        .text(
+          formatAxisLabel(
+            filteredLogValues[0].min,
+            selectedIndicator.unit_measure_id
+          )
+        );
       // Mostrar valores intermedios
       bins.slice(1, -1).forEach((bin, i) => {
         const xPos = (i + 1) * segmentWidth;
@@ -250,8 +276,7 @@ export default function ScatterPlot() {
           .style("color", chartStyles.textColor)
           .text(formatAxisLabel(bin.min, selectedIndicator.unit_measure_id));
       });
-      // Mostrar máximo con "+" donde empieza el último gap
-      const maxValue = bins[bins.length - 1].max || bins[bins.length - 1].min;
+      // Mostrar máximo con "+" donde empieza el último gap (pero NO mostrar el máximo real)
       const lastBinStartX = (bins.length - 1) * segmentWidth;
       svg
         .append("text")
@@ -262,7 +287,10 @@ export default function ScatterPlot() {
         .style("font-size", "12px")
         .style("color", chartStyles.textColor)
         .text(
-          formatAxisLabel(maxValue, selectedIndicator.unit_measure_id) + "+"
+          formatAxisLabel(
+            filteredLogValues[filteredLogValues.length - 1].min,
+            selectedIndicator.unit_measure_id
+          )
         );
     } else {
       xScale = d3
@@ -296,6 +324,16 @@ export default function ScatterPlot() {
         (b) => b.level == selectedNivel.value
       );
       const binsY = [...filteredLogValuesY].sort((a, b) => a.bin - b.bin);
+      // Calcula el máximo real de los datos para Y
+      const maxY = d3.max(filteredData, (d) => d.y);
+      // Si el último bin no tiene max, asígnale el máximo real SOLO para la escala
+      if (
+        binsY.length &&
+        (binsY[binsY.length - 1].max === undefined ||
+          binsY[binsY.length - 1].max === null)
+      ) {
+        binsY[binsY.length - 1] = { ...binsY[binsY.length - 1], max: maxY };
+      }
       const segmentHeight = height / binsY.length;
       yScale = getCustomLogScale(binsY, height);
       // Mostrar mínimo abajo
@@ -307,7 +345,9 @@ export default function ScatterPlot() {
         .style("font-family", chartStyles.fontFamily)
         .style("font-size", "12px")
         .style("color", chartStyles.textColor)
-        .text(formatAxisLabel(binsY[0].min, indicator.unit_measure_id));
+        .text(
+          formatAxisLabel(filteredLogValuesY[0].min, indicator.unit_measure_id)
+        );
       // Mostrar valores intermedios
       binsY.slice(1).forEach((bin, i) => {
         const yPos = height - (i + 1) * segmentHeight;
@@ -511,7 +551,7 @@ export default function ScatterPlot() {
     selectedIndicator,
     lang,
     countries,
-    logValues,
+    logValuesInd,
     logValuesY,
   ]);
 
@@ -664,7 +704,13 @@ export default function ScatterPlot() {
       {tooltip && (
         <Tooltip tooltip={tooltip}>
           <>
-            <p className={`${tooltip.valueInd1||tooltip.valueInd2?"font-bold pb-xs":''}`}>{tooltip.title}</p>
+            <p
+              className={`${
+                tooltip.valueInd1 || tooltip.valueInd2 ? "font-bold pb-xs" : ""
+              }`}
+            >
+              {tooltip.title}
+            </p>
             <div className="flex flex-col gap-xs">
               {tooltip.valueInd1 && (
                 <div className="flex items-center gap-xs">
@@ -703,8 +749,6 @@ function SelectIndicator({ selected, onChange, lang, options }) {
         style={{ maxHeight: "300px!important" }}
         className="w-80 origin-top-right transition duration-100 ease-out [--anchor-gap:var(--spacing-1)] focus:outline-none data-[closed]:scale-95 data-[closed]:opacity-0 bg-white text-blue-CAF border-1 border-background uppercase description p-m flex flex-col font-bold max-h-[300px] overflow-y-auto z-20"
       >
-        {/* {options.map((option, index) => (
-          <div key={index}> */}
         {options.map((opt) => (
           <ListboxOption
             key={opt.code}

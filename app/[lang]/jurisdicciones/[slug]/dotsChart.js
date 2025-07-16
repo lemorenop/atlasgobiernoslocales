@@ -124,7 +124,8 @@ export default function DotsChart() {
                 : lang === "en"
                 ? "Jurisdictions"
                 : "Jurisdiçoes"
-            ] = `${jurisdiction.name} ${jurisdiction.completeName}`;
+            ] = jurisdiction.name;
+            obj[lang==='es'?'Nivel de gobierno':lang==='pt'?"Nível de governo":'level of government'] = jurisdiction.completeName; 
             obj[`${selectedIndicator[`name_${lang}`]}`] =  item.value;
             return obj;
           });

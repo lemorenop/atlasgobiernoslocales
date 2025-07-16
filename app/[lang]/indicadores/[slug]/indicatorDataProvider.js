@@ -12,7 +12,10 @@ export default function IndicatorDataProvider({
   indicatorCode,
   indicator,
   copy,
-  indicators,countries,levelPerCountry,regions
+  indicators,
+  countries,
+  levelPerCountry,
+  regions,
 }) {
   const [data, setData] = useState({ data: null, governments: null });
 
@@ -20,18 +23,18 @@ export default function IndicatorDataProvider({
     async function loadData() {
       try {
         console.time("Total API calls in IndicatorDataProvider");
-        console.time("Indicators and governments API");
-        const [response, governments] = await Promise.all([
+        const [response, governments, logValues] = await Promise.all([
           fetch(`/api/indicators/${indicatorCode}`)
             .then((res) => res.json())
             .then((res) => res.data),
           fetch(`/api/governments?lang=${lang}&responseType=json`)
             .then((res) => res.json())
             .then((res) => res.data),
+          fetch(`/api/log-values`)
+            .then((res) => res.json())
+            .then((res) => res.data),
         ]);
-        console.timeEnd("Indicators and governments API");
 
-        console.time("Data processing");
         const result = { ...governments };
         Object.entries(response).forEach(([key, value]) => {
           if (result[key]) {
@@ -41,12 +44,11 @@ export default function IndicatorDataProvider({
             };
           }
         });
-        console.timeEnd("Data processing");
 
-        setData({ governments: result });
+        setData({ governments: result, logValues });
         console.timeEnd("Total API calls in IndicatorDataProvider");
       } catch (error) {
-        setData({ governments: null });
+        setData({ governments: null, logValues: null });
         console.error("Error loading government data:", error);
       }
     }
@@ -55,7 +57,18 @@ export default function IndicatorDataProvider({
   }, [lang]);
 
   return (
-    <IndicatorDataContext.Provider value={{ ...data, indicator, copy, lang, indicators,countries,levelPerCountry ,regions}}>
+    <IndicatorDataContext.Provider
+      value={{
+        ...data,
+        indicator,
+        copy,
+        lang,
+        indicators,
+        countries,
+        levelPerCountry,
+        regions,
+      }}
+    >
       {children}
     </IndicatorDataContext.Provider>
   );
