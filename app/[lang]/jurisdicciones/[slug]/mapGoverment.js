@@ -235,10 +235,11 @@ export default function MapGoverment({
           minZoom={nivel === "2" ? 4 : 1}
           maxZoom={22}
           {...basicSettings}
+          doubleClickZoom={false}
+          scrollZoom={false}
         >
-          <NavigationControl position="bottom-right"  showCompass={false}/>
 
-          {/* Nivel 1 - Visible at low zoom levels */}
+       
           {nivel === "1" && (
             <Source
               id="nivel1-source"

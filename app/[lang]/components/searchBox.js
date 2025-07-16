@@ -7,6 +7,7 @@ import {
   ComboboxOptions,
 } from "@headlessui/react";
 import { useEffect, useState,  } from "react";
+import { useRouter } from "next/navigation";
 
 export default function SearchBox({
   lang,
@@ -21,6 +22,7 @@ export default function SearchBox({
   const [isLoading, setIsLoading] = useState(false);
   const [selectedItem, setSelectedItem] = useState(null);
   const [isNavigating, setIsNavigating] = useState(false);
+  const router = useRouter();
 
   // Open dropdown when query changes
   useEffect(() => {
@@ -59,7 +61,15 @@ export default function SearchBox({
         <h2 className="text-h3 font-bold text-navy">{title}</h2>
         <p className="text-description text-black">{subtitle}</p>
       </div>
-      <Combobox value={selectedItem} onChange={setSelectedItem}>
+      <Combobox
+        value={selectedItem}
+        onChange={(item) => {
+          setSelectedItem(item);
+          if (item) {
+            window.location.href = `/${lang}/${path}/${item.id}`;
+          }
+        }}
+      >
         <div className="relative">
           <ComboboxInput
             disabled={isNavigating}
@@ -102,12 +112,12 @@ export default function SearchBox({
             <ComboboxOption
               key={item.id}
               value={item}
-              className="group flex cursor-default items-center gap-2 p-1 select-none hover:bg-blue-CAF hover:text-white transition-colors text-black"
+              className="group flex cursor-default items-center gap-2  select-none hover:bg-blue-CAF hover:text-white transition-colors text-black data-focus:bg-blue-CAF data-focus:text-white"
             >
               <a
-                className="flex flex-col w-full uppercase text-[14px] tracking-wide"
+                className="flex flex-col w-full uppercase text-[14px] tracking-wide p-1"
                 href={`/${lang}/${path}/${item.id}`}
-                onClick={(e) => {
+                onClick={() => {
                   setSelectedItem(item);
                   setIsNavigating(true);
                 }}

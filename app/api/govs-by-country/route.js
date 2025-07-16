@@ -37,7 +37,7 @@ export async function GET(request) {
     const data = await getGovernmentsByCountry(lang, codes, countryCode, level);
     
     // Guardar en caché
-    setInCache(cacheKey, data);
+    setInCache(cacheKey, data,Infinity);
 
     return NextResponse.json({ data: data, cached: false });
   } catch (error) {

@@ -225,14 +225,7 @@ export async function getGovernments(lang, slug) {
 
 export async function getGovernmentsByCountry(lang, codes, countryCode, level) {
   try {
-    console.log("🧘‍♀️ getGovsByCountry");
-    const cacheKey = `${countryCode}_${level}`;
-    const cachedData = getFromCache(cacheKey);
-    if (cachedData) {
-      console.log("🥳 Uso cache en getGovernmentsByCountry", cacheKey);
-      return cachedData;
-    }
-    console.log("😒 No uso cache en getGovernmentsByCountry", cacheKey);
+    console.log("🧘‍♀️ getGovsByCountry");   
     const csvUrl = csv.allData;
     const csvParsed = await fetchAndParseCSV(
       csvUrl,
@@ -244,7 +237,7 @@ export async function getGovernmentsByCountry(lang, codes, countryCode, level) {
     const governments = csvParsed.filter((elm) =>
       codes.includes(elm.government_id)
     );
-    setInCache(cacheKey, governments, Infinity);
+  
     return governments;
   } catch (error) {
     console.error(`❌ Error en getGovernmentsByCountry:`, error);
@@ -282,11 +275,7 @@ export async function getYearData(lang, id) {
 export async function getNationalAverages() {
   console.log("🧘‍♀️ getNationalAverages");
   const csvUrl = csv.nationalAverages;
-  return fetchWithCache(
-    "nationalAverages",
-    () => fetchAndParseCSV(csvUrl, "es", null, null, "nationalAverages"),
-    "es"
-  );
+  return fetchAndParseCSV(csvUrl, "es", null, null, "nationalAverages")
 }
 
 export async function getGovernmentsData(lang = "es") {

@@ -51,7 +51,7 @@ export default function DotsChart() {
 
       const url = `/api/govs-by-country?countryCode=${government.country_iso3}&level=${government.level}&lang=${lang}`;
 
-      console.log("🔎 Busco la data en /api/govs-by-country");
+     
       const response = await fetch(url).then((res) => res.json());
       if (response.data) {
         const govsByCountry = response.data;
@@ -73,7 +73,6 @@ export default function DotsChart() {
   const [downloadFnCsv, setDownloadFnCsv] = useState(null);
   const loadLogValues = async () => {
     if ([1, 2, 3].includes(selectedIndicator.code)) {
-      console.log("🔎 Busco logValues en /api/log-values");
       try {
         const response = await fetch(`/api/log-values`).then((res) =>
           res.json()

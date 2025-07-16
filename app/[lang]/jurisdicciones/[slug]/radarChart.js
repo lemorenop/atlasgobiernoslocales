@@ -93,7 +93,6 @@ export default function RadarChart({
           url += `&nivel=${nivel}`;
         }
         try {
-          console.log("🔎 Busco data de los promedios nacionales en ", url);
           const data = await fetch(url).then((res) => res.json());
 
         
@@ -121,10 +120,7 @@ export default function RadarChart({
         setIsLoading(false);
         setNationalData(null);
       }
-    } else {
-      console.log(
-        `🔎 Busco data de la jurisdicción ${compareGov.name} en /api/gov-data`
-      );
+    } else {    
       const jsonData = await fetch(
         `/api/gov-data?slug=${compareGov.id}&lang=${lang}`
       ).then((res) => res.json());

@@ -98,9 +98,9 @@ export default function SearchComparative({
             <ComboboxOption
               key={item.id}
               value={item}
-              className="group flex cursor-default items-center gap-2 p-1 select-none hover:bg-blue-CAF hover:text-white transition-colors text-black"
+              className="group flex cursor-default items-center gap-2 select-none hover:bg-blue-CAF hover:text-white transition-colors text-black data-focus:bg-blue-CAF data-focus:text-white"
             >
-              <div className="flex flex-col w-full uppercase text-[14px] tracking-wide">
+              <div className="flex flex-col w-full uppercase text-[14px] tracking-wide p-1">
                 {item.name}, {item.parentName ? item.parentName + ", " : ""}
                 {item.countryName}
               </div>
