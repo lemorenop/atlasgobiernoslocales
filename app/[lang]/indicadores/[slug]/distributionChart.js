@@ -369,20 +369,6 @@ export default function DistributionChart() {
         .attr("stroke-width", 1)
         .attr("stroke-dasharray", "4,4");
 
-      // Add vertical dotted lines for each X tick
-      // x.domain().forEach((tick) => {
-      //   const xPos = x(tick) + x.bandwidth() / 2;
-      //   countryGroup
-      //     .append("line")
-      //     .attr("x1", xPos)
-      //     .attr("y1", 0)
-      //     .attr("x2", xPos)
-      //     .attr("y2", countryHeight)
-      //     .attr("stroke", chartStyles.lightCyanColor)
-      //     .attr("stroke-width", 1)
-      //     .attr("stroke-dasharray", "4,4");
-      // });
-
       // Transform data for this country
       const countryData = Object.entries(country)
         .filter(([key]) => key !== "country" && key !== "countryCode")

@@ -181,7 +181,7 @@ export default function ScatterPlot() {
         }
 
         const levelMatch = data.nivel === selectedNivel.value;
-        return countryMatch && levelMatch && data.value && data.value_2;
+        return countryMatch && levelMatch && data.value != null && data.value_2 != null;
       })
       .map(([id, data]) => {
         // Convert percentage values to 0-100 range

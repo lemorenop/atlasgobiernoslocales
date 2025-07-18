@@ -51,7 +51,6 @@ export default function DotsChart() {
 
       const url = `/api/govs-by-country?countryCode=${government.country_iso3}&level=${government.level}&lang=${lang}`;
 
-     
       const response = await fetch(url).then((res) => res.json());
       if (response.data) {
         const govsByCountry = response.data;
@@ -78,7 +77,7 @@ export default function DotsChart() {
           res.json()
         );
         const filteredLogValues = response.data.filter(
-          (elm) => elm.indicator_code === selectedIndicator.code
+          (elm) => elm.indicator_code === selectedIndicator.code && elm.level == government.level
         );
         setLogValues(filteredLogValues);
       } catch (error) {
@@ -124,8 +123,14 @@ export default function DotsChart() {
                 ? "Jurisdictions"
                 : "Jurisdiçoes"
             ] = jurisdiction.name;
-            obj[lang==='es'?'Nivel de gobierno':lang==='pt'?"Nível de governo":'level of government'] = jurisdiction.completeName; 
-            obj[`${selectedIndicator[`name_${lang}`]}`] =  item.value;
+            obj[
+              lang === "es"
+                ? "Nivel de gobierno"
+                : lang === "pt"
+                ? "Nível de governo"
+                : "level of government"
+            ] = jurisdiction.completeName;
+            obj[`${selectedIndicator[`name_${lang}`]}`] = item.value;
             return obj;
           });
         };
@@ -188,19 +193,13 @@ export default function DotsChart() {
           let minLogValue, maxLogValue; // <-- Declarar aquí
 
           if (useCustomLog) {
-            // --- ORIGINAL: escala por cortes (getCustomLogScale) ---
-            // filteredLogValues = logValues.filter(
-            //   (b) => b.level == government.level
-            // );
-            // xScale = getCustomLogScale(filteredLogValues, width);
-            // --- FIN ORIGINAL ---
-
             // --- OPCIONAL: escala logarítmica estándar ---
             // Para probar la escala logarítmica, descomentar este bloque y comentar el original de arriba
-            const logData = processedData.filter(d => d.value > 0);
-            minLogValue = d3.min(logData, d => d.value); // <-- Asignar aquí
-            maxLogValue = d3.max(logData, d => d.value); // <-- Asignar aquí
-            xScale = d3.scaleLog()
+            const logData = processedData.filter((d) => d.value > 0);
+            minLogValue = d3.min(logData, (d) => d.value); // <-- Asignar aquí
+            maxLogValue = d3.max(logData, (d) => d.value); // <-- Asignar aquí
+            xScale = d3
+              .scaleLog()
               .domain([minLogValue, maxLogValue])
               .range([0, width]);
             // --- FIN OPCIONAL ---
@@ -213,23 +212,26 @@ export default function DotsChart() {
 
           // --- NUEVO: Jitter aleatorio dependiente de densidad ---
           // 1. Calcular bins (histograma) sobre el eje X
-          const numBins = Math.max(10, Math.floor(Math.sqrt(processedData.length)));
-          const xValues = processedData.map(d => useCustomLog ? xScale(d.value) : xScale(d.value));
-          const bins = d3.bin()
-            .domain([0, width])
-            .thresholds(numBins)(xValues);
+          const numBins = Math.max(
+            10,
+            Math.floor(Math.sqrt(processedData.length))
+          );
+          const xValues = processedData.map((d) =>
+            useCustomLog ? xScale(d.value) : xScale(d.value)
+          );
+          const bins = d3.bin().domain([0, width]).thresholds(numBins)(xValues);
 
           // 2. Para cada bin, calcular la cantidad de puntos (densidad)
           //    y asignar un jitter máximo proporcional a la densidad
           const maxJitter = height * 0.8; // altura máxima de la nube
           const minJitter = 30; // altura mínima para zonas poco densas
-          const maxBinLength = d3.max(bins, b => b.length) || 1;
+          const maxBinLength = d3.max(bins, (b) => b.length) || 1;
 
           // 3. Para cada punto, asignar jitter aleatorio según densidad local
           const points = processedData.map((item, idx) => {
             const x = useCustomLog ? xScale(item.value) : xScale(item.value);
             // Buscar el bin correspondiente
-            const binIdx = bins.findIndex(b => x >= b.x0 && x < b.x1);
+            const binIdx = bins.findIndex((b) => x >= b.x0 && x < b.x1);
             const bin = bins[binIdx] || bins[0];
             const density = bin.length / maxBinLength; // 0..1
             const jitterRange = minJitter + density * (maxJitter - minJitter);
@@ -262,79 +264,25 @@ export default function DotsChart() {
 
           // Add X axis
           if (useCustomLog) {
-            // --- ORIGINAL: eje X por cortes ---
-            const bins = [...filteredLogValues].sort((a, b) => a.bin - b.bin);
-            // const segmentWidth = width / bins.length;
-            // Mostrar mínimo a la izquierda
-            // svg
-            //   .append("text")
-            //   .attr("x", 0)
-            //   .attr("y", height + 20)
-            //   .attr("text-anchor", "end")
-            //   .style("font-family", chartStyles.fontFamily)
-            //   .style("font-size", "12px")
-            //   .style("color", chartStyles.textColor)
-            //   .text(
-            //     formatAxisLabel(bins[0].min, selectedIndicator.unit_measure_id)
-            //   );
-            // Mostrar valores intermedios
-            // bins.slice(1, -1).forEach((bin, i) => {
-            //   const xPos = (i + 1) * segmentWidth;
-            //   svg
-            //     .append("text")
-            //     .attr("x", xPos)
-            //     .attr("y", height + 20)
-            //     .attr("text-anchor", "start")
-            //     .style("font-family", chartStyles.fontFamily)
-            //     .style("font-size", "12px")
-            //     .style("color", chartStyles.textColor)
-            //     .text(
-            //       formatAxisLabel(bin.min, selectedIndicator.unit_measure_id)
-            //     );
-            // });
-            // Mostrar máximo con "+" donde empieza el último gap
-            // const maxValue =
-            //   bins[bins.length - 1].max || bins[bins.length - 1].min;
-            // const lastBinStartX = (bins.length - 1) * segmentWidth;
-            // svg
-            //   .append("text")
-            //   .attr("x", lastBinStartX)
-            //   .attr("y", height + 20)
-            //   .attr("text-anchor", "start")
-            //   .style("font-family", chartStyles.fontFamily)
-            //   .style("font-size", "12px")
-            //   .style("color", chartStyles.textColor)
-            //   .text(
-            //     formatAxisLabel(maxValue, selectedIndicator.unit_measure_id) +
-            //       "+"
-            //   );
-            // --- FIN ORIGINAL ---
-
-            // --- OPCIONAL: eje X logarítmico estándar ---
-            // Para probar el eje logarítmico, descomentar este bloque y comentar el original de arriba
-            // Calcular los ticks como potencias de 10 dentro del dominio
-            // (esto reemplaza el uso de xScale.ticks() que puede dar valores no deseados)
-            const logMin = Math.ceil(Math.log10(minLogValue));
-            const logMax = Math.floor(Math.log10(maxLogValue));
-            const tickValues = [];
-            for (let exp = logMin; exp <= logMax; exp++) {
-              tickValues.push(Math.pow(10, exp));
-            }
-            svg
-              .append("g")
-              .attr("transform", `translate(0,${height})`)
-              .call(
-                d3.axisBottom(xScale)
-                  .tickValues(tickValues)
-                  .tickFormat(d3.format(".0s"))
-              )
-              .selectAll("text")
-              .style("text-anchor", "end")
-              .style("font-size", "12px")
-              .style("color", chartStyles.textColor)
-              .style("font-family", "Raleway");
-            svg.selectAll(".domain, .tick line").remove();
-            // --- FIN OPCIONAL ---
+            // Dibuja los labels personalizados en la posición logarítmica
+            const binsFiltered = [...filteredLogValues].sort((a, b) => a.bin - b.bin);
+            console.log(binsFiltered)
+            binsFiltered.forEach((bin, i) => {
+              svg
+                .append("text")
+                .attr("x", xScale(bin.min))
+                .attr("y", height + 20)
+                .attr(
+                  "text-anchor",
+                  i === 0 ? "start" : i === binsFiltered.length - 1 ? "end" : "middle"
+                )
+                .style("font-family", chartStyles.fontFamily)
+                .style("font-size", "12px")
+                .style("color", chartStyles.textColor)
+                .text(
+                  formatAxisLabel(bin.min, selectedIndicator.unit_measure_id)
+                );
+            });
           } else {
             svg
               .append("g")
@@ -359,9 +307,10 @@ export default function DotsChart() {
             .remove();
 
           // Add dots (beeswarm/jitter)
-          let govPoint={}
+          let govPoint = {};
           points.forEach((point) => {
-          if(point.government_id=== government.id) return govPoint=point
+            if (point.government_id === government.id)
+              return (govPoint = point);
             const jurisdiction = data.governments.find(
               (g) => g.id === point.government_id
             );
@@ -448,61 +397,59 @@ export default function DotsChart() {
             valueGov: govValue,
           };
           svg
-                .append("circle")
-                .attr("cx", govPoint.x)
-                .attr("cy", govPoint.y)
-                .attr("r", chartStyles.dotSize*3)
-                .attr("fill", "#55C7D5")
-                .attr("stroke", "#004A80")
-                .attr(
-                  "stroke-width",2
-                )
-                .attr("cursor", "pointer")
-                .on("mouseover", function (event) {
-                  d3.select(this).attr("r", chartStyles.dotSize*4);
-                  setTooltip({
-                    ...tooltipContent,
-                    government_id: govPoint.government_id,
-                    x: event.pageX,
-                    y: event.pageY,
-                  });
-                })
-                .on("click", function (event) {
-                  d3.select(this).attr("r",chartStyles.dotSize*4);
-                  setTooltip({
-                    ...tooltipContent,
-                    government_id: govPoint.government_id,
-                    x: event.pageX,
-                    y: event.pageY,
-                  });
-                })
-                .on("mousemove", function (event) {
-                  d3.select(this).attr("r", chartStyles.dotSize*4);
-                  setTooltip({
-                    ...tooltipContent,
-                    government_id: govPoint.government_id,
-                    x: event.pageX,
-                    y: event.pageY,
-                  });
-                })
-                .on("mouseout", function () {
-                  d3.select(this).attr("r", chartStyles.dotSize*3);
-                  setTooltip(null);
-                })
-                .attr("tabindex", 0)
-                .on("focus", function (event) {
-                  d3.select(this).attr("r", chartStyles.dotSize*4);
-                  setTooltip({
-                    ...tooltipContent,
-                    government_id: govPoint.government_id,
-                    x: event.pageX,
-                    y: event.pageY,
-                  });
-                })
-                .on("blur", function () {
-                  d3.select(this).attr("r", chartStyles.dotSize*3);
-                  setTooltip(null);
-                });
+            .append("circle")
+            .attr("cx", govPoint.x)
+            .attr("cy", govPoint.y)
+            .attr("r", chartStyles.dotSize * 3)
+            .attr("fill", "#55C7D5")
+            .attr("stroke", "#004A80")
+            .attr("stroke-width", 2)
+            .attr("cursor", "pointer")
+            .on("mouseover", function (event) {
+              d3.select(this).attr("r", chartStyles.dotSize * 4);
+              setTooltip({
+                ...tooltipContent,
+                government_id: govPoint.government_id,
+                x: event.pageX,
+                y: event.pageY,
+              });
+            })
+            .on("click", function (event) {
+              d3.select(this).attr("r", chartStyles.dotSize * 4);
+              setTooltip({
+                ...tooltipContent,
+                government_id: govPoint.government_id,
+                x: event.pageX,
+                y: event.pageY,
+              });
+            })
+            .on("mousemove", function (event) {
+              d3.select(this).attr("r", chartStyles.dotSize * 4);
+              setTooltip({
+                ...tooltipContent,
+                government_id: govPoint.government_id,
+                x: event.pageX,
+                y: event.pageY,
+              });
+            })
+            .on("mouseout", function () {
+              d3.select(this).attr("r", chartStyles.dotSize * 3);
+              setTooltip(null);
+            })
+            .attr("tabindex", 0)
+            .on("focus", function (event) {
+              d3.select(this).attr("r", chartStyles.dotSize * 4);
+              setTooltip({
+                ...tooltipContent,
+                government_id: govPoint.government_id,
+                x: event.pageX,
+                y: event.pageY,
+              });
+            })
+            .on("blur", function () {
+              d3.select(this).attr("r", chartStyles.dotSize * 3);
+              setTooltip(null);
+            });
           // Add X axis label
           svg
             .append("text")
