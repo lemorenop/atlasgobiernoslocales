@@ -46,11 +46,18 @@ export default async function Jurisdiction({ params }) {
 
     const yearPoblacion = years.year_population;
     const yearIndicators = years.year_indicators;
-    const indicators = indicatorsAll.filter(elm=>elm.code!==25).map((elm) => {
-      const unit = unitMeasures.find((unit) => unit.id === elm.unit_measure_id);
-      elm.unit = unit;
-      return { ...elm };
-    });
+    const indicators = indicatorsAll
+      .filter(elm => elm.code !== 25)
+      .map((elm) => {
+        const unit = unitMeasures.find((unit) => unit.id === elm.unit_measure_id);
+        elm.unit = unit;
+        return { ...elm };
+      })
+      .sort((a, b) => {
+        if (a.code === 4) return 1;
+        if (b.code === 4) return -1;
+        return 0;
+      });
    
     const tooltipInfo = getTextById(jurisdictionsCopy, "tooltip_info", lang, [
       { id: "year", replace: yearPoblacion },

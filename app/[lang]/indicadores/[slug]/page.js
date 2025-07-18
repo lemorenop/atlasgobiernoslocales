@@ -46,7 +46,7 @@ export default async function Indicator({ params }) {
           lang,
           () => fetchData("indicators", lang),
           "indicators"
-        ).then((res) => res.sort((a, b) => (a.code < 4 ? 1 : -1))),
+        ).then((res) => res.sort((a, b) => (a.code < 5 ? 1 : -1))),
         getCachedData(
           copyCached,
           lang,
