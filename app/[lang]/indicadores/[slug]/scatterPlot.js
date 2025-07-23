@@ -300,9 +300,7 @@ export default function ScatterPlot() {
       const binsFilteredY = (logValuesY || [])
         .filter((b) => b.level == selectedNivel.value)
         .sort((a, b) => a.bin - b.bin);
-      console.log(binsFilteredY);
       binsFilteredY.forEach((bin, i) => {
-        console.log(bin.min);
         svg
           .append("text")
           .attr("x", -10)

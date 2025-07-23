@@ -69,7 +69,6 @@ export default function DotsChart() {
       setIsLoading(false);
     }
   };
-  console.log(government)
   const [downloadFnCsv, setDownloadFnCsv] = useState(null);
   const loadLogValues = async () => {
     if ([1, 2, 3].includes(selectedIndicator.code)) {
@@ -267,7 +266,6 @@ export default function DotsChart() {
           if (useCustomLog) {
             // Dibuja los labels personalizados en la posición logarítmica
             const binsFiltered = [...filteredLogValues].sort((a, b) => a.bin - b.bin);
-            console.log(binsFiltered)
             binsFiltered.forEach((bin, i) => {
               svg
                 .append("text")
