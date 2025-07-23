@@ -30,13 +30,7 @@ export default function JurisdictionDataProvider({
 
       console.timeEnd(`/api/gov-data?slug=${slug}`);
 
-      // const data = await fetch(`/api/country-data/${government.country_iso3}`)
-      //   .then((res) => res.json())
-      //   .then((res) => res.filter((elm) => elm.government_id ===slug));
-   
-//API call for BRA: 17197ms  - timer ended vs API call for BRA: 7110ms - timer ended || BRA1100031
-// API call for BRA: 24388ms - timer ended 
-//API call for BRA: 7345ms - timer ended vs API call for BRA: 5651ms - timer ended
+      
     setJurisdictionData(data);
   }
   useEffect(() => {

@@ -43,7 +43,7 @@ const csv = {
     "https://docs.google.com/spreadsheets/d/e/2PACX-1vR88Y20j7R16cecEBrgZw4jK3Vg5kI0DoPMfIGzxgu6IxvBHCynnYarfS-5eKFgyg/pub?gid=1840611032&single=true&output=csv",
   logValues:
     "https://docs.google.com/spreadsheets/d/e/2PACX-1vTshMm_LWq6GwRRjSxuq1DyflJGr8eC-d0cO0zIBFc6sDJZ_TiDZu-JhLrxusIaAw/pub?gid=1734716137&single=true&output=csv",
-  BRA: "https://docs.google.com/spreadsheets/d/e/2PACX-1vR1Ko-1SJ1XuopgxsKvRD4nWFjohd_SXKuStP6ZlV5LbOx5t02bn0KBDPdi2Schi903j5i_lwzbQaDd/pub?gid=108024715&single=true&output=csv", // COPY DE DATA
+ 
 };
 
 /**
