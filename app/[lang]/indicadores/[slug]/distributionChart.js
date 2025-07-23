@@ -72,7 +72,8 @@ export default function DistributionChart() {
   const svgRef = useRef();
 
   useEffect(() => {
-    if ([1, 2, 3].includes(indicator.code)) {
+    if(logValues ){
+       if ([1, 2, 3].includes(indicator.code)) {
       setRanges(
         logValues.filter((elm) => elm.indicator_code === indicator.code)
       );
@@ -81,6 +82,8 @@ export default function DistributionChart() {
     } else {
       setRanges(percRanges);
     }
+    }
+   
   }, [logValues]);
   // Process data to get distribution by country and level
   const data = useMemo(() => {
