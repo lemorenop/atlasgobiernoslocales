@@ -69,6 +69,7 @@ export default function DotsChart() {
       setIsLoading(false);
     }
   };
+  console.log(government)
   const [downloadFnCsv, setDownloadFnCsv] = useState(null);
   const loadLogValues = async () => {
     if ([1, 2, 3].includes(selectedIndicator.code)) {

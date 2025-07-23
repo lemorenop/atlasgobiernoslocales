@@ -151,7 +151,7 @@ export default function ScatterPlot() {
   }
   useEffect(() => {
     if (governments && logValues) loadData();
-  }, [selectedIndicator, governments,logValues]);
+  }, [selectedIndicator, governments, logValues]);
   useEffect(() => {
     if (!scatterData || !svgRef.current) return;
 
@@ -181,7 +181,12 @@ export default function ScatterPlot() {
         }
 
         const levelMatch = data.nivel === selectedNivel.value;
-        return countryMatch && levelMatch && data.value != null && data.value_2 != null;
+        return (
+          countryMatch &&
+          levelMatch &&
+          data.value != null &&
+          data.value_2 != null
+        );
       })
       .map(([id, data]) => {
         // Convert percentage values to 0-100 range
@@ -221,77 +226,42 @@ export default function ScatterPlot() {
 
     // Crear escala X
     let xScale;
-    let useCustomLog =
+    let useLog =
       [1, 2, 3].includes(selectedIndicator.code) &&
       logValuesInd &&
       logValuesInd.length > 0;
-    let filteredLogValues = logValuesInd;
     // Crear escala Y
     let yScale;
-    let useCustomLogY =
+    let useLogY =
       [1, 2, 3].includes(indicator.code) && logValuesY && logValuesY.length > 0;
-    let filteredLogValuesY = logValuesY;
-    if (useCustomLog) {
-      filteredLogValues = logValuesInd.filter(
-        (b) => b.level == selectedNivel.value
-      );
-      const bins = [...filteredLogValues].sort((a, b) => a.bin - b.bin);
-      // Calcula el máximo real de los datos para X
-      const maxX = d3.max(filteredData, (d) => d.x);
-      // Si el último bin no tiene max, asígnale el máximo real SOLO para la escala
-      if (
-        bins.length &&
-        (bins[bins.length - 1].max === undefined ||
-          bins[bins.length - 1].max === null)
-      ) {
-        bins[bins.length - 1] = { ...bins[bins.length - 1], max: maxX };
-      }
-      const segmentWidth = width / bins.length;
-      xScale = getCustomLogScale(bins, width);
-      // Mostrar mínimo a la izquierda
-      svg
-        .append("text")
-        .attr("x", 0)
-        .attr("y", height + 20)
-        .attr("text-anchor", "start")
-        .style("font-family", chartStyles.fontFamily)
-        .style("font-size", "12px")
-        .style("color", chartStyles.textColor)
-        .text(
-          formatAxisLabel(
-            filteredLogValues[0].min,
-            selectedIndicator.unit_measure_id
-          )
-        );
-      // Mostrar valores intermedios
-      bins.slice(1, -1).forEach((bin, i) => {
-        const xPos = (i + 1) * segmentWidth;
+
+    if (useLog) {
+      // Use standard log scale for X, but custom ticks from logValuesInd
+      const logData = filteredData.filter((d) => d.x > 0);
+      const minLogValue = d3.min(logData, (d) => d.x);
+      const maxLogValue = d3.max(logData, (d) => d.x);
+      xScale = d3
+        .scaleLog()
+        .domain([minLogValue, maxLogValue])
+        .range([0, width]);
+      // Custom ticks from logValuesInd
+      const binsFiltered = (logValuesInd || [])
+        .filter((b) => b.level == selectedNivel.value)
+        .sort((a, b) => a.bin - b.bin);
+      binsFiltered.forEach((bin, i) => {
         svg
           .append("text")
-          .attr("x", xPos)
+          .attr("x", xScale(bin.min))
           .attr("y", height + 20)
-          .attr("text-anchor", "start")
+          .attr(
+            "text-anchor",
+            i === 0 ? "start" : i === binsFiltered.length - 1 ? "end" : "middle"
+          )
           .style("font-family", chartStyles.fontFamily)
           .style("font-size", "12px")
           .style("color", chartStyles.textColor)
           .text(formatAxisLabel(bin.min, selectedIndicator.unit_measure_id));
       });
-      // Mostrar máximo con "+" donde empieza el último gap (pero NO mostrar el máximo real)
-      const lastBinStartX = (bins.length - 1) * segmentWidth;
-      svg
-        .append("text")
-        .attr("x", lastBinStartX)
-        .attr("y", height + 20)
-        .attr("text-anchor", "start")
-        .style("font-family", chartStyles.fontFamily)
-        .style("font-size", "12px")
-        .style("color", chartStyles.textColor)
-        .text(
-          formatAxisLabel(
-            filteredLogValues[filteredLogValues.length - 1].min,
-            selectedIndicator.unit_measure_id
-          )
-        );
     } else {
       xScale = d3
         .scaleLinear()
@@ -316,45 +286,27 @@ export default function ScatterPlot() {
       svg.selectAll(".domain, .tick line").remove();
     }
 
-    // Remove X axis lines (ya hecho arriba para el caso lineal)
-
     // Add Y axis
-    if (useCustomLogY) {
-      filteredLogValuesY = logValuesY.filter(
-        (b) => b.level == selectedNivel.value
-      );
-      const binsY = [...filteredLogValuesY].sort((a, b) => a.bin - b.bin);
-      // Calcula el máximo real de los datos para Y
-      const maxY = d3.max(filteredData, (d) => d.y);
-      // Si el último bin no tiene max, asígnale el máximo real SOLO para la escala
-      if (
-        binsY.length &&
-        (binsY[binsY.length - 1].max === undefined ||
-          binsY[binsY.length - 1].max === null)
-      ) {
-        binsY[binsY.length - 1] = { ...binsY[binsY.length - 1], max: maxY };
-      }
-      const segmentHeight = height / binsY.length;
-      yScale = getCustomLogScale(binsY, height);
-      // Mostrar mínimo abajo
-      svg
-        .append("text")
-        .attr("x", -10)
-        .attr("y", height)
-        .attr("text-anchor", "end")
-        .style("font-family", chartStyles.fontFamily)
-        .style("font-size", "12px")
-        .style("color", chartStyles.textColor)
-        .text(
-          formatAxisLabel(filteredLogValuesY[0].min, indicator.unit_measure_id)
-        );
-      // Mostrar valores intermedios
-      binsY.slice(1).forEach((bin, i) => {
-        const yPos = height - (i + 1) * segmentHeight;
+    if (useLogY) {
+      // Use standard log scale for Y, but custom ticks from logValuesY
+      const logDataY = filteredData.filter((d) => d.y > 0);
+      const minLogValueY = d3.min(logDataY, (d) => d.y);
+      const maxLogValueY = d3.max(logDataY, (d) => d.y);
+      yScale = d3
+        .scaleLog()
+        .domain([minLogValueY, maxLogValueY])
+        .range([height, 0]);
+      // Custom ticks from logValuesY
+      const binsFilteredY = (logValuesY || [])
+        .filter((b) => b.level == selectedNivel.value)
+        .sort((a, b) => a.bin - b.bin);
+      console.log(binsFilteredY);
+      binsFilteredY.forEach((bin, i) => {
+        console.log(bin.min);
         svg
           .append("text")
           .attr("x", -10)
-          .attr("y", yPos)
+          .attr("y", yScale(bin.min === 0 ? minLogValueY : bin.min))
           .attr("text-anchor", "end")
           .style("font-family", chartStyles.fontFamily)
           .style("font-size", "12px")
@@ -371,7 +323,7 @@ export default function ScatterPlot() {
         .call(
           d3
             .axisLeft(yScale)
-            .tickFormat(formatAxisLabel, indicator.unit_measure_id)
+            .tickFormat((d) => formatAxisLabel(d, indicator.unit_measure_id))
         )
         .selectAll("text")
         .style("text-anchor", "end")
@@ -410,8 +362,8 @@ export default function ScatterPlot() {
       .data(filteredData)
       .enter()
       .append("circle")
-      .attr("cx", (d) => (useCustomLog ? xScale(d.x) : xScale(d.x)))
-      .attr("cy", (d) => (useCustomLogY ? height - yScale(d.y) : yScale(d.y)))
+      .attr("cx", (d) => xScale(d.x))
+      .attr("cy", (d) => yScale(d.y))
       .attr("r", chartStyles.dotSize)
       .attr("fill", chartStyles.areaColor)
       .attr("stroke", chartStyles.blueColor)
