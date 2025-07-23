@@ -6,43 +6,43 @@ import Papa from "papaparse";
 
 const csv = {
   indicators:
-    "https://docs.google.com/spreadsheets/d/e/2PACX-1vTshMm_LWq6GwRRjSxuq1DyflJGr8eC-d0cO0zIBFc6sDJZ_TiDZu-JhLrxusIaAw/pub?gid=315846016&single=true&output=csv",
+    "https://docs.google.com/spreadsheets/d/e/2PACX-1vSBwGtY-iQJEsTB96oaLwFfMv9bRcB-dES_lSRQuBOU28iV_oinZTjZRNxXeMB88g/pub?gid=315846016&single=true&output=csv",
   regions:
-    "https://docs.google.com/spreadsheets/d/e/2PACX-1vTshMm_LWq6GwRRjSxuq1DyflJGr8eC-d0cO0zIBFc6sDJZ_TiDZu-JhLrxusIaAw/pub?gid=1578853195&single=true&output=csv",
+    "https://docs.google.com/spreadsheets/d/e/2PACX-1vSBwGtY-iQJEsTB96oaLwFfMv9bRcB-dES_lSRQuBOU28iV_oinZTjZRNxXeMB88g/pub?gid=1578853195&single=true&output=csv",
   countries:
-    "https://docs.google.com/spreadsheets/d/e/2PACX-1vTshMm_LWq6GwRRjSxuq1DyflJGr8eC-d0cO0zIBFc6sDJZ_TiDZu-JhLrxusIaAw/pub?gid=2138553854&single=true&output=csv",
+    "https://docs.google.com/spreadsheets/d/e/2PACX-1vSBwGtY-iQJEsTB96oaLwFfMv9bRcB-dES_lSRQuBOU28iV_oinZTjZRNxXeMB88g/pub?gid=2138553854&single=true&output=csv",
   levelPerCountry:
-    "https://docs.google.com/spreadsheets/d/e/2PACX-1vTshMm_LWq6GwRRjSxuq1DyflJGr8eC-d0cO0zIBFc6sDJZ_TiDZu-JhLrxusIaAw/pub?gid=198002196&single=true&output=csv",
+    "https://docs.google.com/spreadsheets/d/e/2PACX-1vSBwGtY-iQJEsTB96oaLwFfMv9bRcB-dES_lSRQuBOU28iV_oinZTjZRNxXeMB88g/pub?gid=198002196&single=true&output=csv",
   governments:
-    "https://docs.google.com/spreadsheets/d/e/2PACX-1vTshMm_LWq6GwRRjSxuq1DyflJGr8eC-d0cO0zIBFc6sDJZ_TiDZu-JhLrxusIaAw/pub?gid=490903592&single=true&output=csv",
+    "https://docs.google.com/spreadsheets/d/e/2PACX-1vSBwGtY-iQJEsTB96oaLwFfMv9bRcB-dES_lSRQuBOU28iV_oinZTjZRNxXeMB88g/pub?gid=490903592&single=true&output=csv",
   homeCopy:
-    "https://docs.google.com/spreadsheets/d/e/2PACX-1vR88Y20j7R16cecEBrgZw4jK3Vg5kI0DoPMfIGzxgu6IxvBHCynnYarfS-5eKFgyg/pub?gid=425601317&single=true&output=csv",
+    "https://docs.google.com/spreadsheets/d/e/2PACX-1vRnYELJWxmMI7t7io-sG23uGzP7nCFu6ENP-yoa_K_vn-2qQUaWAedlCHGOdk65Fg/pub?gid=425601317&single=true&output=csv",
   navbarCopy:
-    "https://docs.google.com/spreadsheets/d/e/2PACX-1vR88Y20j7R16cecEBrgZw4jK3Vg5kI0DoPMfIGzxgu6IxvBHCynnYarfS-5eKFgyg/pub?gid=2043907821&single=true&output=csv",
+    "https://docs.google.com/spreadsheets/d/e/2PACX-1vRnYELJWxmMI7t7io-sG23uGzP7nCFu6ENP-yoa_K_vn-2qQUaWAedlCHGOdk65Fg/pub?gid=2043907821&single=true&output=csv",
   footerCopy:
-    "https://docs.google.com/spreadsheets/d/e/2PACX-1vR88Y20j7R16cecEBrgZw4jK3Vg5kI0DoPMfIGzxgu6IxvBHCynnYarfS-5eKFgyg/pub?gid=636324315&single=true&output=csv",
+    "https://docs.google.com/spreadsheets/d/e/2PACX-1vRnYELJWxmMI7t7io-sG23uGzP7nCFu6ENP-yoa_K_vn-2qQUaWAedlCHGOdk65Fg/pub?gid=636324315&single=true&output=csv",
   aboutCopy:
-    "https://docs.google.com/spreadsheets/d/e/2PACX-1vR88Y20j7R16cecEBrgZw4jK3Vg5kI0DoPMfIGzxgu6IxvBHCynnYarfS-5eKFgyg/pub?gid=1578446695&single=true&output=csv",
+    "https://docs.google.com/spreadsheets/d/e/2PACX-1vRnYELJWxmMI7t7io-sG23uGzP7nCFu6ENP-yoa_K_vn-2qQUaWAedlCHGOdk65Fg/pub?gid=1578446695&single=true&output=csv",
   homeMapTooltip:
-    "https://docs.google.com/spreadsheets/d/e/2PACX-1vR88Y20j7R16cecEBrgZw4jK3Vg5kI0DoPMfIGzxgu6IxvBHCynnYarfS-5eKFgyg/pub?gid=1636436981&single=true&output=csv",
+    "https://docs.google.com/spreadsheets/d/e/2PACX-1vRnYELJWxmMI7t7io-sG23uGzP7nCFu6ENP-yoa_K_vn-2qQUaWAedlCHGOdk65Fg/pub?gid=1636436981&single=true&output=csv",
   allData:
-    "https://docs.google.com/spreadsheets/d/e/2PACX-1vTshMm_LWq6GwRRjSxuq1DyflJGr8eC-d0cO0zIBFc6sDJZ_TiDZu-JhLrxusIaAw/pub?gid=682419313&single=true&output=csv",
+    "https://docs.google.com/spreadsheets/d/e/2PACX-1vSBwGtY-iQJEsTB96oaLwFfMv9bRcB-dES_lSRQuBOU28iV_oinZTjZRNxXeMB88g/pub?gid=682419313&single=true&output=csv",
   yearData:
-    "https://docs.google.com/spreadsheets/d/e/2PACX-1vTshMm_LWq6GwRRjSxuq1DyflJGr8eC-d0cO0zIBFc6sDJZ_TiDZu-JhLrxusIaAw/pub?gid=845109380&single=true&output=csv",
+    "https://docs.google.com/spreadsheets/d/e/2PACX-1vSBwGtY-iQJEsTB96oaLwFfMv9bRcB-dES_lSRQuBOU28iV_oinZTjZRNxXeMB88g/pub?gid=845109380&single=true&output=csv",
   nationalAverages:
-    "https://docs.google.com/spreadsheets/d/e/2PACX-1vTshMm_LWq6GwRRjSxuq1DyflJGr8eC-d0cO0zIBFc6sDJZ_TiDZu-JhLrxusIaAw/pub?gid=129529016&single=true&output=csv",
+    "https://docs.google.com/spreadsheets/d/e/2PACX-1vSBwGtY-iQJEsTB96oaLwFfMv9bRcB-dES_lSRQuBOU28iV_oinZTjZRNxXeMB88g/pub?gid=129529016&single=true&output=csv",
   indicatorsCopy:
-    "https://docs.google.com/spreadsheets/d/e/2PACX-1vR88Y20j7R16cecEBrgZw4jK3Vg5kI0DoPMfIGzxgu6IxvBHCynnYarfS-5eKFgyg/pub?gid=815048896&single=true&output=csv",
+    "https://docs.google.com/spreadsheets/d/e/2PACX-1vRnYELJWxmMI7t7io-sG23uGzP7nCFu6ENP-yoa_K_vn-2qQUaWAedlCHGOdk65Fg/pub?gid=815048896&single=true&output=csv",
   jurisdictionsCopy:
-    "https://docs.google.com/spreadsheets/d/e/2PACX-1vR88Y20j7R16cecEBrgZw4jK3Vg5kI0DoPMfIGzxgu6IxvBHCynnYarfS-5eKFgyg/pub?gid=1649672062&single=true&output=csv",
+    "https://docs.google.com/spreadsheets/d/e/2PACX-1vRnYELJWxmMI7t7io-sG23uGzP7nCFu6ENP-yoa_K_vn-2qQUaWAedlCHGOdk65Fg/pub?gid=1649672062&single=true&output=csv",
   pageError:
-    "https://docs.google.com/spreadsheets/d/e/2PACX-1vR88Y20j7R16cecEBrgZw4jK3Vg5kI0DoPMfIGzxgu6IxvBHCynnYarfS-5eKFgyg/pub?gid=757641088&single=true&output=csv",
+    "https://docs.google.com/spreadsheets/d/e/2PACX-1vRnYELJWxmMI7t7io-sG23uGzP7nCFu6ENP-yoa_K_vn-2qQUaWAedlCHGOdk65Fg/pub?gid=757641088&single=true&output=csv",
   unitMeasures:
-    "https://docs.google.com/spreadsheets/d/e/2PACX-1vTshMm_LWq6GwRRjSxuq1DyflJGr8eC-d0cO0zIBFc6sDJZ_TiDZu-JhLrxusIaAw/pub?gid=328536948&single=true&output=csv",
+    "https://docs.google.com/spreadsheets/d/e/2PACX-1vSBwGtY-iQJEsTB96oaLwFfMv9bRcB-dES_lSRQuBOU28iV_oinZTjZRNxXeMB88g/pub?gid=328536948&single=true&output=csv",
   metadataCopy:
-    "https://docs.google.com/spreadsheets/d/e/2PACX-1vR88Y20j7R16cecEBrgZw4jK3Vg5kI0DoPMfIGzxgu6IxvBHCynnYarfS-5eKFgyg/pub?gid=1840611032&single=true&output=csv",
+    "https://docs.google.com/spreadsheets/d/e/2PACX-1vRnYELJWxmMI7t7io-sG23uGzP7nCFu6ENP-yoa_K_vn-2qQUaWAedlCHGOdk65Fg/pub?gid=1840611032&single=true&output=csv",
   logValues:
-    "https://docs.google.com/spreadsheets/d/e/2PACX-1vTshMm_LWq6GwRRjSxuq1DyflJGr8eC-d0cO0zIBFc6sDJZ_TiDZu-JhLrxusIaAw/pub?gid=1734716137&single=true&output=csv",
+    "https://docs.google.com/spreadsheets/d/e/2PACX-1vSBwGtY-iQJEsTB96oaLwFfMv9bRcB-dES_lSRQuBOU28iV_oinZTjZRNxXeMB88g/pub?gid=1734716137&single=true&output=csv",
  
 };
 
