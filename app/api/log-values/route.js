@@ -7,7 +7,7 @@ export async function GET(request, { params }) {
   
     console.log(`🔎 Busco valores de logValues`);
     // Verificar si los datos filtrados ya están en caché
-    const cacheKey = `logValues_es`;
+    const cacheKey = `logValues`;
     const cachedData = getFromCache(cacheKey);
     if (cachedData) {
       console.log("uso cache",cacheKey);

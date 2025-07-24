@@ -1,6 +1,5 @@
 import { NextResponse } from "next/server";
 import { getJurisdictionData } from "@/app/utils/dataFetchers";
-import { getFromCache, setInCache } from "@/app/utils/cache";
 
 export async function GET(request, { params }) {
   try {

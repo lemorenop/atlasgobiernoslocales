@@ -61,6 +61,7 @@ NEXT_PUBLIC_URL=tu_url_del_sitio
     - **Títulos y textos**: Provienen del spreadsheet [2025.04.07 - Atlas_textos_extraidos](https://docs.google.com/spreadsheets/d/1crKtbS4Vl3pD-97iOFmNI1P767m8KXDd/edit?gid=425601317#gid=425601317), organizado por pestañas que corresponden a cada página o sección del sitio.
     - **Datos de gobiernos y países**: Provienen del spreadsheet [Data - CAF](https://docs.google.com/spreadsheets/d/1T9ExlPxWHdtmsQmlUH6fOwG2hWSGPViX/edit?gid=682419313#gid=682419313).
 - **Datos geoespaciales**: Archivos en `public/maps/` (GeoJSON, GPKG) para la visualización de mapas y límites jurisdiccionales.
+- **Datos para la descarga:** El csv se genera a partir del spreadsheet [base_consolidada_2025.05.15](https://docs.google.com/spreadsheets/d/13S5QFXT8S8elyqhFNfC5wLKtB4XG9FiqJe2cpAFc7PY/edit?gid=150251432#gid=150251432)
 - **API interna**: Endpoints en `app/api/` para exponer datos procesados y búsquedas.
 
 ## 🚀 Despliegue

@@ -63,4 +63,11 @@ export function clearCache() {
   cache.data = {};
   cache.timestamps = {};
   cache.ttls = {};
+}
+
+/**
+ * Devuelve una copia del contenido completo del caché
+ */
+export function getAllCache() {
+  return cache;
 } 
