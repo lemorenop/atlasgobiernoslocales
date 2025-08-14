@@ -29,10 +29,13 @@ export default function Hero({ lang, slug, copy, indicators, indicator }) {
           </h1>
           <p className="paragraph-small text-white">
             {getTextById(copy, "hero_subtitle", lang)}
+           
+          
           </p>
+
         </div>
         {url && (
-          <div className="flex justify-between gap-s uppercase  items-center flex-wrap border-t border-t-[#FFFFFF66] pt-[24px] max-md:justify-end">
+          <div className="flex justify-between gap-s uppercase  items-center flex-wrap pt-[24px] max-md:justify-end border-b border-b-[#FFFFFF66] pb-[24px]">
             <p className="caption text-white ">{getTextById(copy, "share", lang)}</p>
             <div className="flex gap-xxs">
               <TwitterShareButton url={url} title={shareText}>
@@ -62,6 +65,9 @@ export default function Hero({ lang, slug, copy, indicators, indicator }) {
             </div>
           </div>
         )}
+        <p className="paragraph-small text-white ">
+       {getTextById(copy, "map_title", lang)}
+        </p>
       </div>
       <div className="flex flex-col gap-s">
         <div className="flex flex-col gap-xs w-full md:max-w-96">

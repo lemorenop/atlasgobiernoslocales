@@ -23,7 +23,7 @@ export default function Tooltip({ children, tooltip }) {
 
   return (
     <div
-      className="tooltip w-fit inline-block z-20 absolute bg-white pointer-events-none"
+      className="tooltip w-fit inline-block z-20 absolute bg-white "
       style={{
         top: position.y,
         left: position.x,

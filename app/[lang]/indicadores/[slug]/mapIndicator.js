@@ -17,6 +17,7 @@ import * as d3 from "d3";
 import { getTextById, formatValue } from "@/app/utils/textUtils";
 import Tooltip from "@/app/[lang]/components/tooltip";
 import DownloadShapes from "@/app/[lang]/components/downloadShapes";
+import Expand from "../../components/icons/expand";
 
 export default function MapIndicator({
   selectedNivel,
@@ -311,8 +312,14 @@ export default function MapIndicator({
     interactive: true,
   };
   const [tooltip, setTooltip] = useState();
+  const [frozenTooltip, setFrozenTooltip] = useState(null);
+  const [isTooltipFrozen, setIsTooltipFrozen] = useState(false);
+
   // Handle hover events for tooltips
   const onMouseMove = (event) => {
+    // Si el tooltip está freezado, no actualizar la posición
+    if (isTooltipFrozen) return;
+
     const feature = event.features && event.features[0];
 
     if (
@@ -362,6 +369,7 @@ export default function MapIndicator({
           governmentCode: `${governments[feature.properties.codigo_uni].name} ${
             governments[feature.properties.codigo_uni].completeName
           }`,
+          url:feature.properties.codigo_uni,
           value: displayValue,
           x: x,
           y: y,
@@ -371,6 +379,7 @@ export default function MapIndicator({
           governmentCode: `${governments[feature.properties.codigo_uni].name} ${
             governments[feature.properties.codigo_uni].completeName
           }`,
+          url: feature.properties.codigo_uni,
           value: getTextById(copy, "no_data", lang),
           x: x,
           y: y,
@@ -382,11 +391,119 @@ export default function MapIndicator({
   };
 
   const onMouseLeave = () => {
-    setTooltip(null);
+    // Solo ocultar el tooltip si no está freezado
+    if (!isTooltipFrozen) {
+      setTooltip(null);
+    }
   };
 
   const onZoomOrPan = () => {
+    // Desfreezar el tooltip cuando se hace zoom o pan
+    setIsTooltipFrozen(false);
+    setFrozenTooltip(null);
     setTooltip(null);
+  };
+
+  // Handle click events to freeze/unfreeze tooltip
+  const onClick = (event) => {
+    const feature = event.features && event.features[0];
+
+    if (
+      feature &&
+      feature.properties &&
+      feature.properties.codigo_uni &&
+      governments[feature.properties.codigo_uni]
+    ) {
+      const map = mapRef.current && mapRef.current.getMap();
+      const { x, y } = map.project([event.lngLat.lng, event.lngLat.lat]);
+      
+      if (
+        governments[feature.properties.codigo_uni].value !== undefined &&
+        governments[feature.properties.codigo_uni].value !== null &&
+        typeof governments[feature.properties.codigo_uni].value === "number"
+      ) {
+        const originalValue = governments[feature.properties.codigo_uni].value;
+        const displayValue = isPercentage
+          ? formatValue(
+              originalValue * 100,
+              indicator.unit_measure_id,
+              lang,
+              true
+            )
+          : `${formatValue(
+              originalValue,
+              indicator.unit_measure_id,
+              lang,
+              false
+            )}
+              ${
+                indicator.unit_measure_id === "km2"
+                  ? "km2"
+                  : indicator.unit_measure_id === "hab_km2"
+                  ? "hab/km2"
+                  : indicator.unit_measure_id === "hab"
+                  ? lang === "es"
+                    ? "habitantes"
+                    : lang === "pt"
+                    ? "habitantes"
+                    : lang === "en"
+                    ? "inhabitants"
+                    : ""
+                  : ""
+              }`;
+
+        const tooltipData = {
+          governmentCode: `${governments[feature.properties.codigo_uni].name} ${
+            governments[feature.properties.codigo_uni].completeName
+          }`,
+          url:feature.properties.codigo_uni,
+          value: displayValue,
+          x: x,
+          y: y,
+        };
+
+        // Si ya está freezado en la misma jurisdicción, desfreezar
+        if (isTooltipFrozen && frozenTooltip && 
+            frozenTooltip.governmentCode === tooltipData.governmentCode) {
+          setIsTooltipFrozen(false);
+          setFrozenTooltip(null);
+          setTooltip(null);
+        } else {
+          // Freezar el tooltip
+          setIsTooltipFrozen(true);
+          setFrozenTooltip(tooltipData);
+          setTooltip(tooltipData);
+        }
+      } else {
+        const tooltipData = {
+          governmentCode: `${governments[feature.properties.codigo_uni].name} ${
+            governments[feature.properties.codigo_uni].completeName
+          }`,
+          url: feature.properties.codigo_uni,
+          value: getTextById(copy, "no_data", lang),
+          x: x,
+          y: y,
+        };
+
+        // Si ya está freezado en la misma jurisdicción, desfreezar
+        if (isTooltipFrozen && frozenTooltip && 
+            frozenTooltip.governmentCode === tooltipData.governmentCode) {
+          setIsTooltipFrozen(false);
+          setFrozenTooltip(null);
+          setTooltip(null);
+        } else {
+          // Freezar el tooltip
+          setIsTooltipFrozen(true);
+          setFrozenTooltip(tooltipData);
+          setTooltip(tooltipData);
+        }
+      }
+    } else {
+      // Si se hace click en un área sin jurisdicción, desfreezar
+      setIsTooltipFrozen(false);
+      setFrozenTooltip(null);
+      setTooltip(null);
+    }
   };
 
   return (
@@ -400,8 +517,10 @@ export default function MapIndicator({
         minZoom={1}
         onMouseMove={onMouseMove}
         onMouseLeave={onMouseLeave}
+        onClick={onClick}
         onZoom={onZoomOrPan}
         onMove={onZoomOrPan}
+        scrollZoom={false}
         maxZoom={22}
         interactiveLayerIds={[
           "nivel1-layer",
@@ -608,6 +727,10 @@ export default function MapIndicator({
             <p className="description text-black font-normal whitespace-nowrap">
               {indicator[`name_${lang}`]}: <span className="font-bold">{tooltip.value}</span>
             </p>
+            <a href={`/${lang}/jurisdicciones/${tooltip.url}`} className="text-blue-CAF text-sm font-bold flex items-center gap-xxs pt-s ">
+              {getTextById(copy, "tooltip_visit", lang)}
+              <Expand className="w-2 h-2 stroke-blue-CAF stroke-4  transition-all"/>
+            </a>
           </>
         </Tooltip>
       )}

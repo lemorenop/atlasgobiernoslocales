@@ -43,7 +43,8 @@ const csv = {
     "https://docs.google.com/spreadsheets/d/e/2PACX-1vRnYELJWxmMI7t7io-sG23uGzP7nCFu6ENP-yoa_K_vn-2qQUaWAedlCHGOdk65Fg/pub?gid=1840611032&single=true&output=csv",
   logValues:
     "https://docs.google.com/spreadsheets/d/e/2PACX-1vSBwGtY-iQJEsTB96oaLwFfMv9bRcB-dES_lSRQuBOU28iV_oinZTjZRNxXeMB88g/pub?gid=1734716137&single=true&output=csv",
- cacheCopy:"https://docs.google.com/spreadsheets/d/e/2PACX-1vRnYELJWxmMI7t7io-sG23uGzP7nCFu6ENP-yoa_K_vn-2qQUaWAedlCHGOdk65Fg/pub?gid=1441031514&single=true&output=csv"
+ cacheCopy:"https://docs.google.com/spreadsheets/d/e/2PACX-1vRnYELJWxmMI7t7io-sG23uGzP7nCFu6ENP-yoa_K_vn-2qQUaWAedlCHGOdk65Fg/pub?gid=1441031514&single=true&output=csv",
+ categories:"https://docs.google.com/spreadsheets/d/e/2PACX-1vSBwGtY-iQJEsTB96oaLwFfMv9bRcB-dES_lSRQuBOU28iV_oinZTjZRNxXeMB88g/pub?gid=1390113770&single=true&output=csv"
 };
 
 /**

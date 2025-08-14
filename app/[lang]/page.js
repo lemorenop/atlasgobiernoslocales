@@ -12,10 +12,11 @@ export async function generateStaticParams() {
 
 export default async function Home({ params }) {
   const { lang } = await params;
-  const [homeCopyData, indicators, homeMapTooltip] = await Promise.all([
+  const [homeCopyData, indicators, homeMapTooltip,categories] = await Promise.all([
     fetchData("homeCopy", lang),
     fetchData("indicators", lang),
     fetchData("homeMapTooltip", lang),
+    fetchData("categories", lang),
   ]);
   return (
     homeCopyData &&
@@ -29,6 +30,9 @@ export default async function Home({ params }) {
           homeMapTooltip={homeMapTooltip}
         />{" "}
         <div className="flex flex-col px-l md:px-4xl md:grid md:grid-cols-2 gap-[24px] md:gap-[64px] py-2xl md:py-[112px] bg-white relative">
+          <p className="col-span-2 text-black md:w-2/3 text-h4">
+            {getTextById(homeCopyData, "explore_title", lang)}
+          </p>
           <div className="bg-background p-xl flex flex-col gap-[24px] justify-between">
             <div className="md:hidden absolute bottom-[-40px] left-[-100px] bg-navy rounded-full w-[200px] h-[200px] z-0" />{" "}
             <div className="flex flex-col gap-[24px]">
@@ -41,6 +45,7 @@ export default async function Home({ params }) {
             </div>
             {indicators && (
               <SelectLink
+                categories={categories}
                 path={"indicadores"}
                 lang={lang}
                 options={indicators.filter((i) => i.slug)}

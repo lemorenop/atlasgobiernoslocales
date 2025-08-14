@@ -229,6 +229,11 @@ body {
   box-shadow: none!important;
  
 }
+.mapboxgl-ctrl-group button{
+  width:35px!important;
+  height:35px!important;
+ 
+}
 .mapboxgl-ctrl-group button{ background: var(--color-blue)!important;
   border-radius: 0!important;
   border: none!important;

@@ -23,6 +23,7 @@ NEXT_PUBLIC_URL=tu_url_del_sitio
 2. Reemplaza `tu_token_de_mapbox_aqui` por tu token de Mapbox. Si tienes estilos personalizados, reemplaza también `tu_token_de_estilos_de_mapbox_aqui`.
    - Obtén un token gratuito en [Mapbox](https://account.mapbox.com/access-tokens/).
    - Crea estilos personalizados en [Mapbox Studio](https://www.mapbox.com/mapbox-studio).
+
 3. Reemplaza `tu_url_del_sitio` por la URL donde estará alojado el sitio.
 
 ### Levanta el proyecto
@@ -66,7 +67,8 @@ NEXT_PUBLIC_URL=tu_url_del_sitio
 ### Actualizaciones
 Creamos una ruta para poder ver y limpiar el caché del sevidor. Cuando se actualizan los spreadsheets, si no se realizó ningún deploy, es necesario limpiar el caché a mano visitando la url `/cache?clean=true`
 
-
+### Mapbox
+El token de API y los estilos del mapa pertenecen al cliente y están configurados en Mapbox Studio. Para facilitar la colaboración en el desarrollo, el cliente ha creado un equipo en Mapbox Studio donde se ha agregado a una de nuestras desarrolladoras con permisos de edición. 
 
 ## 🚀 Despliegue
 
