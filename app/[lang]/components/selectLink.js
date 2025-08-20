@@ -54,14 +54,14 @@ export default function SelectLink({
             // Grouped by categories
             groupedOptions.map((category,index) => (
               <MenuSection key={category.id} className="flex flex-col gap-2">
-                 <MenuHeading className={`text-blue-CAF font-bold caption uppercase italic ${index!==0?"border-t-1":''} border-navy pt-s `}>
+                 <MenuHeading className={`text-blue-CAF font-bold  uppercase italic ${index!==0?"border-t-1":''} border-navy pt-s `}>
                   {category[`name_${lang}`]}
                 </MenuHeading>
                 {category.options.map((option) => (
                   option.slug && (
                     <MenuItem
                       key={option.slug}
-                      className="hover:bg-blue-CAF hover:text-white p-xs"
+                      className="caption hover:bg-blue-CAF hover:text-white p-xs"
                     >
                       <a
                         className="w-full"

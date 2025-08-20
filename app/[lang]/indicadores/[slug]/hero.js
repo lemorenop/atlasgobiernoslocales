@@ -12,7 +12,7 @@ import {
   EmailIcon,
 } from "next-share";
 import { useEffect, useState } from "react";
-export default function Hero({ lang, slug, copy, indicators, indicator }) {
+export default function Hero({ lang, slug, copy, indicators, indicator, categories }) {
   const [url, setUrl] = useState(null);
   useEffect(() => {
     const url = typeof window !== "undefined" ? window.location.href : null;
@@ -35,7 +35,7 @@ export default function Hero({ lang, slug, copy, indicators, indicator }) {
 
         </div>
         {url && (
-          <div className="flex justify-between gap-s uppercase  items-center flex-wrap pt-[24px] max-md:justify-end border-b border-b-[#FFFFFF66] pb-[24px]">
+          <div className="flex justify-between gap-s uppercase  items-center flex-wrap pt-[24px] max-md:justify-end border-t border-t-[#FFFFFF66] max-xl:hidden">
             <p className="caption text-white ">{getTextById(copy, "share", lang)}</p>
             <div className="flex gap-xxs">
               <TwitterShareButton url={url} title={shareText}>
@@ -65,13 +65,12 @@ export default function Hero({ lang, slug, copy, indicators, indicator }) {
             </div>
           </div>
         )}
-        <p className="paragraph-small text-white ">
-       {getTextById(copy, "map_title", lang)}
-        </p>
+       
       </div>
       <div className="flex flex-col gap-s">
         <div className="flex flex-col gap-xs w-full md:max-w-96">
            <SelectLink
+          categories={categories}
           activeOption={indicator[`name_${lang}`]}
           title={getTextById(copy, "select", lang)}
           path={"indicadores"
@@ -85,7 +84,39 @@ export default function Hero({ lang, slug, copy, indicators, indicator }) {
         <p className="description text-white">
           {indicator[`description_${lang}`]}
         </p>
-      </div>
+
+       
+      </div> {url && (
+          <div className="flex justify-between gap-s uppercase  items-center flex-wrap pt-[24px] max-md:justify-end border-t border-t-[#FFFFFF66] xl:hidden">
+            <p className="caption text-white ">{getTextById(copy, "share", lang)}</p>
+            <div className="flex gap-xxs">
+              <TwitterShareButton url={url} title={shareText}>
+                <TwitterIcon
+                  size={40}
+                  round
+                  bgStyle={{ fill: "transparent" }}
+                />
+              </TwitterShareButton>{" "}
+              <FacebookShareButton url={url} quote={shareText}>
+                <FacebookIcon
+                  size={40}
+                  round
+                  bgStyle={{ fill: "transparent" }}
+                />
+              </FacebookShareButton>
+              <LinkedinShareButton url={url}>
+                <LinkedinIcon
+                  size={40}
+                  round
+                  bgStyle={{ fill: "transparent" }}
+                />
+              </LinkedinShareButton>
+              <EmailShareButton url={url} subject={shareText} body="body">
+                <EmailIcon size={40} round bgStyle={{ fill: "transparent" }} />
+              </EmailShareButton>
+            </div>
+          </div>
+        )}
     </div>
   );
 }

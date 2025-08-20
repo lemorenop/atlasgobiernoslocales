@@ -31,7 +31,7 @@ export default async function Home({ params }) {
           homeMapTooltip={homeMapTooltip}
         />{" "}
         <div className="flex flex-col px-l md:px-4xl md:grid md:grid-cols-2 gap-[24px] md:gap-[64px] py-2xl md:py-[112px] bg-white relative">
-          <p className="col-span-2 text-black md:w-2/3 text-h4">
+          <p className="col-span-2 text-black md:w-2/3 mx-auto text-center text-h4">
             {getTextById(homeCopyData, "explore_title", lang)}
           </p>
           <div className="bg-background p-xl flex flex-col gap-[24px] justify-between">

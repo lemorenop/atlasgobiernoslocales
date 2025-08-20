@@ -11,6 +11,7 @@ let copyCached = { es: [], en: [], pt: [] };
 let countriesCached = { es: [], en: [], pt: [] };
 let levelPerCountryCached = { es: [], en: [], pt: [] };
 let regionsCached = { es: [], en: [], pt: [] };
+let categoriesCached = { es: [], en: [], pt: [] };
 
 export async function generateStaticParams() {
   const slugs = (
@@ -39,7 +40,7 @@ export default async function Indicator({ params }) {
   const { lang, slug } = await params;
   console.log("-------- Indicator Page ", lang, "/", slug, " --------");
   try {
-    const [indicators, copy, countries, levelPerCountry, regions] =
+    const [indicators, copy, countries, levelPerCountry, regions, categories] =
       await Promise.all([
         getCachedData(
           indicatorsCached,
@@ -76,6 +77,12 @@ export default async function Indicator({ params }) {
             return elm;
           });
         }),
+        getCachedData(
+          categoriesCached,
+          lang,
+          () => fetchData("categories", lang),
+          "categories"
+        ),
       ]);
     const currentIndicator = indicators.find(
       (indicator) => indicator.slug === slug
@@ -93,6 +100,7 @@ export default async function Indicator({ params }) {
             copy={copy}
             indicators={indicators}
             indicator={currentIndicator}
+            categories={categories}
           />
           <IndicatorDataProvider
             regions={regions}
