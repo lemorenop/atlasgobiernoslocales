@@ -12,12 +12,13 @@ export async function generateStaticParams() {
 
 export default async function Home({ params }) {
   const { lang } = await params;
-  const [homeCopyData, indicators, homeMapTooltip,categories] = await Promise.all([
-    fetchData("homeCopy", lang),
-    fetchData("indicators", lang),
-    fetchData("homeMapTooltip", lang),
-    fetchData("categories", lang),
-  ]);
+  const [homeCopyData, indicators, homeMapTooltip, categories] =
+    await Promise.all([
+      fetchData("homeCopy", lang),
+      fetchData("indicators", lang),
+      fetchData("homeMapTooltip", lang),
+      fetchData("categories", lang),
+    ]);
   return (
     homeCopyData &&
     indicators && (
