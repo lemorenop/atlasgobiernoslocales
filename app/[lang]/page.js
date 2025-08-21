@@ -10,6 +10,8 @@ export async function generateStaticParams() {
   return locales;
 }
 
+
+
 export default async function Home({ params }) {
   const { lang } = await params;
   const [homeCopyData, indicators, homeMapTooltip, categories] =
