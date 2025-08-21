@@ -520,7 +520,7 @@ export default function MapIndicator({
         onClick={onClick}
         onZoom={onZoomOrPan}
         onMove={onZoomOrPan}
-        scrollZoom={false}
+        
         maxZoom={22}
         interactiveLayerIds={[
           "nivel1-layer",

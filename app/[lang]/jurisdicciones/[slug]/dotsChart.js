@@ -156,7 +156,7 @@ export default function DotsChart() {
           const isMobile = container.clientWidth < 600;
           const margin = {
             top: 40,
-            right: isMobile ? 10 : 20,
+            right: isMobile ? 10 : 30,
             bottom: 60,
             left: isMobile ? 10 : 60,
           };
@@ -181,6 +181,7 @@ export default function DotsChart() {
           const value = processedData.find(
             (d) => d.government_id === government.id
           )?.value;
+          console.log(minValue)
           setValues({ maxValue, minValue, value });
 
           // Create scales
@@ -193,16 +194,16 @@ export default function DotsChart() {
           let minLogValue, maxLogValue; // <-- Declarar aquí
 
           if (useCustomLog) {
-            // --- OPCIONAL: escala logarítmica estándar ---
-            // Para probar la escala logarítmica, descomentar este bloque y comentar el original de arriba
-            const logData = processedData.filter((d) => d.value > 0);
-            minLogValue = d3.min(logData, (d) => d.value); // <-- Asignar aquí
-            maxLogValue = d3.max(logData, (d) => d.value); // <-- Asignar aquí
+            // // --- OPCIONAL: escala logarítmica estándar ---
+            // // Para probar la escala logarítmica, descomentar este bloque y comentar el original de arriba
+            // const logData = processedData.filter((d) => d.value > 0);
+            // minLogValue = d3.min(logData, (d) => d.value); // <-- Asignar aquí
+            // maxLogValue = d3.max(logData, (d) => d.value); // <-- Asignar aquí
             xScale = d3
               .scaleLog()
-              .domain([minLogValue, maxLogValue])
+              .domain([minValue, maxValue])
               .range([0, width]);
-            // --- FIN OPCIONAL ---
+          
           } else {
             xScale = d3
               .scaleLinear()
@@ -265,7 +266,10 @@ export default function DotsChart() {
           // Add X axis
           if (useCustomLog) {
             // Dibuja los labels personalizados en la posición logarítmica
-            const binsFiltered = [...filteredLogValues].sort((a, b) => a.bin - b.bin);
+            // Filtrar solo los bins cuyo valor mínimo sea mayor o igual al valor mínimo real de los datos
+            const binsFiltered = [...filteredLogValues]
+              .filter(bin => bin.min >= minValue)
+              .sort((a, b) => a.bin - b.bin);
             binsFiltered.forEach((bin, i) => {
               svg
                 .append("text")
@@ -457,7 +461,9 @@ export default function DotsChart() {
             .attr("y", height + margin.bottom - 10)
             .style("color", chartStyles.textColor)
             .style("font-family", "Raleway")
-            .text(selectedIndicator.name);
+            .style("font-size", "14px")
+            .style("font-weight", "500")
+            .text(selectedIndicator[`name_${lang}`]);
         }
         setIsLoading(false);
       } else if (data && !data.governmentsData) {
