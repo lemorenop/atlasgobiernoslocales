@@ -30,10 +30,14 @@ export default async function Home({ params }) {
           lang={lang}
           homeMapTooltip={homeMapTooltip}
         />{" "}
-        <div className="flex flex-col px-l md:px-4xl md:grid md:grid-cols-2 gap-[24px] md:gap-[64px] py-2xl md:py-[112px] bg-white relative">
-          <p className="col-span-2 text-black md:w-2/3 mx-auto text-center text-h4">
+        <div className="flex flex-col px-l md:px-4xl md:grid md:grid-cols-2 gap-[24px] md:gap-2xl py-2xl  bg-white relative">
+          <div className="flex flex-col gap-s col-span-2 mx-auto items-center"> <p className="md:w-2/3  text-center text-h4 text-blue-CAF font-bold">
             {getTextById(homeCopyData, "explore_title", lang)}
           </p>
+           <p className=" text-black md:w-2/3 text-center ">
+            {getTextById(homeCopyData, "explore_subtitle", lang)}
+          </p></div>
+         
           <div className="bg-background p-xl flex flex-col gap-[24px] justify-between">
             <div className="md:hidden absolute bottom-[-40px] left-[-100px] bg-navy rounded-full w-[200px] h-[200px] z-0" />{" "}
             <div className="flex flex-col gap-[24px]">

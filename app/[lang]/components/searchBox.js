@@ -123,7 +123,7 @@ export default function SearchBox({
         <p className="text-description text-black">{subtitle}</p>
       </div>
       <div className="flex  gap-s">
-        <p className="text-description">Tipo de Jurisdicción:</p>
+        <p className="text-description text-black">Tipo de Jurisdicción:</p>
         <RadioGroup
           by="id"
           value={typeSelected}
