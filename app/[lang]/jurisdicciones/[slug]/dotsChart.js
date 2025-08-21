@@ -499,7 +499,6 @@ export default function DotsChart() {
   const subtitle = values
     ? getTextById(jurisdictionsCopy, "dots_chart_subtitle", lang, [
         { id: "jurisdiction_name", replace: government.name },
-        { id: "level_name", replace: government["description_" + lang] },
         { id: "indicator_name", replace: selectedIndicator[`name_${lang}`] },
         {
           id: "value",
