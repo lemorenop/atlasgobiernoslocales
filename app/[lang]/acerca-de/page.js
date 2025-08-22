@@ -4,7 +4,7 @@ import { getTextById } from "@/app/utils/textUtils";
 import Card from "./card";
 import Download from "./download";
 import { getMetadata } from "../components/metadata";
-
+import Arrow from "../components/icons/arrow";
 export async function generateMetadata({ params }) {
   const { lang } = await params;
   return getMetadata({ lang, slug: "acerca-de" });
@@ -26,6 +26,9 @@ export default async function AcercaDe({ params }) {
     { id: "ethnicity", indicators: [21], image: true },
     { id: "tics", indicators: ["tics"], image: true },
   ];
+    const downloadMethodology = copy.find(
+    (item) => item.id === "download_button_methodology"
+  ).link;
   return (
     <main className="text-black">
       <Hero lang={lang} copy={copy} />
@@ -48,6 +51,14 @@ export default async function AcercaDe({ params }) {
           <p className="paragraph-small">
             {getTextById(copy, "about_indicators_text", lang)}
           </p>
+           <a
+        target="_blank"
+        href={downloadMethodology}
+        className="w-full md:max-w-96 py-s font-bold justify-between gap-s bg-white border-1 border-black px-3 text-blue-CAF hover:bg-blue-CAF hover:text-white group transition-all flex items-center description cursor-pointer uppercase"
+      >
+        {getTextById(copy, "download_button_methodology", lang)}{" "}
+        <Arrow className="w-4 h-5 stroke-blue-CAF stroke-2 group-hover:stroke-white transition-all border-b-2 border-b-blue-CAF pb-[1px] group-hover:border-b-white" />
+      </a>
         </div>
       </div>
       <div className="bg-white p-l md:p-[80px]">
