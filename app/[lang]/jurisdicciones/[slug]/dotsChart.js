@@ -267,7 +267,7 @@ export default function DotsChart() {
             // Dibuja los labels personalizados en la posición logarítmica
             // Filtrar solo los bins cuyo valor mínimo sea mayor o igual al valor mínimo real de los datos
             const binsFiltered = [...filteredLogValues]
-              .filter(bin => bin.min >= minValue)
+              .filter(bin => bin.min >= minValue && bin.min <= maxValue)
               .sort((a, b) => a.bin - b.bin);
             binsFiltered.forEach((bin, i) => {
               svg
