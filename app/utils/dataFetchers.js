@@ -3,48 +3,116 @@
  */
 import { getFromCache, setInCache } from "./cache";
 import Papa from "papaparse";
-
+const spreadsheetTextLink =
+  "https://docs.google.com/spreadsheets/d/1crKtbS4Vl3pD-97iOFmNI1P767m8KXDd/export?format=csv&gid=";
+const spreadsheetDataLink =
+  "https://docs.google.com/spreadsheets/d/1T9ExlPxWHdtmsQmlUH6fOwG2hWSGPViX/export?format=csv&gid=";
 const csv = {
-  indicators:
-    "https://docs.google.com/spreadsheets/d/e/2PACX-1vSBwGtY-iQJEsTB96oaLwFfMv9bRcB-dES_lSRQuBOU28iV_oinZTjZRNxXeMB88g/pub?gid=315846016&single=true&output=csv",
-  regions:
-    "https://docs.google.com/spreadsheets/d/e/2PACX-1vSBwGtY-iQJEsTB96oaLwFfMv9bRcB-dES_lSRQuBOU28iV_oinZTjZRNxXeMB88g/pub?gid=1578853195&single=true&output=csv",
-  countries:
-    "https://docs.google.com/spreadsheets/d/e/2PACX-1vSBwGtY-iQJEsTB96oaLwFfMv9bRcB-dES_lSRQuBOU28iV_oinZTjZRNxXeMB88g/pub?gid=2138553854&single=true&output=csv",
-  levelPerCountry:
-    "https://docs.google.com/spreadsheets/d/e/2PACX-1vSBwGtY-iQJEsTB96oaLwFfMv9bRcB-dES_lSRQuBOU28iV_oinZTjZRNxXeMB88g/pub?gid=198002196&single=true&output=csv",
-  governments:
-    "https://docs.google.com/spreadsheets/d/e/2PACX-1vSBwGtY-iQJEsTB96oaLwFfMv9bRcB-dES_lSRQuBOU28iV_oinZTjZRNxXeMB88g/pub?gid=490903592&single=true&output=csv",
-  homeCopy:
-    "https://docs.google.com/spreadsheets/d/e/2PACX-1vRnYELJWxmMI7t7io-sG23uGzP7nCFu6ENP-yoa_K_vn-2qQUaWAedlCHGOdk65Fg/pub?gid=425601317&single=true&output=csv",
-  navbarCopy:
-    "https://docs.google.com/spreadsheets/d/e/2PACX-1vRnYELJWxmMI7t7io-sG23uGzP7nCFu6ENP-yoa_K_vn-2qQUaWAedlCHGOdk65Fg/pub?gid=2043907821&single=true&output=csv",
-  footerCopy:
-    "https://docs.google.com/spreadsheets/d/e/2PACX-1vRnYELJWxmMI7t7io-sG23uGzP7nCFu6ENP-yoa_K_vn-2qQUaWAedlCHGOdk65Fg/pub?gid=636324315&single=true&output=csv",
-  aboutCopy:
-    "https://docs.google.com/spreadsheets/d/e/2PACX-1vRnYELJWxmMI7t7io-sG23uGzP7nCFu6ENP-yoa_K_vn-2qQUaWAedlCHGOdk65Fg/pub?gid=1578446695&single=true&output=csv",
-  homeMapTooltip:
-    "https://docs.google.com/spreadsheets/d/e/2PACX-1vRnYELJWxmMI7t7io-sG23uGzP7nCFu6ENP-yoa_K_vn-2qQUaWAedlCHGOdk65Fg/pub?gid=1636436981&single=true&output=csv",
-  allData:
-    "https://docs.google.com/spreadsheets/d/e/2PACX-1vSBwGtY-iQJEsTB96oaLwFfMv9bRcB-dES_lSRQuBOU28iV_oinZTjZRNxXeMB88g/pub?gid=682419313&single=true&output=csv",
-  yearData:
-    "https://docs.google.com/spreadsheets/d/e/2PACX-1vSBwGtY-iQJEsTB96oaLwFfMv9bRcB-dES_lSRQuBOU28iV_oinZTjZRNxXeMB88g/pub?gid=845109380&single=true&output=csv",
-  nationalAverages:
-    "https://docs.google.com/spreadsheets/d/e/2PACX-1vSBwGtY-iQJEsTB96oaLwFfMv9bRcB-dES_lSRQuBOU28iV_oinZTjZRNxXeMB88g/pub?gid=129529016&single=true&output=csv",
-  indicatorsCopy:
-    "https://docs.google.com/spreadsheets/d/e/2PACX-1vRnYELJWxmMI7t7io-sG23uGzP7nCFu6ENP-yoa_K_vn-2qQUaWAedlCHGOdk65Fg/pub?gid=815048896&single=true&output=csv",
-  jurisdictionsCopy:
-    "https://docs.google.com/spreadsheets/d/e/2PACX-1vRnYELJWxmMI7t7io-sG23uGzP7nCFu6ENP-yoa_K_vn-2qQUaWAedlCHGOdk65Fg/pub?gid=1649672062&single=true&output=csv",
-  pageError:
-    "https://docs.google.com/spreadsheets/d/e/2PACX-1vRnYELJWxmMI7t7io-sG23uGzP7nCFu6ENP-yoa_K_vn-2qQUaWAedlCHGOdk65Fg/pub?gid=757641088&single=true&output=csv",
-  unitMeasures:
-    "https://docs.google.com/spreadsheets/d/e/2PACX-1vSBwGtY-iQJEsTB96oaLwFfMv9bRcB-dES_lSRQuBOU28iV_oinZTjZRNxXeMB88g/pub?gid=328536948&single=true&output=csv",
-  metadataCopy:
-    "https://docs.google.com/spreadsheets/d/e/2PACX-1vRnYELJWxmMI7t7io-sG23uGzP7nCFu6ENP-yoa_K_vn-2qQUaWAedlCHGOdk65Fg/pub?gid=1840611032&single=true&output=csv",
-  logValues:
-    "https://docs.google.com/spreadsheets/d/e/2PACX-1vSBwGtY-iQJEsTB96oaLwFfMv9bRcB-dES_lSRQuBOU28iV_oinZTjZRNxXeMB88g/pub?gid=1734716137&single=true&output=csv",
- cacheCopy:"https://docs.google.com/spreadsheets/d/e/2PACX-1vRnYELJWxmMI7t7io-sG23uGzP7nCFu6ENP-yoa_K_vn-2qQUaWAedlCHGOdk65Fg/pub?gid=1441031514&single=true&output=csv",
- categories:"https://docs.google.com/spreadsheets/d/e/2PACX-1vSBwGtY-iQJEsTB96oaLwFfMv9bRcB-dES_lSRQuBOU28iV_oinZTjZRNxXeMB88g/pub?gid=1390113770&single=true&output=csv"
+  indicators: {
+    spreadsheetOrigin: "data",
+    csv: "https://docs.google.com/spreadsheets/d/e/2PACX-1vSBwGtY-iQJEsTB96oaLwFfMv9bRcB-dES_lSRQuBOU28iV_oinZTjZRNxXeMB88g/pub?gid=315846016&single=true&output=csv",
+    gid: 315846016,
+  },
+  regions: {
+    spreadsheetOrigin: "data",
+    csv: "https://docs.google.com/spreadsheets/d/e/2PACX-1vSBwGtY-iQJEsTB96oaLwFfMv9bRcB-dES_lSRQuBOU28iV_oinZTjZRNxXeMB88g/pub?gid=1578853195&single=true&output=csv",
+    gid: 1578853195,
+  },
+  countries: {
+    spreadsheetOrigin: "data",
+    csv: "https://docs.google.com/spreadsheets/d/e/2PACX-1vSBwGtY-iQJEsTB96oaLwFfMv9bRcB-dES_lSRQuBOU28iV_oinZTjZRNxXeMB88g/pub?gid=2138553854&single=true&output=csv",
+    gid: 2138553854,
+  },
+  levelPerCountry: {
+    spreadsheetOrigin: "data",
+    csv: "https://docs.google.com/spreadsheets/d/e/2PACX-1vSBwGtY-iQJEsTB96oaLwFfMv9bRcB-dES_lSRQuBOU28iV_oinZTjZRNxXeMB88g/pub?gid=198002196&single=true&output=csv",
+    gid: 198002196,
+  },
+  governments: {
+    spreadsheetOrigin: "data",
+    csv: "https://docs.google.com/spreadsheets/d/e/2PACX-1vSBwGtY-iQJEsTB96oaLwFfMv9bRcB-dES_lSRQuBOU28iV_oinZTjZRNxXeMB88g/pub?gid=490903592&single=true&output=csv",
+    gid: 490903592,
+  },
+  homeCopy: {
+    spreadsheetOrigin: "text",
+    csv: "https://docs.google.com/spreadsheets/d/e/2PACX-1vRnYELJWxmMI7t7io-sG23uGzP7nCFu6ENP-yoa_K_vn-2qQUaWAedlCHGOdk65Fg/pub?gid=425601317&single=true&output=csv",
+    gid: 425601317,
+  },
+  navbarCopy: {
+    spreadsheetOrigin: "text",
+    csv: "https://docs.google.com/spreadsheets/d/e/2PACX-1vRnYELJWxmMI7t7io-sG23uGzP7nCFu6ENP-yoa_K_vn-2qQUaWAedlCHGOdk65Fg/pub?gid=2043907821&single=true&output=csv",
+    gid: 2043907821,
+  },
+  footerCopy: {
+    spreadsheetOrigin: "text",
+    csv: "https://docs.google.com/spreadsheets/d/e/2PACX-1vRnYELJWxmMI7t7io-sG23uGzP7nCFu6ENP-yoa_K_vn-2qQUaWAedlCHGOdk65Fg/pub?gid=636324315&single=true&output=csv",
+    gid: 636324315,
+  },
+  aboutCopy: {
+    spreadsheetOrigin: "text",
+    csv: "https://docs.google.com/spreadsheets/d/e/2PACX-1vRnYELJWxmMI7t7io-sG23uGzP7nCFu6ENP-yoa_K_vn-2qQUaWAedlCHGOdk65Fg/pub?gid=1578446695&single=true&output=csv",
+    gid: 1578446695,
+  },
+  homeMapTooltip: {
+    spreadsheetOrigin: "text",
+    csv: "https://docs.google.com/spreadsheets/d/e/2PACX-1vRnYELJWxmMI7t7io-sG23uGzP7nCFu6ENP-yoa_K_vn-2qQUaWAedlCHGOdk65Fg/pub?gid=1636436981&single=true&output=csv",
+    gid: 1636436981,
+  },
+  allData: {
+    spreadsheetOrigin: "data",
+    csv: "https://docs.google.com/spreadsheets/d/e/2PACX-1vSBwGtY-iQJEsTB96oaLwFfMv9bRcB-dES_lSRQuBOU28iV_oinZTjZRNxXeMB88g/pub?gid=682419313&single=true&output=csv",
+    gid: 682419313,
+  },
+  yearData: {
+    spreadsheetOrigin: "data",
+    csv: "https://docs.google.com/spreadsheets/d/e/2PACX-1vSBwGtY-iQJEsTB96oaLwFfMv9bRcB-dES_lSRQuBOU28iV_oinZTjZRNxXeMB88g/pub?gid=845109380&single=true&output=csv",
+    gid: 845109380,
+  },
+  nationalAverages: {
+    spreadsheetOrigin: "data",
+    csv: "https://docs.google.com/spreadsheets/d/e/2PACX-1vSBwGtY-iQJEsTB96oaLwFfMv9bRcB-dES_lSRQuBOU28iV_oinZTjZRNxXeMB88g/pub?gid=129529016&single=true&output=csv",
+    gid: 129529016,
+  },
+  indicatorsCopy: {
+    spreadsheetOrigin: "text",
+    csv: "https://docs.google.com/spreadsheets/d/e/2PACX-1vRnYELJWxmMI7t7io-sG23uGzP7nCFu6ENP-yoa_K_vn-2qQUaWAedlCHGOdk65Fg/pub?gid=815048896&single=true&output=csv",
+    gid: 815048896,
+  },
+  jurisdictionsCopy: {
+    spreadsheetOrigin: "text",
+    csv: "https://docs.google.com/spreadsheets/d/e/2PACX-1vRnYELJWxmMI7t7io-sG23uGzP7nCFu6ENP-yoa_K_vn-2qQUaWAedlCHGOdk65Fg/pub?gid=1649672062&single=true&output=csv",
+    gid: 1649672062,
+  },
+  pageError: {
+    spreadsheetOrigin: "text",
+    csv: "https://docs.google.com/spreadsheets/d/e/2PACX-1vRnYELJWxmMI7t7io-sG23uGzP7nCFu6ENP-yoa_K_vn-2qQUaWAedlCHGOdk65Fg/pub?gid=757641088&single=true&output=csv",
+    gid: 757641088,
+  },
+  unitMeasures: {
+    spreadsheetOrigin: "data",
+    csv: "https://docs.google.com/spreadsheets/d/e/2PACX-1vSBwGtY-iQJEsTB96oaLwFfMv9bRcB-dES_lSRQuBOU28iV_oinZTjZRNxXeMB88g/pub?gid=328536948&single=true&output=csv",
+    gid: 328536948,
+  },
+  metadataCopy: {
+    spreadsheetOrigin: "text",
+    csv: "https://docs.google.com/spreadsheets/d/e/2PACX-1vRnYELJWxmMI7t7io-sG23uGzP7nCFu6ENP-yoa_K_vn-2qQUaWAedlCHGOdk65Fg/pub?gid=1840611032&single=true&output=csv",
+    gid: 1840611032,
+  },
+  logValues: {
+    spreadsheetOrigin: "data",
+    csv: "https://docs.google.com/spreadsheets/d/e/2PACX-1vSBwGtY-iQJEsTB96oaLwFfMv9bRcB-dES_lSRQuBOU28iV_oinZTjZRNxXeMB88g/pub?gid=1734716137&single=true&output=csv",
+    gid: 1734716137,
+  },
+  cacheCopy: {
+    spreadsheetOrigin: "text",
+    csv: "https://docs.google.com/spreadsheets/d/e/2PACX-1vRnYELJWxmMI7t7io-sG23uGzP7nCFu6ENP-yoa_K_vn-2qQUaWAedlCHGOdk65Fg/pub?gid=1441031514&single=true&output=csv",
+    gid: 1441031514,
+  },
+  categories: {
+    spreadsheetOrigin: "data",
+    csv: "https://docs.google.com/spreadsheets/d/e/2PACX-1vSBwGtY-iQJEsTB96oaLwFfMv9bRcB-dES_lSRQuBOU28iV_oinZTjZRNxXeMB88g/pub?gid=1390113770&single=true&output=csv",
+    gid: 1390113770,
+  },
 };
 
 /**
@@ -110,8 +178,15 @@ async function fetchAndParseCSV(csvUrl, lang, id, filterID, csvName) {
   //
   try {
     console.log("Busco el CSV por primera vez ", csvUrl);
-    const response = await fetch(csv[csvUrl]);
+
+    const response = await fetch(
+      (csv[csvUrl].spreadsheetOrigin === "data"
+        ? spreadsheetDataLink
+        : spreadsheetTextLink) + csv[csvUrl].gid
+    );
+
     const csvText = await response.text();
+    
     return new Promise((resolve, reject) => {
       Papa.parse(csvText, {
         header: true,
@@ -146,7 +221,12 @@ async function fetchAndParseDataCSV(csvUrl, code, csvName) {
   }
   try {
     console.log("Busco el CSV por primera vez ", csvName);
-    const response = await fetch(csv[csvUrl]);
+   
+    const response = await fetch(
+     ( csv[csvUrl].spreadsheetOrigin === "data"
+        ? spreadsheetDataLink
+        : spreadsheetTextLink )+ csv[csvUrl].gid
+    );
     const csvText = await response.text();
     return new Promise((resolve, reject) => {
       Papa.parse(csvText, {
@@ -174,8 +254,6 @@ async function fetchAndParseDataCSV(csvUrl, code, csvName) {
  */
 
 export async function fetchData(key, lang) {
-  const csvUrl = csv[key];
-
   try {
     const d = await fetchAndParseCSV(key, lang, null, null, key);
     return d;
@@ -226,7 +304,7 @@ export async function getGovernments(lang, slug) {
 
 export async function getGovernmentsByCountry(lang, codes, countryCode, level) {
   try {
-    console.log("🧘‍♀️ getGovsByCountry");   
+    console.log("🧘‍♀️ getGovsByCountry");
     const csvUrl = csv.allData;
     const csvParsed = await fetchAndParseCSV(
       "allData",
@@ -238,7 +316,7 @@ export async function getGovernmentsByCountry(lang, codes, countryCode, level) {
     const governments = csvParsed.filter((elm) =>
       codes.includes(elm.government_id)
     );
-  
+
     return governments;
   } catch (error) {
     console.error(`❌ Error en getGovernmentsByCountry:`, error);
@@ -276,7 +354,13 @@ export async function getYearData(lang, id) {
 export async function getNationalAverages() {
   console.log("🧘‍♀️ getNationalAverages");
   const csvUrl = csv.nationalAverages;
-  return fetchAndParseCSV("nationalAverages", "es", null, null, "nationalAverages")
+  return fetchAndParseCSV(
+    "nationalAverages",
+    "es",
+    null,
+    null,
+    "nationalAverages"
+  );
 }
 
 export async function getGovernmentsData(lang = "es") {
@@ -348,7 +432,7 @@ export async function getIndicatorData(slug) {
   const csvUrl = csv.allData;
   const allData = await fetchWithCache(
     `allData`,
-      () => fetchAndParseCSV("allData", "es", null, null, "allData"),
+    () => fetchAndParseCSV("allData", "es", null, null, "allData"),
     "es"
   );
   // Filtrar los datos por el ID del indicador

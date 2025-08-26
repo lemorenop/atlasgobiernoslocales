@@ -181,7 +181,6 @@ export default function DotsChart() {
           const value = processedData.find(
             (d) => d.government_id === government.id
           )?.value;
-          console.log(minValue)
           setValues({ maxValue, minValue, value });
 
           // Create scales
