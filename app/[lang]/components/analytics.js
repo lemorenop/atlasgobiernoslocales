@@ -1,6 +1,31 @@
 "use client";
-import { GoogleAnalytics } from "nextjs-google-analytics";
+
+import Script from "next/script";
 
 export default function GAnalytics() {
-  return <GoogleAnalytics trackPageViews />;
+  const GA_ID = process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID;
+
+  if (!GA_ID) {
+    return null; // si no está definido, no carga nada
+  }
+
+  return (
+    <>
+      {/* Google tag (gtag.js) */}
+      <Script
+        src={`https://www.googletagmanager.com/gtag/js?id=${GA_ID}`}
+        strategy="afterInteractive"
+      />
+      <Script id="google-analytics" strategy="afterInteractive">
+        {`
+          window.dataLayer = window.dataLayer || [];
+          function gtag(){dataLayer.push(arguments);}
+          gtag('js', new Date());
+          gtag('config', '${GA_ID}', {
+            page_path: window.location.pathname,
+          });
+        `}
+      </Script>
+    </>
+  );
 }
