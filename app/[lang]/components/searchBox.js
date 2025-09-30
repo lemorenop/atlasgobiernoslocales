@@ -122,14 +122,14 @@ export default function SearchBox({
         <h2 className="text-h3 font-bold text-navy">{title}</h2>
         <p className="text-description text-black">{subtitle}</p>
       </div>
-      <div className="flex  gap-s">
+      <div className="flex  gap-s flex-wrap">
         <p className="text-description text-black">Tipo de Jurisdicción:</p>
         <RadioGroup
           by="id"
           value={typeSelected}
           onChange={setTypeSelected}
           aria-label={typeName[lang]}
-          className="space-y-2 flex gap-m"
+          className="space-y-2 flex gap-m flex-wrap"
         >
           {types.map((type) => (
             <Radio

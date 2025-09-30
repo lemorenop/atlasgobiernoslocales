@@ -215,6 +215,7 @@ export default function ScatterPlot() {
     const container = svgRef.current.parentElement;
     const width = container.clientWidth - margin.left - margin.right;
     const height = 400 - margin.top - margin.bottom;
+    const isMobile = svgRef.current.clientWidth < 600;
 
     // Create SVG
     const svg = d3
@@ -246,7 +247,7 @@ export default function ScatterPlot() {
         .range([0, width]);
       // Custom ticks from logValuesInd
       const binsFiltered = (logValuesInd || [])
-        .filter((b) => b.level == selectedNivel.value)
+        .filter((b) => b.level == selectedNivel.value && b.bin!=0)
         .sort((a, b) => a.bin - b.bin);
       binsFiltered.forEach((bin, i) => {
         svg
@@ -256,6 +257,10 @@ export default function ScatterPlot() {
           .attr(
             "text-anchor",
             i === 0 ? "start" : i === binsFiltered.length - 1 ? "end" : "middle"
+          )
+          .attr(
+            "transform",
+            `${isMobile ? `rotate(-35, ${xScale(bin.min)}, ${height })` : ""}`
           )
           .style("font-family", chartStyles.fontFamily)
           .style("font-size", "12px")

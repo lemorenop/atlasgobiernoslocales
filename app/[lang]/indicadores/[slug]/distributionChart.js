@@ -340,7 +340,7 @@ export default function DistributionChart() {
         })
       )
       .selectAll("text")
-      .attr("transform", `rotate(${logIndicator ? -15 : 0}, 0, 0)`)
+      .attr("transform", `${isMobile ? "rotate(-35, -10, 20)" : ""}`)
       .style("text-anchor", "middle")
       .style("font-family", chartStyles.fontFamily)
       .style("color", chartStyles.textColor)

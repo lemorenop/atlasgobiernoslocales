@@ -151,17 +151,19 @@ export default function RadarChart({
       const container = svgRef.current.parentElement;
       const width = container.clientWidth;
       setClientWidth(width);
-      const height = container.clientHeight;
+     
       const innerWidth = width - margin.left - margin.right;
+      const height =innerWidth < 650&& container.clientHeight<width? width:  container.clientHeight;
       const innerHeight = height - margin.top - margin.bottom;
       const minSize = Math.min(width, height);
       setChartDimensions({
         width: width,
-        height: height,
+        height:  height,
         innerWidth: innerWidth,
         innerHeight: innerHeight,
       });
       // Update SVG dimensions
+      const isMobile = innerWidth < 650;
       d3.select(svgRef.current).attr("width", width).attr("height", height);
     };
 
@@ -435,15 +437,15 @@ export default function RadarChart({
           .attr("xlink:href", `/ods_${ind}.png`)
           .attr("x", isMobile ? -10 : -12) // Center the icon: ;
           .attr("y", isMobile ? -4 : -6) // Reverted to original y position
-          .attr("width", isMobile ? 20 : 24) // Set icon size: ;
-          .attr("height", isMobile ? 20 : 24); // Set icon size
+          .attr("width", isMobile ? 14 : 24) // Set icon size: ;
+          .attr("height", isMobile ? 14 : 24); // Set icon size
 
-        const fontSize = isMobile ? "7px" : "8px";
+        const fontSize = isMobile ? "6px" : "8px";
         // Add first line
         textGroup
           .append("text")
           .attr("x", 0)
-          .attr("y", 28) // Reverted to original y position
+          .attr("y", isMobile?20: 28) // Reverted to original y position
           .attr("text-anchor", "middle")
           .attr("dominant-baseline", "middle")
           .attr("font-size", fontSize)
@@ -456,7 +458,7 @@ export default function RadarChart({
         textGroup
           .append("text")
           .attr("x", 0)
-          .attr("y", 40) // Reverted to original y position
+          .attr("y", isMobile?28: 40) // Reverted to original y position
           .style("color", "#212529")
           .attr("text-anchor", "middle")
           .attr("dominant-baseline", "middle")
@@ -468,7 +470,7 @@ export default function RadarChart({
           textGroup
             .append("text")
             .attr("x", 0)
-            .attr("y", 52) // Reverted to original y position
+            .attr("y", isMobile?38: 52) // Reverted to original y position
             .style("color", "#212529")
             .attr("text-anchor", "middle")
             .attr("dominant-baseline", "middle")
