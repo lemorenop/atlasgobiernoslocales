@@ -1,0 +1,94 @@
+trigger:
+  branches:
+    include:
+      - main
+      - segunda-etapa
+
+pr: none
+
+variables:
+- name:  NEXT_PUBLIC_URL
+  value: "https://azapp-atlas20250922-cr.azurewebsites.net"
+- name: AZURE_SERVICE_CONNECTION
+  value: 'SC-WEBATLAS-CR-01'
+- name: WEBAPP_NAME
+  value: 'azapp-atlas20250922-cr'
+- name: NODE_VERSION
+  value: '20.x'
+
+stages:
+- stage: BuildAndPackage
+  displayName: Build and Package Next.js App
+  condition: |
+    or(
+      eq(variables['Build.Reason'], 'Manual'),
+      contains(variables['Build.SourceVersionMessage'], '#deploy')
+    )
+  jobs:
+  - job: Build
+    displayName: Build App
+    pool:
+      vmImage: 'ubuntu-latest'
+
+    steps:
+    - checkout: self
+      displayName: Checkout Code
+
+    - task: NodeTool@0
+      inputs:
+        versionSpec: '$(NODE_VERSION)'
+      displayName: Set up Node.js
+
+    - script: |
+        npm ci
+        npm run build
+        cp -r .next/static .next/standalone/.next/static
+        cp -r public .next/standalone/public
+        cp -r web.config .next/standalone/
+      displayName: Build with Next.js
+      condition: eq(variables['Build.SourceBranch'], 'refs/heads/main')
+      env:
+        NEXT_PUBLIC_MAPBOX_TOKEN: ""  # ← Token Mapbox (si aplica)
+        NEXT_PUBLIC_MAPBOX_STYLE_TOKEN: ""  # ← Token de estilo
+        NEXT_PUBLIC_URL: $(NEXT_PUBLIC_URL)
+
+    - task: CopyFiles@2
+      inputs:
+        SourceFolder: '.'
+        Contents: |
+          .next/standalone/**
+          .next/static/**
+          public/**
+          web.config
+        TargetFolder: '$(Build.ArtifactStagingDirectory)'
+      displayName: Copy build artifacts
+
+    - publish: $(Build.ArtifactStagingDirectory)
+      artifact: drop
+      displayName: Publish Artifact
+
+- stage: Deploy
+  displayName: Deploy to Azure Web App
+  dependsOn: BuildAndPackage
+  condition: succeeded()
+  jobs:
+  - job: Deploy
+    displayName: Deploy Job
+    pool:
+      vmImage: 'ubuntu-latest'
+      startupCommand: 'node server.js'
+
+    steps:
+    - download: current
+      artifact: drop
+      displayName: Download Build Artifact
+
+    - task: AzureWebApp@1
+      displayName: Deploy to Azure Web App
+      inputs:
+        azureSubscription: '$(AZURE_SERVICE_CONNECTION)'  # ← Nombre de tu Service Connection en Azure DevOps
+        appType: 'webApp'
+        appName: '$(WEBAPP_NAME)'                   # ← Nombre de tu App Service en Azure
+        package: '$(Pipeline.Workspace)/drop'           # ← Artefacto del build
+        deploymentMethod: 'zipDeploy'
+ 
