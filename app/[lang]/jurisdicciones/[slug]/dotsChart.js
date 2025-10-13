@@ -34,6 +34,8 @@ export default function DotsChart() {
   const [error, setError] = useState(false);
   const [logValues, setLogValues] = useState(null);
   const [points, setPoints] = useState([]);
+  const pointsPositionsRef = useRef(null);
+  const lastDataHashRef = useRef(null);
   const loadData = async () => {
     try {
       setIsLoading(true);
@@ -98,8 +100,8 @@ export default function DotsChart() {
     loadLogValues();
   }, [selectedIndicator]);
 
-  // Memoizar el cálculo de posiciones de puntos para evitar recálculos durante scroll
-  const memoizedPoints = useMemo(() => {
+  // Función para calcular posiciones de puntos de manera estable
+  const getStablePoints = () => {
     if (!data || !selectedIndicator || !data.governmentsData) return [];
 
     const currentData = data.governmentsData.filter(
@@ -108,6 +110,19 @@ export default function DotsChart() {
     );
 
     if (currentData.length === 0) return [];
+
+    // Crear un hash único para los datos actuales
+    const dataHash = JSON.stringify({
+      indicator: selectedIndicator.code,
+      dataLength: currentData.length,
+      values: currentData.map(d => d.value).sort(),
+      logValues: logValues?.length || 0
+    });
+
+    // Si ya tenemos posiciones calculadas para estos datos, las reutilizamos
+    if (pointsPositionsRef.current && lastDataHashRef.current === dataHash) {
+      return pointsPositionsRef.current;
+    }
 
     // Convert values to percentages if needed
     const isPercentage = selectedIndicator.unit_measure_id === "perc";
@@ -126,8 +141,8 @@ export default function DotsChart() {
       logValues &&
       logValues.length > 0;
 
-    // Usar dimensiones fijas para el cálculo memoizado
-    const containerWidth = 800; // Ancho fijo para el cálculo
+    // Usar dimensiones fijas para el cálculo
+    const containerWidth = 800;
     const containerHeight = 400;
     const isMobile = containerWidth < 600;
     const margin = {
@@ -166,7 +181,7 @@ export default function DotsChart() {
     const maxBinLength = d3.max(bins, (b) => b.length) || 1;
 
     // Calcular posiciones de puntos con jitter aleatorio
-    return processedData.map((item, idx) => {
+    const points = processedData.map((item, idx) => {
       const x = useCustomLog ? xScale(item.value) : xScale(item.value);
       const binIdx = bins.findIndex((b) => x >= b.x0 && x < b.x1);
       const bin = bins[binIdx] || bins[0];
@@ -179,7 +194,13 @@ export default function DotsChart() {
         y,
       };
     });
-  }, [data, selectedIndicator, logValues]);
+
+    // Almacenar las posiciones calculadas
+    pointsPositionsRef.current = points;
+    lastDataHashRef.current = dataHash;
+
+    return points;
+  };
   useEffect(() => {
     if (data) {
       setIsLoading(true);
@@ -294,12 +315,13 @@ export default function DotsChart() {
               .range([0, width]);
           }
 
-          // Usar las posiciones memoizadas para evitar recálculos durante scroll
+          // Usar las posiciones estables para evitar recálculos durante scroll
           // Escalar las posiciones según el tamaño real del contenedor
-          const scaleFactorX = width / (800 - 60); // 800 es el ancho fijo usado en memoizedPoints, 60 es el margen
+          const scaleFactorX = width / (800 - 60); // 800 es el ancho fijo usado en getStablePoints, 60 es el margen
           const scaleFactorY = height / (400 - 100); // 400 es la altura fija, 100 es el margen total
           
-          const points = memoizedPoints.map(point => ({
+          const stablePoints = getStablePoints();
+          const points = stablePoints.map(point => ({
             ...point,
             x: point.x * scaleFactorX,
             y: point.y * scaleFactorY
