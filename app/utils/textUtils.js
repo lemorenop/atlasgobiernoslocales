@@ -54,17 +54,21 @@ export function formatValue(value, unit_measure_id, lang, showUnit = true) {
 
 // Format function for axis labels
 export const formatAxisLabel = (d, unitMeasureId) => {
-  if (unitMeasureId === "perc") return d;
-  if (d || d === 0) {
-    if (d >= 1000000) {
-      const value = d / 1000000;
-      return Number.isInteger(value) ? value + "M" : value.toFixed(1) + "M";
-    }
-    if (d >= 1000) {
-      const value = d / 1000;
-      return Number.isInteger(value) ? value + "K" : value.toFixed(1) + "K";
-    }
-    return Number.isInteger(d) ? d : d.toFixed(1);
+  if (d === null || d === undefined) return;
+  const replaceDotWithComma = (numStr) => numStr.replace(".", ",");
+
+  // Mantener lógica original de K/M; solo cambiar el separador decimal a coma
+  if (d >= 1000000) {
+    const value = d / 1000000;
+    return Number.isInteger(value)
+      ? value + "M"
+      : replaceDotWithComma(value.toFixed(1)) + "M";
   }
-  return;
+  if (d >= 1000) {
+    const value = d / 1000;
+    return Number.isInteger(value)
+      ? value + "K"
+      : replaceDotWithComma(value.toFixed(1)) + "K";
+  }
+  return Number.isInteger(d) ? String(d) : replaceDotWithComma(d.toFixed(1));
 };

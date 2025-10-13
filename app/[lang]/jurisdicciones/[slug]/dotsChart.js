@@ -261,7 +261,7 @@ export default function DotsChart() {
             }
             return Number.isInteger(d) ? d : d.toFixed(1);
           };
-
+          console.log(useCustomLog,"*******")
           // Add X axis
           if (useCustomLog) {
             // Dibuja los labels personalizados en la posición logarítmica
@@ -278,8 +278,12 @@ export default function DotsChart() {
                   "text-anchor",
                   i === 0 ? "start" : i === binsFiltered.length - 1 ? "end" : "middle"
                 )
+                .attr(
+                  "transform",
+                  isMobile ? `rotate(-30, ${xScale(bin.min)}, ${height + 20})` : null
+                )
                 .style("font-family", chartStyles.fontFamily)
-                .style("font-size", "12px")
+                .style("font-size",isMobile?"10px": "12px")
                 .style("color", chartStyles.textColor)
                 .text(
                   formatAxisLabel(bin.min, selectedIndicator.unit_measure_id)
@@ -612,7 +616,7 @@ export default function DotsChart() {
             </button>
           </div>{" "}
         </div>
-        <div className="overflow-x-auto bg-[#55C7D51A] border-1 border-[#55C7D54D] p-m relative">
+        <div className="overflow-x-auto bg-[#55C7D51A] border-1 border-[#55C7D54D] px-xs md:p-m relative">
           {isLoading ? (
             <div className="flex justify-center items-center h-[400px]">
               <Loader className="w-10 h-10  min-w-10 min-h-10 [&_span]:w-full [&_span]:h-full" />
