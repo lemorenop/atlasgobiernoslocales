@@ -1,7 +1,7 @@
 "use client";
 import Select from "@/app/[lang]/components/select";
 import { JurisdictionDataContext } from "./jurisdictionDataProvider";
-import { useContext, useState, useEffect, useRef } from "react";
+import { useContext, useState, useEffect, useRef, useMemo } from "react";
 import {
   getTextById,
   formatValue,
@@ -33,6 +33,7 @@ export default function DotsChart() {
   const [data, setData] = useState(null);
   const [error, setError] = useState(false);
   const [logValues, setLogValues] = useState(null);
+  const [points, setPoints] = useState([]);
   const loadData = async () => {
     try {
       setIsLoading(true);
@@ -96,6 +97,89 @@ export default function DotsChart() {
   useEffect(() => {
     loadLogValues();
   }, [selectedIndicator]);
+
+  // Memoizar el cálculo de posiciones de puntos para evitar recálculos durante scroll
+  const memoizedPoints = useMemo(() => {
+    if (!data || !selectedIndicator || !data.governmentsData) return [];
+
+    const currentData = data.governmentsData.filter(
+      (elm) =>
+        elm.indicator_code === selectedIndicator.code && elm.value !== null
+    );
+
+    if (currentData.length === 0) return [];
+
+    // Convert values to percentages if needed
+    const isPercentage = selectedIndicator.unit_measure_id === "perc";
+    const processedData = currentData.map((d) => ({
+      ...d,
+      value: isPercentage ? d.value * 100 : d.value,
+    }));
+
+    const maxValue = Math.max(...processedData.map((d) => d.value));
+    const minValue = Math.min(...processedData.map((d) => d.value));
+
+    // Create scales
+    let xScale;
+    let useCustomLog =
+      [1, 2, 3].includes(selectedIndicator.code) &&
+      logValues &&
+      logValues.length > 0;
+
+    // Usar dimensiones fijas para el cálculo memoizado
+    const containerWidth = 800; // Ancho fijo para el cálculo
+    const containerHeight = 400;
+    const isMobile = containerWidth < 600;
+    const margin = {
+      top: 40,
+      right: isMobile ? 10 : 30,
+      bottom: 60,
+      left: isMobile ? 10 : 60,
+    };
+    const width = containerWidth - margin.left - margin.right;
+    const height = containerHeight - margin.top - margin.bottom;
+
+    if (useCustomLog) {
+      xScale = d3
+        .scaleLog()
+        .domain([minValue, maxValue])
+        .range([0, width]);
+    } else {
+      xScale = d3
+        .scaleLinear()
+        .domain([minValue, maxValue])
+        .range([0, width]);
+    }
+
+    // Calcular bins y jitter
+    const numBins = Math.max(
+      10,
+      Math.floor(Math.sqrt(processedData.length))
+    );
+    const xValues = processedData.map((d) =>
+      useCustomLog ? xScale(d.value) : xScale(d.value)
+    );
+    const bins = d3.bin().domain([0, width]).thresholds(numBins)(xValues);
+
+    const maxJitter = height * 0.8;
+    const minJitter = 30;
+    const maxBinLength = d3.max(bins, (b) => b.length) || 1;
+
+    // Calcular posiciones de puntos con jitter aleatorio
+    return processedData.map((item, idx) => {
+      const x = useCustomLog ? xScale(item.value) : xScale(item.value);
+      const binIdx = bins.findIndex((b) => x >= b.x0 && x < b.x1);
+      const bin = bins[binIdx] || bins[0];
+      const density = bin.length / maxBinLength;
+      const jitterRange = minJitter + density * (maxJitter - minJitter);
+      const y = height / 2 + (Math.random() - 0.5) * jitterRange;
+      return {
+        ...item,
+        x,
+        y,
+      };
+    });
+  }, [data, selectedIndicator, logValues]);
   useEffect(() => {
     if (data) {
       setIsLoading(true);
@@ -210,39 +294,16 @@ export default function DotsChart() {
               .range([0, width]);
           }
 
-          // --- NUEVO: Jitter aleatorio dependiente de densidad ---
-          // 1. Calcular bins (histograma) sobre el eje X
-          const numBins = Math.max(
-            10,
-            Math.floor(Math.sqrt(processedData.length))
-          );
-          const xValues = processedData.map((d) =>
-            useCustomLog ? xScale(d.value) : xScale(d.value)
-          );
-          const bins = d3.bin().domain([0, width]).thresholds(numBins)(xValues);
-
-          // 2. Para cada bin, calcular la cantidad de puntos (densidad)
-          //    y asignar un jitter máximo proporcional a la densidad
-          const maxJitter = height * 0.8; // altura máxima de la nube
-          const minJitter = 30; // altura mínima para zonas poco densas
-          const maxBinLength = d3.max(bins, (b) => b.length) || 1;
-
-          // 3. Para cada punto, asignar jitter aleatorio según densidad local
-          const points = processedData.map((item, idx) => {
-            const x = useCustomLog ? xScale(item.value) : xScale(item.value);
-            // Buscar el bin correspondiente
-            const binIdx = bins.findIndex((b) => x >= b.x0 && x < b.x1);
-            const bin = bins[binIdx] || bins[0];
-            const density = bin.length / maxBinLength; // 0..1
-            const jitterRange = minJitter + density * (maxJitter - minJitter);
-            // Jitter aleatorio centrado en height/2
-            const y = height / 2 + (Math.random() - 0.5) * jitterRange;
-            return {
-              ...item,
-              x,
-              y,
-            };
-          });
+          // Usar las posiciones memoizadas para evitar recálculos durante scroll
+          // Escalar las posiciones según el tamaño real del contenedor
+          const scaleFactorX = width / (800 - 60); // 800 es el ancho fijo usado en memoizedPoints, 60 es el margen
+          const scaleFactorY = height / (400 - 100); // 400 es la altura fija, 100 es el margen total
+          
+          const points = memoizedPoints.map(point => ({
+            ...point,
+            x: point.x * scaleFactorX,
+            y: point.y * scaleFactorY
+          }));
 
           // Format number for axis labels
           const formatNumber = (d) => {
@@ -266,7 +327,7 @@ export default function DotsChart() {
             // Dibuja los labels personalizados en la posición logarítmica
             // Filtrar solo los bins cuyo valor mínimo sea mayor o igual al valor mínimo real de los datos
             const binsFiltered = [...filteredLogValues]
-              .filter(bin => bin.min >= minValue && bin.min <= maxValue)
+              .filter(bin => bin.min >= minValue && bin.min <= maxValue && bin.min !==50)
               .sort((a, b) => a.bin - b.bin);
             binsFiltered.forEach((bin, i) => {
               svg
