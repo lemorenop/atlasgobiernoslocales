@@ -261,7 +261,6 @@ export default function DotsChart() {
             }
             return Number.isInteger(d) ? d : d.toFixed(1);
           };
-          console.log(useCustomLog,"*******")
           // Add X axis
           if (useCustomLog) {
             // Dibuja los labels personalizados en la posición logarítmica
