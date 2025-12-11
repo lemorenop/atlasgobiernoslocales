@@ -72,40 +72,18 @@ El token de API y los estilos del mapa pertenecen al cliente y están configurad
 
 ## 🚀 Despliegue
 
-El proyecto cuenta con dos entornos principales:
+- **Producción**: ahora la gestiona directamente el cliente desde su repositorio `https://github.com/lemorenop/atlasgobiernoslocales.git`, incluyendo las actualizaciones hacia Azure. Desde este repositorio no se publican cambios a producción.
+- **Testing / Azure**: este repositorio conserva el workflow de GitHub Actions que compila y puede desplegar la app en una Azure Web App. Está pensado para ambientes de prueba o si el cliente solicita usarlo nuevamente.
 
-- **Producción**: Accesible públicamente, refleja la versión estable del proyecto.
-- **Testing**: Entorno de pruebas, para validar cambios antes de pasar a producción.
+### Workflow de Azure (en `.github/workflows/azure-deploy.yml`)
+- Se ejecuta en pushes a `main` o `segunda-etapa` que incluyan `#deploy` en el mensaje de commit, o vía `workflow_dispatch`.
+- Requiere los secretos `AZURE_PUBLISH_PROFILE`, `NEXT_PUBLIC_MAPBOX_TOKEN` y `NEXT_PUBLIC_MAPBOX_STYLE_TOKEN`.
+- Usa `app-name: azapp-reportered-cr-01` (slot Production). Para producción se inyecta `NEXT_PUBLIC_URL=https://atlasgobiernoslocales.caf.com`; para testing, `NEXT_PUBLIC_URL=https://azapp-reportered-cr-01.azurewebsites.net`.
 
-> ‼️El entorno de **producción** actualmente se encuentra alojado en el **servidor de Sociopúblico**. Queda pendiente transferirlo a una Aplicación en Azure. El entorno de testing ya está funcionando en Azure a través de Github Actions. 
-
-Github Actions ya está configurado para que se pueda deployar tanto un entorno como otro, aunque de momento el despliegue a producción en Azure no funciona porque tal aplicación no existe. Quedan abajo las instrucciones para cuando ambos casos estén funcionando. 
-
-El despliegue se realiza automáticamente en Azure Web App usando GitHub Actions, dependiendo de la rama en la que trabajes:
-
-- Para desplegar en **producción**, ubícate en la rama `main`.
-- Para desplegar en **testing**, ubícate en la rama `segunda-etapa` (o la rama de testing definida en el repositorio).
-
-### Despliega el proyecto
-1. Realiza tus cambios y haz commit en la rama correspondiente (`main` para producción, `segunda-etapa` para testing).
-2. Incluye la palabra `#deploy` en el mensaje de commit.
-3. Haz push a la rama correspondiente.
-
-Ejemplo para producción:
-```bash
-git checkout main
-git commit -m "Actualiza interfaz #deploy"
-git push origin main
-```
-
-Ejemplo para testing:
-```bash
-git checkout segunda-etapa
-git commit -m "Prueba nueva funcionalidad #deploy"
-git push origin segunda-etapa
-```
-
-El despliegue solo se activa cuando el mensaje de commit contiene `#deploy` y se realiza en la rama adecuada para cada entorno.
+### Desplegar (testing o si el cliente lo pide)
+1) Haz commit en `main` (prod) o `segunda-etapa` (testing) con `#deploy` en el mensaje.  
+2) `git push` a la rama correspondiente, o dispara el workflow manualmente desde Actions.  
+3) Asegúrate de que el secreto `AZURE_PUBLISH_PROFILE` corresponda a la app/slot deseado antes de lanzar el deploy.
 
 ## 📄 Estructura del Proyecto
 ```
