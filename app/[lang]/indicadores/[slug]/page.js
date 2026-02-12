@@ -13,6 +13,8 @@ let levelPerCountryCached = { es: [], en: [], pt: [] };
 let regionsCached = { es: [], en: [], pt: [] };
 let categoriesCached = { es: [], en: [], pt: [] };
 
+export const revalidate = 900;
+
 export async function generateStaticParams() {
   const slugs = (
     await getCachedData(indicatorsCached, "es", () =>

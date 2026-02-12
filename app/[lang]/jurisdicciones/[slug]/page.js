@@ -14,6 +14,8 @@ import Comparative from "./comparative";
 import RadarChartContainer from "./radarChartContainer";
 import { notFound } from "next/navigation";
 
+export const revalidate = 900;
+
 export default async function Jurisdiction({ params }) {
   const { lang, slug } = await params;
 

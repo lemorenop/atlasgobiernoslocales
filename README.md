@@ -18,6 +18,7 @@ Esta es una aplicación desarrollada en **Next.js** que no cuenta con CMS: todos
 NEXT_PUBLIC_MAPBOX_TOKEN=tu_token_de_mapbox_aqui
 NEXT_PUBLIC_MAPBOX_STYLE_TOKEN=tu_token_de_estilos_de_mapbox_aqui
 NEXT_PUBLIC_URL=tu_url_del_sitio
+CACHE_KEY=clave_secreta_para_limpiar_cache
 ```
 
 2. Reemplaza `tu_token_de_mapbox_aqui` por tu token de Mapbox. Si tienes estilos personalizados, reemplaza también `tu_token_de_estilos_de_mapbox_aqui`.
@@ -25,6 +26,8 @@ NEXT_PUBLIC_URL=tu_url_del_sitio
    - Crea estilos personalizados en [Mapbox Studio](https://www.mapbox.com/mapbox-studio).
 
 3. Reemplaza `tu_url_del_sitio` por la URL donde estará alojado el sitio.
+
+4. Genera una clave secreta para `CACHE_KEY` (puedes usar cualquier string aleatorio seguro). Esta clave protege el endpoint de limpieza de caché.
 
 ### Levanta el proyecto
 1. Instala las dependencias:
@@ -65,7 +68,16 @@ NEXT_PUBLIC_URL=tu_url_del_sitio
 - **Datos para la descarga:** El csv se genera a partir del spreadsheet [base_consolidada_2025.05.15](https://docs.google.com/spreadsheets/d/13S5QFXT8S8elyqhFNfC5wLKtB4XG9FiqJe2cpAFc7PY/edit?gid=150251432#gid=150251432)
 - **API interna**: Endpoints en `app/api/` para exponer datos procesados y búsquedas.
 ### Actualizaciones
-Creamos una ruta para poder ver y limpiar el caché del sevidor. Cuando se actualizan los spreadsheets, si no se realizó ningún deploy, es necesario limpiar el caché a mano visitando la url `/cache?clean=true`
+Creamos una ruta para poder ver y limpiar el caché del servidor. Cuando se actualizan los spreadsheets, si no se realizó ningún deploy, es necesario limpiar el caché manualmente.
+
+**Para limpiar el caché:**
+```
+/es/cache?clean=true&key=TU_CLAVE_SECRETA
+```
+
+Donde `TU_CLAVE_SECRETA` corresponde al valor de la variable de entorno `CACHE_KEY`.
+
+> **Nota de seguridad:** La limpieza del caché está protegida por una clave secreta para evitar que terceros puedan vaciar el caché de forma no autorizada. La clave debe configurarse tanto en el archivo `.env.local` para desarrollo como en las variables de entorno de Azure App Service para producción.
 
 ### Mapbox
 El token de API y los estilos del mapa pertenecen al cliente y están configurados en Mapbox Studio. Para facilitar la colaboración en el desarrollo, el cliente ha creado un equipo en Mapbox Studio donde se ha agregado a una de nuestras desarrolladoras con permisos de edición. 

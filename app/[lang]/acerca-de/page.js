@@ -5,10 +5,12 @@ import Card from "./card";
 import Download from "./download";
 import { getMetadata } from "../components/metadata";
 import Arrow from "../components/icons/arrow";
+
+export const revalidate = 900;
+
 export async function generateMetadata({ params }) {
   const { lang } = await params;
   return getMetadata({ lang, slug: "acerca-de" });
-  
 }
 
 export default async function AcercaDe({ params }) {
@@ -29,6 +31,7 @@ export default async function AcercaDe({ params }) {
     const downloadMethodology = copy.find(
     (item) => item.id === "download_button_methodology"
   ).link;
+  console.log(downloadMethodology)
   return (
     <main className="text-black">
       <Hero lang={lang} copy={copy} />
