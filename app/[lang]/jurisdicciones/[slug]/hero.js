@@ -27,9 +27,13 @@ export default function Hero({ yearPoblacion }) {
   const toLocaleString = (value) => {
     const divisor = lang === "es" || lang === "pt" ? "." : ",";
 
-    if (value < 10000 && value >= 1000)
-      // return value + "jej?";
-      return "" + parseInt(value / 1000) + divisor + parseInt(value % 1000);
+    if (value < 10000 && value >= 1000) {
+      const thousands = Math.floor(value / 1000);
+      const rest = value % 1000;
+      const restPadded = rest.toString().padStart(3, "0");
+      return `${thousands}${divisor}${restPadded}`;
+    }
+
     return value.toLocaleString(lang === "es" || lang === "pt" ? "es" : "en");
   };
   const indicatorsHero = [1, 26, 2, 3];
