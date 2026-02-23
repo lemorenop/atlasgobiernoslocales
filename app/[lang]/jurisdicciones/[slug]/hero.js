@@ -25,6 +25,7 @@ export default function Hero({ yearPoblacion }) {
   }, [jurisdictionData]);
   const data = jurisdictionData;
   const toLocaleString = (value) => {
+    console.log("testing value", value)
     const divisor = lang === "es" || lang === "pt" ? "." : ",";
 
     if (value < 10000 && value >= 1000) {
