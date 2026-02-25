@@ -3,25 +3,21 @@ trigger:
     include:
       - main
       - segunda-etapa
-
 pr: none
 
+# Variables (puedes mover los secretos a Library/Variable Group o Key Vault)
 variables:
-- name: NEXT_PUBLIC_MAPBOX_TOKEN
-  value: 'pk.eyJ1IjoiZGlzLWNhZiIsImEiOiJjbTlkNnQ4Y2wwemt0MmtvbWQ4bHRqb3hwIn0.gGRD-8mup5EAJIMTP56xug'
-- name: NEXT_PUBLIC_MAPBOX_STYLE_TOKEN
-  value: 'pk.eyJ1IjoiZGlzLWNhZiIsImEiOiJjbTlkMnRiaGkwOTU5MmlvbjN3YWhobW94In0.3nz3-vM7MNId7xy7Y9q_aQ'
-- name: NEXT_PUBLIC_GA_MEASUREMENT_ID
-  value: "G-MWSK6BRGGX"
-- name: NEXT_PUBLIC_URL
-  value: "https://azapp-atlas20250922-cr.azurewebsites.net"
-- name: AZURE_SERVICE_CONNECTION
-  value: 'SC-WEBATLAS-CR-01'
-- name: WEBAPP_NAME
-  value: 'azapp-atlas20250922-cr'
-- name: NODE_VERSION
-  value: '20.x'
+  NEXT_PUBLIC_MAPBOX_TOKEN: 'pk.eyJ1IjoiZGlzLWNhZiIsImEiOiJjbTlkNnQ4Y2wwemt0MmtvbWQ4bHRqb3hwIn0.gGRD-8mup5EAJIMTP56xug'
+  NEXT_PUBLIC_MAPBOX_STYLE_TOKEN: 'pk.eyJ1IjoiZGlzLWNhZiIsImEiOiJjbTlkMnRiaGkwOTU5MmlvbjN3YWhobW94In0.3nz3-vM7MNId7xy7Y9q_aQ'
+  NEXT_PUBLIC_GA_MEASUREMENT_ID: 'G-MWSK6BRGGX'
+  NEXT_PUBLIC_URL: 'https://azapp-atlas20251215-cr.azurewebsites.net'
+
+  AZURE_SERVICE_CONNECTION: 'SC-WEBATLAS-CR-01'
+  WEBAPP_NAME: 'azapp-atlas20251215-cr'
+  NODE_VERSION: '22.x'   # << 22 LTS
+
 stages:
+# ---------- BUILD & PACKAGE ----------
 - stage: BuildAndPackage
   displayName: Build and Package Next.js App
   condition: |
@@ -30,65 +26,81 @@ stages:
       contains(variables['Build.SourceVersionMessage'], '#deploy')
     )
   jobs:
-  - job: Build
-    displayName: Build App
-    pool:
-      vmImage: 'ubuntu-latest'
-    steps:
-    - task: 6d15af64-176c-496d-b583-fd2ae21d4df4@1
-      displayName: Checkout Code
-      inputs:
-        repository: self
-    - task: NodeTool@0
-      inputs:
-        versionSpec: '$(NODE_VERSION)'
-      displayName: Set up Node.js
-    - task: CmdLine@2
-      displayName: Build with Next.js
-      condition: eq(variables['Build.SourceBranch'], 'refs/heads/main')
-      env:
-        NEXT_PUBLIC_MAPBOX_TOKEN: $(NEXT_PUBLIC_MAPBOX_TOKEN)
-        NEXT_PUBLIC_MAPBOX_STYLE_TOKEN: $ (NEXT_PUBLIC_MAPBOX_STYLE_TOKEN)
-        NEXT_PUBLIC_URL: $(NEXT_PUBLIC_URL)
-      inputs:
-        script: |
-          npm ci
-          npm run build
-          cp -r .next/static .next/standalone/.next/static
-          cp -r public .next/standalone/
-          cp -r web.config .next/standalone/
-    - task: CopyFiles@2
-      inputs:
-        SourceFolder: '.'
-        Contents: ".next/standalone/**\n.next/static/**\npublic/**\n_del_node_modules/**\napp/**\nnode_modules/**\nnode_modules.tar.gz\noryx-manifest.toml\npackage.json\nserver.js\nweb.config          \n"
-        TargetFolder: '$(Build.ArtifactStagingDirectory)'
-      displayName: Copy build artifacts
-    - task: ecdc45f6-832d-4ad9-b52b-ee49e94659be@1
-      displayName: Publish Artifact
-      inputs:
-        path: $(Build.ArtifactStagingDirectory)
-        artifactName: drop
+    - job: Build
+      displayName: Build App
+      pool:
+        vmImage: 'ubuntu-latest'
+      steps:
+        - checkout: self
+
+        - task: NodeTool@0
+          displayName: "Set up Node.js"
+          inputs:
+            versionSpec: '$(NODE_VERSION)'
+
+        - script: |
+            set -e
+            npm ci
+            # Variables públicas para el build
+            export NEXT_PUBLIC_MAPBOX_TOKEN="$(NEXT_PUBLIC_MAPBOX_TOKEN)"
+            export NEXT_PUBLIC_MAPBOX_STYLE_TOKEN="$(NEXT_PUBLIC_MAPBOX_STYLE_TOKEN)"
+            export NEXT_PUBLIC_GA_MEASUREMENT_ID="$(NEXT_PUBLIC_GA_MEASUREMENT_ID)"
+            export NEXT_PUBLIC_URL="$(NEXT_PUBLIC_URL)"
+            npm run build
+
+            # Copiar estáticos al standalone (Next no los incluye por defecto)
+            mkdir -p .next/standalone/.next
+            cp -r .next/static .next/standalone/.next/
+            cp -r public .next/standalone/
+
+            # (Opcional) Si tienes server.js propio, cópialo. El standalone ya genera uno mínimo
+            # cp server.js .next/standalone/
+          displayName: "Build Next.js (standalone) y copiar estáticos"
+
+        # Empaquetar el standalone en un ZIP
+        - task: ArchiveFiles@2
+          displayName: "Crear paquete ZIP para deploy"
+          inputs:
+            rootFolderOrFile: "$(System.DefaultWorkingDirectory)/.next/standalone"
+            includeRootFolder: true
+            archiveType: zip
+            archiveFile: "$(Build.ArtifactStagingDirectory)/next-standalone-$(Build.BuildId).zip"
+            replaceExistingArchive: true
+
+        # Publicar el artefacto
+        - task: PublishBuildArtifacts@1
+          displayName: "Publicar artefacto: drop"
+          inputs:
+            PathtoPublish: "$(Build.ArtifactStagingDirectory)/next-standalone-$(Build.BuildId).zip"
+            ArtifactName: "drop"
+            publishLocation: "Container"
+
+# ---------- DEPLOY ----------
 - stage: Deploy
-  displayName: Deploy to Azure Web App
-  dependsOn:
-  - BuildAndPackage
+  displayName: Deploy to Azure Web App (Linux)
+  dependsOn: BuildAndPackage
   condition: succeeded()
   jobs:
-  - job: Deploy
-    displayName: Deploy Job
-    pool:
-      vmImage: 'ubuntu-latest'
-    steps:
-    - task: 30f35852-3f7e-4c0c-9a88-e127b4f97211@1
-      displayName: Download Build Artifact
-      inputs:
-        alias: current
-        artifact: drop
-    - task: AzureWebApp@1
-      displayName: Deploy to Azure Web App
-      inputs:
-        azureSubscription: '$(AZURE_SERVICE_CONNECTION)'
-        appType: 'webApp'
-        appName: '$(WEBAPP_NAME)'
-        package: '$(Pipeline.Workspace)/drop/.next/standalone'
-        deploymentMethod: 'zipDeploy'
+    - job: Deploy
+      displayName: Deploy Job
+      pool:
+        vmImage: 'ubuntu-latest'
+      steps:
+        # Descargar el artefacto publicado en este pipeline
+        - task: DownloadBuildArtifacts@1
+          displayName: "Descargar artefacto"
+          inputs:
+            buildType: current
+            downloadType: single
+            artifactName: drop
+            itemPattern: "**/*.zip"
+            downloadPath: "$(System.ArtifactsDirectory)"
+
+        # Desplegar el ZIP al Azure Web App Linux mediante zipDeploy
+        - task: AzureWebApp@1
+          displayName: "Deploy to Azure Web App (zipDeploy)"
+          inputs:
+            azureSubscription: "$(AZURE_SERVICE_CONNECTION)"
+            appType: 'webAppLinux'
+            appName: "$(WEBAPP_NAME)"
+            package: "$(System.ArtifactsDirectory)/**/*.zip"
