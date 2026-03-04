@@ -84,18 +84,7 @@ El token de API y los estilos del mapa pertenecen al cliente y están configurad
 
 ## 🚀 Despliegue
 
-- **Producción**: ahora la gestiona directamente el cliente desde su repositorio `https://github.com/lemorenop/atlasgobiernoslocales.git`, incluyendo las actualizaciones hacia Azure. Desde este repositorio no se publican cambios a producción.
-- **Testing / Azure**: este repositorio conserva el workflow de GitHub Actions que compila y puede desplegar la app en una Azure Web App. Está pensado para ambientes de prueba o si el cliente solicita usarlo nuevamente.
-
-### Workflow de Azure (en `.github/workflows/azure-deploy.yml`)
-- Se ejecuta en pushes a `main` o `segunda-etapa` que incluyan `#deploy` en el mensaje de commit, o vía `workflow_dispatch`.
-- Requiere los secretos `AZURE_PUBLISH_PROFILE`, `NEXT_PUBLIC_MAPBOX_TOKEN` y `NEXT_PUBLIC_MAPBOX_STYLE_TOKEN`.
-- Usa `app-name: azapp-reportered-cr-01` (slot Production). Para producción se inyecta `NEXT_PUBLIC_URL=https://atlasgobiernoslocales.caf.com`; para testing, `NEXT_PUBLIC_URL=https://azapp-reportered-cr-01.azurewebsites.net`.
-
-### Desplegar (testing o si el cliente lo pide)
-1) Haz commit en `main` (prod) o `segunda-etapa` (testing) con `#deploy` en el mensaje.  
-2) `git push` a la rama correspondiente, o dispara el workflow manualmente desde Actions.  
-3) Asegúrate de que el secreto `AZURE_PUBLISH_PROFILE` corresponda a la app/slot deseado antes de lanzar el deploy.
+- **Producción/Testing**: gestionado por el cliente desde el repositorio `https://github.com/lemorenop/atlasgobiernoslocales.git`, incluyendo las actualizaciones hacia Azure. 
 
 ## 📄 Estructura del Proyecto
 ```

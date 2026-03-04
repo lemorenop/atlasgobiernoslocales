@@ -200,3 +200,39 @@ La aplicación está protegida por diseño gracias a:
 El hallazgo corresponde a un **falso positivo** generado por las heurísticas del escáner ante patrones de routing dinámico normales en aplicaciones Next.js modernas.
 
 ---
+
+# Mitigación de Vulnerabilidad: Next.js Image Optimizer DoS (CVE-2025-59472)
+
+**Fecha de actualización:** 27 de febrero de 2026  
+**Endpoint afectado:** `/_next/image` (Optimizador de Imágenes)  
+**Severidad:** Media (nivel 3)  
+**Estado:** Mitigado
+
+---
+
+## 1. Vulnerabilidad reportada
+
+### Descripción del reporte
+
+| Campo | Detalle |
+|-------|---------|
+| **CVE** | CVE-2025-59472 |
+| **Nombre** | Next.js Denial of Service (DoS) – Image Optimizer |
+| **URL afectada** | `https://azapp-atlas20251215-cr.azurewebsites.net` (incl. `/_next/image`) |
+| **Condiciones** | Aplicación Next.js autoalojada con `remotePatterns` configurado para el Optimizador de Imágenes |
+| **Problema** | El endpoint `/_next/image` carga imágenes externas completas en memoria sin límite de tamaño, permitiendo a un atacante provocar agotamiento de memoria (DoS) solicitando optimización de imágenes de tamaño arbitrario desde un dominio permitido |
+| **Versiones afectadas** | Next.js 10.0.0 anterior a 15.5.10; Next.js 16.0.0 anterior a 16.1.5 |
+| **Impacto** | Denegación de servicio (DoS) por explotación exitosa de la condición descrita |
+
+---
+
+## 2. Solución implementada
+
+Se aplicó la solución técnica recomendada: **actualización de Next.js a una versión que incluye el parche**.
+
+- **Versiones corregidas indicadas en el informe:** 15.6.0-canary.61, **16.1.5**, 16.2.0-canary.9 o posteriores.
+- **En este proyecto:** Next.js está fijado en **^16.1.5** en `package.json`, por lo que la aplicación queda fuera del rango de versiones afectadas (16.0.0 anterior a 16.1.5).
+
+Tras asegurar la dependencia en 16.1.5 o superior y desplegar, la vulnerabilidad queda mitigada y no se requieren cambios adicionales de configuración para este CVE.
+
+---
